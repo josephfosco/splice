@@ -16,6 +16,7 @@
 (ns splice.player.player)
 
 (defrecord Player [id
+                   melody-events
                    key
                    scale
                    mm
@@ -25,8 +26,9 @@
                    ])
 
 (defn create-player
-  [& {:keys [:id]}]
+  [& {:keys [:id, :melody-events]}]
   (Player. id
+           melody-events
            nil  ;; key
            nil  ;; scale
            nil  ;; mm
@@ -35,7 +37,3 @@
            true ;; can-schedule?
            )
   )
-
-(defn get-player-instrument-info
-  [player]
-  (:instrument-info player))

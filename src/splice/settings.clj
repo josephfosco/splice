@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,28 +13,6 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns splice.util.settings
-  (:require
-   [clojure.java.io :as io]
-   )
-  )
 
-(defn load-settings
-  [filename]
-  (with-open [r (io/reader filename)]
-    (binding [*read-eval* false]
-             (read (java.io.PushbackReader. r))))
-  )
-
-(declare settings)
-(defn get-setting
-  [key]
-  (key @settings)
-  )
-
-(defn set-setting!
-  [key val]
-  (swap! settings assoc key val)
-  )
-
-(def settings (atom (load-settings "src/splice/config/init_settings.clj")))
+{:log-level :info
+ }

@@ -19,8 +19,8 @@
    [overtone.live :as overtone]
    [splice.control :refer [clear-splice pause-splice quit-splice
                            start-splice ]]
-   [splice.util.log :refer [set-log-level!]]
-   [splice.util.settings :refer [get-setting]]
+   [splice.util.log :as log]
+   [splice.util.settings :refer [get-setting load-settings set-setting!]]
    [splice.version :refer [SPLICE-VERSION-STR]]
    ))
 
@@ -29,13 +29,25 @@
    (println "command line args:" args)
   )
 
+(defn get-settings
+  [filename]
+  (let [settings (load-settings filename)]
+    (doseq [[k v] (seq settings)]
+      (set-setting! k v)
+      )
+    )
+  )
+
 (defn splice-start
   "Start playing.
 
    :num-players - optional key to set the number of players
                   default value is set in config file"
   [& {:keys [num-players]}]
-  (set-log-level! (get-setting :log-level))
+
+  (get-settings "src/splice/settings.clj")
+  (log/set-print-log-level! true)
+  (log/set-log-level! (get-setting :log-level))
   (start-splice :num-players num-players)
 )
 

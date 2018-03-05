@@ -31,6 +31,10 @@
   [player]
   (:id player))
 
+(defn get-player-instrument-info
+  [player]
+  (:instrument-info player))
+
 (defn create-random-rest-melody-event
   [player-id event-id]
   (create-melody-event :melody-event-id event-id

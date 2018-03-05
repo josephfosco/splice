@@ -23,13 +23,15 @@
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.util.log :as log]
    [splice.util.print :refer [print-banner]]
-   [splice.util.settings :refer [get-setting set-setting]]
+   [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel start-msg-channel]]
    )
   )
 
+(def valid-loop-keys (set '(:melody-events)))
+
 (defn init-splice
-  "Initialize splice to play. Use only once (first time)
+  "Initialize splice to play.
 
    args -
    players - list of all initial players
@@ -37,13 +39,52 @@
    msgs -  an empty list to be used for msgs sent to the player
   "
   [players melodies msgs]
+  (start-msg-channel)
   (init-ensemble players melodies msgs)
+  (start-ensemble-status)
   )
+
+(defn validate-loop-keys
+  [loop-settings]
+  (flatten
+   (for [loop loop-settings]
+     (let [loop-keys (keys loop)]
+       (for [loop-key loop-keys
+             :when (not (contains? valid-loop-keys loop-key))]
+         (str "Invalid loop key " loop-key " in player-settings")
+         )
+       )
+     ))
+  )
+
+(defn validate-player-settings
+  [player-settings]
+  (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
+    (cond-> '()
+      (< (count (:loops player-settings)) 1)
+      (conj ":loops not found in player-settings file")
+      (not= (count loop-key-msgs) 0)
+      ((partial reduce conj) loop-key-msgs)
+      )
+    ))
 
 (defn new-player
   [player-id]
   (create-player :id player-id)
   )
+
+(defn init-players
+  []
+  (log/info "******* init-players ********")
+  (let [player-settings (load-settings "src/splice/loops.clj")
+        errors (validate-player-settings player-settings)]
+    (if (not= 0 (count errors))
+      (doseq [error-msg errors]
+        (log/error error-msg))
+      (map new-player (:loops player-settings))
+      )
+    )
+ )
 
 (defn init-melody
   [player-id]
@@ -66,22 +107,21 @@
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
   []
-  (log/warn "********** start-playing ****************")
+  (log/info "********** Start-playing ****************")
   (dotimes [id (get-setting :num-players)] (play-first-note id))
   )
 
 (defn start-splice
   [& {:keys [num-players]}]
-  (start-msg-channel)
-  (when num-players (set-setting :num-players num-players))
+  (when num-players (set-setting! :num-players num-players))
   (let [number-of-players (get-setting :num-players)
-        init-players (map new-player (range number-of-players))
+        initial-players (map new-player (range number-of-players))
         init-melodies (map init-melody (range number-of-players))
         init-msgs (for [x (range number-of-players)] [])
         ]
-    (set-setting :volume-adjust (min (/ 32 number-of-players) 1))
-    (init-splice init-players init-melodies init-msgs)
-    (start-ensemble-status)
+    (init-players)
+    (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+    (init-splice initial-players init-melodies init-msgs)
     (start-playing)
     )
   )
