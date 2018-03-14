@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,8 +13,12 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(ns splice.player.loops.ostinato)
 
-{:log-level :warn
- :min-volume 0.2
- :volume-adjust 1
- }
+(defrecord Ostinato [melody-events])
+
+(defn create-ostinato
+  [& {:keys [melody-events]}]
+  (Ostinato. melody-events
+                  )
+  )

@@ -35,6 +35,7 @@
 (defn set-setting!
   [key val]
   (swap! settings assoc key val)
+  val
   )
 
 (def settings (atom (load-settings "src/splice/config/init_settings.clj")))

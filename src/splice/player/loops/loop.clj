@@ -1,4 +1,4 @@
-;    Copyright (C) 2017  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,13 +13,12 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns transit.player.structures.theme)
+(ns splice.player.loops.loop)
 
-(defrecord Theme [])
+(defrecord Loop [melody-events])
 
-(defn create-theme
-  [& {:keys [internal-strength]} :or
-   {internal-strength nil}]
-  (Theme. internal-strength
-          )
+(defn create-loop
+  [& {:keys [melody-events]}]
+  (Loop. melody-events
+         )
   )

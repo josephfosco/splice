@@ -40,15 +40,12 @@
 
 (defn splice-start
   "Start playing.
-
-   :num-players - optional key to set the number of players
-                  default value is set in config file"
-  [& {:keys [num-players]}]
-
+  "
+  []
   (get-settings "src/splice/settings.clj")
   (log/set-print-log-level! true)
   (log/set-log-level! (get-setting :log-level))
-  (start-splice :num-players num-players)
+  (start-splice)
 )
 
 (defn splice-quit
@@ -97,10 +94,6 @@
    ")
   (println "")
   )
-
-(defn start64
-  []
-  (splice-start :num-players 64))
 
 (defn stop
   []

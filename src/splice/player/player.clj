@@ -13,27 +13,46 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns splice.player.player)
+(ns splice.player.player
+  (:require
+   [splice.player.loops.loop :refer [create-loop]]
+   [splice.util.log :as log]
+   )
+  )
 
 (defrecord Player [id
-                   melody-events
+                   loop-structr
                    key
                    scale
                    mm
                    instrument-info
-                   sampled-melodies
                    can-schedule? ;; is not waiting for msg(s)
                    ])
 
+(defn build-loop-structr
+  [loop-settings]
+  (log/info "@@@@@@@@@ build-loop-structr @@@@@@@@@@@@")
+  (log/info loop-settings)
+  (cond (= (:loop-type loop-settings) :loop)
+        (create-loop :melody-events (:melody-events loop-settings))
+        (= (:loop-type loop-settings) nil)
+        (log/error ":loop-type missing")
+        :else
+        (do
+          (log/error "Invalid :loop-type - " (:loop-type loop-settings))
+          nil
+          )
+        )
+  )
+
 (defn create-player
-  [& {:keys [:id, :melody-events]}]
+  [& {:keys [id loop-settings]}]
   (Player. id
-           melody-events
+           (build-loop-structr loop-settings)
            nil  ;; key
            nil  ;; scale
            nil  ;; mm
            nil  ;; instrument
-           nil  ;; sampled-melodies
            true ;; can-schedule?
            )
   )

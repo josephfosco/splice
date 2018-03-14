@@ -28,7 +28,8 @@
    )
   )
 
-(def valid-loop-keys (set '(:melody-events)))
+(def valid-loop-keys (set '(:melody-events
+                            :loop-type)))
 
 (defn init-splice
   "Initialize splice to play.
@@ -69,21 +70,21 @@
     ))
 
 (defn new-player
-  [player-id]
-  (create-player :id player-id)
+  [player-id loop-setting]
+  (create-player :id player-id :loop-settings loop-setting)
   )
 
 (defn init-players
-  []
+  [player-settings]
   (log/info "******* init-players ********")
-  (let [player-settings (load-settings "src/splice/loops.clj")
-        errors (validate-player-settings player-settings)]
+  (let [errors (validate-player-settings player-settings)]
     (if (not= 0 (count errors))
       (doseq [error-msg errors]
         (log/error error-msg))
-      (map new-player (:loops player-settings))
-      )
-    )
+      (doall (map new-player
+                  (range (get-setting :num-players))
+                  (:loops player-settings)))
+      ))
  )
 
 (defn init-melody
@@ -112,14 +113,14 @@
   )
 
 (defn start-splice
-  [& {:keys [num-players]}]
-  (when num-players (set-setting! :num-players num-players))
-  (let [number-of-players (get-setting :num-players)
-        initial-players (map new-player (range number-of-players))
+  []
+  (let [player-settings (load-settings "src/splice/loops.clj")
+        number-of-players (set-setting! :num-players
+                                        (count (:loops player-settings)))
+        initial-players (init-players player-settings)
         init-melodies (map init-melody (range number-of-players))
         init-msgs (for [x (range number-of-players)] [])
         ]
-    (init-players)
     (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
     (init-splice initial-players init-melodies init-msgs)
     (start-playing)
