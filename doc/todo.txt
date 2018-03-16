@@ -2,3 +2,7 @@ Load additional setting filenames (in control.clj) from command line and/or
 conf file
 
 Make it possible for a player (loop) to run a function when it is supposed to play
+
+Additional loop types
+  markov
+  l-system

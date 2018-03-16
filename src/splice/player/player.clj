@@ -16,6 +16,7 @@
 (ns splice.player.player
   (:require
    [splice.player.loops.loop :refer [create-loop]]
+   [splice.instr.instrument :refer [get-instrument]]
    [splice.util.log :as log]
    )
   )
@@ -31,28 +32,29 @@
 
 (defn build-loop-structr
   [loop-settings]
-  (log/info "@@@@@@@@@ build-loop-structr @@@@@@@@@@@@")
-  (log/info loop-settings)
   (cond (= (:loop-type loop-settings) :loop)
         (create-loop :melody-events (:melody-events loop-settings))
         (= (:loop-type loop-settings) nil)
-        (log/error ":loop-type missing")
+        (throw (Throwable. (str ":loop-type missing")))
         :else
         (do
-          (log/error "Invalid :loop-type - " (:loop-type loop-settings))
-          nil
+          (throw (Throwable. (str "Invalid :loop-type "
+                                  (:loop-type loop-settings))))
           )
         )
   )
 
 (defn create-player
   [& {:keys [id loop-settings]}]
+  (log/info (str "player/create-player - Creating player " id))
+  (when (nil? (:instrument-name loop-settings))
+    (throw (Throwable. "Missing :instrument-name in loop")))
   (Player. id
            (build-loop-structr loop-settings)
            nil  ;; key
            nil  ;; scale
            nil  ;; mm
-           nil  ;; instrument
+           (get-instrument (:instrument-name loop-settings))
            true ;; can-schedule?
            )
   )

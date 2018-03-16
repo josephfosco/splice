@@ -15,7 +15,7 @@
 
 (ns splice.control
   (:require
-   [overtone.live :refer [now stop]]
+   [overtone.live :refer [apply-at now stop]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
@@ -23,13 +23,16 @@
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.util.log :as log]
    [splice.util.print :refer [print-banner]]
+   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel start-msg-channel]]
    )
   )
 
-(def valid-loop-keys (set '(:melody-events
-                            :loop-type)))
+(def valid-loop-keys (set '(:instrument-name
+                            :loop-type
+                            :melody-events
+                            )))
 
 (defn init-splice
   "Initialize splice to play.
@@ -79,8 +82,11 @@
   (log/info "******* init-players ********")
   (let [errors (validate-player-settings player-settings)]
     (if (not= 0 (count errors))
-      (doseq [error-msg errors]
-        (log/error error-msg))
+      (do
+        (doseq [error-msg errors]
+          (log/error error-msg))
+        (throw (Throwable. "Validation error(s) in player loops"))
+        )
       (doall (map new-player
                   (range (get-setting :num-players))
                   (:loops player-settings)))
@@ -101,15 +107,22 @@
   )
 
 (defn- play-first-note
-  [player-id]
-  (play-next-note player-id (now))
+  [player-id min-time-offset max-time-offset]
+
+  (let [note-time (+ (now) (random-int (* min-time-offset 1000)
+                                       (* max-time-offset 1000)))]
+    (apply-at note-time
+              play-next-note
+              [player-id note-time]
+              ))
   )
 
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
-  []
+  [min-start-offset max-start-offset]
   (log/info "********** Start-playing ****************")
-  (dotimes [id (get-setting :num-players)] (play-first-note id))
+  (dotimes [id (get-setting :num-players)]
+    (play-first-note id min-start-offset max-start-offset))
   )
 
 (defn start-splice
@@ -123,7 +136,8 @@
         ]
     (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
     (init-splice initial-players init-melodies init-msgs)
-    (start-playing)
+    (start-playing (or (:min-start-offset player-settings) 0)
+                   (or (:max-start-offset player-settings) 20000))
     )
   )
 

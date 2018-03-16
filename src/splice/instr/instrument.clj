@@ -37,63 +37,62 @@
 (def perc-env (sorted-set "AD" "NE"))
 (def non-perc-env (sorted-set "ADSR" "ASR"))
 
-(def all-instruments [
-                        {:instrument bass-m1
-                         :envelope-type "NE"
-                         :range-lo 25
-                         :range-hi 60}
-                        {:instrument bassoon
-                         :envelope-type "ASR"
-                         :range-lo 25
-                         :range-hi 84
-                         :release-dur 0.1}
-                        {:instrument clarinet
-                         :envelope-type "ASR"
-                         :range-lo 20
-                         :range-hi 100
-                         :release-dur 0.1}
-                        {:instrument drum-m1
-                         :envelope-type "AD"
-                         :range-lo 50
-                         :range-hi 90}
-                        {:instrument organ-m1
-                         :envelope-type "ADSR"
-                         :range-lo 40
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.3}
-                        {:instrument plink-m1
-                         :envelope-type "AD"
-                         :range-lo 33
-                         :range-hi (last MIDI-RANGE)}
-                        {:instrument pluck-string
-                         :envelope-type "NE"
-                         :range-lo 37
-                         :range-hi 89}
-                        {:instrument reedy-organ
-                         :envelope-type "ASR"
-                         :range-lo 20
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument saw-wave-sus
-                         :envelope-type "ASR"
-                         :range-lo 25
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument sine-wave-sus
-                         :envelope-type "ASR"
-                         :range-lo (first MIDI-RANGE)
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        {:instrument steel-drum
-                         :envelope-type "AD"
-                         :range-lo 45
-                         :range-hi (last MIDI-RANGE)}
-                        {:instrument tri-wave-sus
-                         :envelope-type "ASR"
-                         :range-lo 15
-                         :range-hi (last MIDI-RANGE)
-                         :release-dur 0.1}
-                        ])
+(def all-instruments {:bass-m1
+                      {:envelope-type "NE"
+                       :range-lo 25
+                       :range-hi 60}
+                      :bassoon
+                      {:envelope-type "ASR"
+                       :range-lo 25
+                       :range-hi 84
+                       :release-dur 0.1}
+                      :clarinet
+                      {:envelope-type "ASR"
+                       :range-lo 20
+                       :range-hi 100
+                       :release-dur 0.1}
+                      :drum-m1
+                      {:envelope-type "AD"
+                       :range-lo 50
+                       :range-hi 90}
+                      :organ-m1
+                      {:envelope-type "ADSR"
+                       :range-lo 40
+                       :range-hi (last MIDI-RANGE)
+                       :release-dur 0.3}
+                      :plink-m1
+                      {:envelope-type "AD"
+                       :range-lo 33
+                       :range-hi (last MIDI-RANGE)}
+                      pluck-string
+                      {:envelope-type "NE"
+                       :range-lo 37
+                       :range-hi 89}
+                      :reedy-organ
+                      {:envelope-type "ASR"
+                       :range-lo 20
+                       :range-hi (last MIDI-RANGE)
+                       :release-dur 0.1}
+                      :saw-wave-sus
+                      {:envelope-type "ASR"
+                       :range-lo 25
+                       :range-hi (last MIDI-RANGE)
+                       :release-dur 0.1}
+                      :sine-wave-sus
+                      {:envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE)
+                       :range-hi (last MIDI-RANGE)
+                       :release-dur 0.1}
+                      :steel-drum
+                      {:envelope-type "AD"
+                       :range-lo 45
+                       :range-hi (last MIDI-RANGE)}
+                      :tri-wave-sus
+                      {:envelope-type "ASR"
+                       :range-lo 15
+                       :range-hi (last MIDI-RANGE)
+                       :release-dur 0.1}
+                        })
 
 (defn non-perc-instruments
   [instrument-list]
@@ -103,6 +102,22 @@
 (defn note->hz
   [music-note]
   (midi->hz music-note))
+
+(defn get-instrument
+  [instrument-name]
+  (let [inst-info (instrument-name all-instruments)]
+    (when (nil? inst-info)
+      (throw (Throwable. (str "Invalid :instrument-name "
+                              instrument-name
+                              " in loop"))))
+    (create-instrument-info
+     :instrument (name instrument-name)
+     :envelope-type (:envelope-type inst-info)
+     :release-dur (:release-dur inst-info)
+     :range-hi (:range-hi inst-info)
+     :range-lo (:range-lo inst-info))
+    )
+ )
 
 (defn get-gate-dur
   "player - player map
