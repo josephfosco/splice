@@ -29,8 +29,8 @@
    [splice.melody.melody-event :refer [get-dur-info-from-melody-event
                                         get-dur-millis-from-melody-event
                                         get-event-time-from-melody-event
+                                        get-freq-from-melody-event
                                         get-instrument-info-from-melody-event
-                                        get-note-from-melody-event
                                         get-note-off-from-melody-event
                                         get-player-id-from-melody-event
                                         get-sc-instrument-id-from-melody-event
@@ -72,7 +72,7 @@
        turn off the prior note"
   [prior-melody-event cur-melody-event]
   (when (and (false? (get-note-off-from-melody-event prior-melody-event))
-             (or (not (nil? (get-note-from-melody-event cur-melody-event)))
+             (or (not (nil? (get-freq-from-melody-event cur-melody-event)))
                  (not=
                   (get-sc-instrument-id-from-melody-event prior-melody-event)
                   (get-sc-instrument-id-from-melody-event cur-melody-event)
@@ -87,7 +87,7 @@
   [prior-melody-event melody-event]
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     (ctl inst-id
-         :freq (midi->hz (get-note-from-melody-event melody-event))
+         :freq (get-freq-from-melody-event melody-event)
          :vol (* (get-volume-from-melody-event melody-event)
                  (get-setting :volume-adjust))
          )
@@ -99,7 +99,7 @@
   [melody-event]
   ((get-instrument-from-instrument-info
     (get-instrument-info-from-melody-event melody-event))
-   (midi->hz (get-note-from-melody-event melody-event))
+   (get-freq-from-melody-event melody-event)
    (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust)))
   )
 
@@ -120,7 +120,7 @@
 (defn play-melody-event
   [prior-melody-event melody-event event-time]
   (let [cur-inst-id
-        (cond (nil? (get-note-from-melody-event melody-event))
+        (cond (nil? (get-freq-from-melody-event melody-event))
               nil
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
               (play-note-new-instrument melody-event)

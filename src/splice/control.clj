@@ -31,7 +31,7 @@
 
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
-                            :melody-events
+                            :melody-info
                             )))
 
 (defn init-splice
@@ -97,7 +97,7 @@
   [player-id]
 
   (vector (create-melody-event :melody-event-id 0
-                               :note nil
+                               :freq nil
                                :dur-info nil
                                :volume nil
                                :instrument-info nil

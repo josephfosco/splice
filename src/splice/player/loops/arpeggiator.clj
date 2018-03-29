@@ -15,10 +15,10 @@
 
 (ns splice.player.loops.arpeggiator)
 
-(defrecord Arpeggiator [melody-events])
+(defrecord Arpeggiator [melody-info
 
 (defn create-arpeggiator
-  [& {:keys [melody-events]}]
-  (Arpeggiator. melody-events
+  [& {:keys [melody-info]}]
+  (Arpeggiator. melody-info
                   )
   )

@@ -33,7 +33,9 @@
 (defn build-loop-structr
   [loop-settings]
   (cond (= (:loop-type loop-settings) :loop)
-        (create-loop :melody-events (:melody-events loop-settings))
+        (create-loop :melody-info (:melody-info loop-settings)
+                     :next-melody-event-ndx 0
+                     )
         (= (:loop-type loop-settings) nil)
         (throw (Throwable. (str ":loop-type missing")))
         :else

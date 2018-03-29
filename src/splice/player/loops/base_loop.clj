@@ -13,12 +13,17 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns splice.player.loops.ostinato)
+(ns splice.player.loops.base-loop)
 
-(defrecord Ostinato [melody-info])
+(defrecord BaseLoop [next-melody-fn])
 
-(defn create-ostinato
-  [& {:keys [melody-info]}]
-  (Ostinato. melody-info
-                  )
+(defn create-base-loop
+  [& {:keys [next-melody-fn]}]
+  (BaseLoop. next-melody-fn
+             )
   )
+
+(defn get-melody-fn
+  [loop-structr]
+  (:next-melody-fn (:base-loop loop-structr))
+ )

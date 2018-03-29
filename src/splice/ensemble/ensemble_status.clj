@@ -21,7 +21,7 @@
                                      DECREASING
                                      INCREASING
                                      STEADY]]
-   [splice.melody.melody-event :refer [get-note-from-melody-event
+   [splice.melody.melody-event :refer [get-freq-from-melody-event
                                         get-dur-millis-from-melody-event
                                         get-event-time-from-melody-event
                                         get-play-time-from-melody-event
@@ -83,7 +83,7 @@
 
 (defn new-melody-event
   [melody-event]
-  (when (get-note-from-melody-event melody-event)
+  (when (get-freq-from-melody-event melody-event)
     (let [play-time (get-play-time-from-melody-event melody-event)]
       (swap! note-times
              add-event-to-note-times

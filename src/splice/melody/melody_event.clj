@@ -22,7 +22,7 @@
   )
 
 (defrecord MelodyEvent [melody-event-id
-                        note
+                        freq
                         dur-info
                         volume
                         instrument-info
@@ -35,12 +35,12 @@
 
 ;; MelodyEvent fields
 ;;  id   - id sequence of melody event - 0 is initial blank event
-;;  note - note number of event - nil for rest
+;;  freq - pitch frequency of event - nil for rest
 ;;  event-time - time (in millis) event was supposed to be played
 ;;  play-time  - time (in millis) event was actually played
 ;;  note-off - true if a note-off was scheduled for this event note
 ;;             false if note-off event was not scheduled for this note
-;;             nil if this event is a rest (note = nil)
+;;             nil if this event is a rest (freq = nil)
 
 (defn sched-note-off?
   "If this is not a rest and
@@ -48,9 +48,9 @@
     the note length > release
   then return true
   else return false"
-  [note dur-info instrument-info]
+  [freq dur-info instrument-info]
 
-  (if (and (not (nil? note))
+  (if (and (not (nil? freq))
            (> (get-dur-millis-from-dur-info dur-info)
               (get-release-millis-from-instrument-info instrument-info)
               )
@@ -61,7 +61,7 @@
 
 (defn create-melody-event
   [& {:keys [:melody-event-id
-             :note
+             :freq
              :dur-info
              :volume
              :instrument-info
@@ -71,7 +71,7 @@
              :sc-instrument-id
              ]}]
   (MelodyEvent. melody-event-id
-                note
+                freq
                 dur-info
                 volume
                 instrument-info
@@ -79,9 +79,9 @@
                 event-time
                 nil  ;; :play-time
                 nil  ;; sc-instrument-id
-                (if (nil? note)  ;; set note-off based on other params
+                (if (nil? freq)  ;; set note-off based on other params
                   nil
-                  (sched-note-off? note dur-info instrument-info))
+                  (sched-note-off? freq dur-info instrument-info))
                 )
   )
 
@@ -123,9 +123,9 @@
  (:instrument-info melody-event)
  )
 
-(defn get-note-from-melody-event
- [melody-event]
- (:note melody-event)
+(defn get-freq-from-melody-event
+  [melody-event]
+  (:freq melody-event)
  )
 
 (defn get-note-off-from-melody-event
