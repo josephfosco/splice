@@ -44,7 +44,7 @@
                                  :dur-millis (:dur-millis melody-info)
                                  :dur-beats (:dur-beats melody-info)
                                  )
-                      :volume 1.0
+                      :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
                       :player-id (get-player-id player)
                       :event-time nil
