@@ -61,9 +61,10 @@
  )
 
 (defn create-loop
-  [& {:keys [melody-info next-melody-event-ndx]}]
+  [& {:keys [name melody-info next-melody-event-ndx]}]
   (Loop. melody-info
          next-melody-event-ndx
-         (create-base-loop :next-melody-fn get-next-melody)
+         (create-base-loop :name name
+                           :next-melody-fn get-next-melody)
          )
   )

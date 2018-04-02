@@ -2,7 +2,8 @@
  :max-start-offset 20
 
  :loops
- [{:loop-type :loop
+ [{:name "loop-1"
+   :loop-type :loop
    :instrument-name :tri-wave-sus
    :melody-info
    [{:pitch-freq 349.2282314330039
@@ -15,7 +16,8 @@
     ]
    }
 
-  {:loop-type :loop
+  {:name "loop2"
+   :loop-type :loop
    :instrument-name :bass-m1
    :melody-info
    [{:pitch-freq 46.2493028389543
@@ -28,7 +30,8 @@
     ]
    }
 
-  {:loop-type :loop
+  {:name "loop3"
+   :loop-type :loop
    :instrument-name :organ-m1
    :melody-info
    [{:pitch-freq 61.7354126570155
@@ -41,7 +44,8 @@
     ]
    }
 
-  {:loop-type :loop
+  {:name "loop4"
+   :loop-type :loop
    :instrument-name :plink-m1
    :melody-info
    [{:pitch-midi-note 100

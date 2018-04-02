@@ -15,11 +15,11 @@
 
 (ns splice.player.loops.base-loop)
 
-(defrecord BaseLoop [next-melody-fn])
+(defrecord BaseLoop [name next-melody-fn])
 
 (defn create-base-loop
-  [& {:keys [next-melody-fn]}]
-  (BaseLoop. next-melody-fn
+  [& {:keys [name next-melody-fn]}]
+  (BaseLoop. name next-melody-fn
              )
   )
 

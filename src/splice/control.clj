@@ -32,6 +32,7 @@
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
                             :melody-info
+                            :name
                             )))
 
 (defn init-splice
