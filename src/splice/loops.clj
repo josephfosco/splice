@@ -70,5 +70,35 @@
     ]
    }
 
+  {:name "loop5"
+   :loop-type :loop
+   :instrument-name :flute
+   :melody-info
+   [{:pitch-midi-note 60
+     :dur-millis 400
+     :volume 0.5
+     }
+    {:pitch-midi-note 62
+     :dur-millis 400
+     :volume 0.5
+     }
+    {:pitch-midi-note 64
+     :dur-millis 400
+     :volume 0.1
+     }
+    {:pitch-midi-note 65
+     :dur-millis 400
+     :volume 0.1
+     }
+    {:pitch-midi-note 67
+     :dur-millis 400
+     :volume 0.1
+     }
+    {:pitch-freq nil
+     :dur-millis 15000
+     }
+    ]
+   }
+
   ]
  }

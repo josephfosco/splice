@@ -59,6 +59,11 @@
                        :envelope-type "AD"
                        :range-lo 50
                        :range-hi 90}
+                      :flute
+                      {:instrument flute
+                       :envelope-type "ASR"
+                       :range-lo 59
+                       :range-hi 96}
                       :organ-m1
                       {:instrument organ-m1
                        :envelope-type "ADSR"
