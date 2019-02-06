@@ -21,14 +21,9 @@
    )
   )
 
-(defrecord Player [id
-                   loop-structr
-                   key
-                   scale
-                   mm
-                   instrument-info
-                   can-schedule? ;; is not waiting for msg(s)
-                   ])
+(defrecord Player instrument-info
+  can-schedule? ;; is not waiting for msg(s)
+  )
 
 (defn build-loop-structr
   [loop-settings]

@@ -62,7 +62,18 @@
             ))
        ))
 
-;; (def fl (flute))
-;; ()
-;; (ctl fl :gate 0)
-;; (stop)
+(defsynth string-sect
+  [freq 440 vol 1 attack 0.3 sustain 1.0 release 0.3 gate 1.0]
+     (let[eg  (env-gen (asr attack sustain release :curve [-3 1 -2]) gate 1 0 1 FREE)
+          ]
+       (out [0 1]
+        (-> (lpf
+             (-> (pulse :freq freq :width (+ 0.5 (* 0.4 (sin-osc:kr 3))))
+                 (+ (var-saw :freq (+ freq (* freq 0.01)) :width 0))
+                 (* 0.3)
+                 )
+             2000
+             )
+            (* eg vol)
+            ))
+       ))

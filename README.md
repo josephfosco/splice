@@ -7,9 +7,7 @@ FIXME: description
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar splice-0.1.0-standalone.jar [args]
+Note: when defining instruments :freq should always be the first param and :vol should always be the second param
 
 ## Options
 

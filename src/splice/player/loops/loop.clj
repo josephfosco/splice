@@ -46,6 +46,7 @@
                                  )
                       :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
+                      :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)
                       :event-time nil
                       )

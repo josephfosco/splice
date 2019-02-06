@@ -32,7 +32,7 @@
   )
 
 ;; note-times is a vector of lists. Each list is the time and dur-millis
-;; of a note that was played.
+;; of a note that was played. Used to compute ensemble density
 (def ^:private note-times (atom []))
 (def ^:private ensemble-density (atom 0.0))
 

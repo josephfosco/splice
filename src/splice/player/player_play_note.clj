@@ -31,6 +31,7 @@
                                         get-event-time-from-melody-event
                                         get-freq-from-melody-event
                                         get-instrument-info-from-melody-event
+                                        get-instrument-settings-from-melody-event
                                         get-note-off-from-melody-event
                                         get-player-id-from-melody-event
                                         get-sc-instrument-id-from-melody-event
@@ -86,10 +87,12 @@
 (defn play-note-prior-instrument
   [prior-melody-event melody-event]
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
-    (ctl inst-id
+    ;; apply not tested???
+    (apply ctl inst-id
          :freq (get-freq-from-melody-event melody-event)
          :vol (* (get-volume-from-melody-event melody-event)
                  (get-setting :volume-adjust))
+         (get-instrument-settings-from-melody-event melody-event)
          )
     inst-id
     )
@@ -97,10 +100,12 @@
 
 (defn play-note-new-instrument
   [melody-event]
-  ((get-instrument-from-instrument-info
-    (get-instrument-info-from-melody-event melody-event))
+  (apply (get-instrument-from-instrument-info
+    (get-instrument-info-from-melody-event melody-event)
+    )
    (get-freq-from-melody-event melody-event)
-   (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust)))
+   (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+   (get-instrument-settings-from-melody-event melody-event))
   )
 
 (declare play-next-note)

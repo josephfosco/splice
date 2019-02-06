@@ -37,6 +37,8 @@
 (def perc-env (sorted-set "AD" "NE"))
 (def non-perc-env (sorted-set "ADSR" "ASR"))
 
+;; Note: when defining instruments :freq should always be the first param and
+;;       :vol should always be the second param
 (def all-instruments {:bass-m1
                       {:instrument bass-m1
                        :envelope-type "NE"
@@ -103,6 +105,11 @@
                        :envelope-type "AD"
                        :range-lo 45
                        :range-hi (last MIDI-RANGE)}
+                      :string-sect
+                      {:instrument string-sect
+                       :envelope-type "ASR"
+                       :range-lo 40
+                       :range-hi 96}
                       :tri-wave-sus
                       {:instrument tri-wave-sus
                        :envelope-type "ASR"

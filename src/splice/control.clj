@@ -29,6 +29,8 @@
    )
   )
 
+(def ^:private is-playing? (atom false))
+
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
                             :melody-info
@@ -128,18 +130,22 @@
 
 (defn start-splice
   []
-  (let [player-settings (load-settings "src/splice/loops.clj")
-        number-of-players (set-setting! :num-players
-                                        (count (:loops player-settings)))
-        initial-players (init-players player-settings)
-        init-melodies (map init-melody (range number-of-players))
-        init-msgs (for [x (range number-of-players)] [])
-        ]
-    (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
-    (init-splice initial-players init-melodies init-msgs)
-    (start-playing (or (:min-start-offset player-settings) 0)
-                   (or (:max-start-offset player-settings) 20000))
-    )
+  (println "about to start")
+  (if (false? is-playing?)
+    (println "STARTING")
+    (let [player-settings (load-settings "src/splice/loops.clj")
+          number-of-players (set-setting! :num-players
+                                          (count (:loops player-settings)))
+          initial-players (init-players player-settings)
+          init-melodies (map init-melody (range number-of-players))
+          init-msgs (for [x (range number-of-players)] [])
+          ]
+      (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+      (init-splice initial-players init-melodies init-msgs)
+      (start-playing (or (:min-start-offset player-settings) 0)
+                     (or (:max-start-offset player-settings) 20000))
+      (reset! is-playing? true)
+      ))
   )
 
 (defn clear-splice
@@ -154,4 +160,5 @@
   []
   (stop)
   (close-msg-channel)
+  (reset! is-playing? false)
   )

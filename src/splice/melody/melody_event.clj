@@ -26,6 +26,7 @@
                         dur-info
                         volume
                         instrument-info
+                        instrument-settings
                         player-id
                         event-time
                         play-time
@@ -65,20 +66,25 @@
              :dur-info
              :volume
              :instrument-info
+             :instrument-settings
              :player-id
              :event-time
              :play-time
              :sc-instrument-id
-             ]}]
+             ]
+      :or {:instrument-settings nil
+           :play-time nil
+           :sc-instrument-id nil}}]
   (MelodyEvent. melody-event-id
                 freq
                 dur-info
                 volume
                 instrument-info
+                instrument-settings
                 player-id
                 event-time
-                nil  ;; :play-time
-                nil  ;; sc-instrument-id
+                play-time
+                sc-instrument-id
                 (if (nil? freq)  ;; set note-off based on other params
                   nil
                   (sched-note-off? freq dur-info instrument-info))
@@ -121,6 +127,11 @@
 (defn get-instrument-info-from-melody-event
  [melody-event]
  (:instrument-info melody-event)
+ )
+
+(defn get-instrument-settings-from-melody-event
+ [melody-event]
+ (:instrument-settings melody-event)
  )
 
 (defn get-freq-from-melody-event
