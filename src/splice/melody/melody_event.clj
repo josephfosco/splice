@@ -18,6 +18,7 @@
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
    [splice.instr.instrumentinfo :refer [get-release-millis-from-instrument-info]]
+   [overtone.live :refer [node-get-control]]
    )
   )
 
@@ -100,8 +101,8 @@
          ))
 
 (defn get-dur-info-from-melody-event
- [melody-event]
- (:dur-info melody-event)
+  [melody-event]
+  (:dur-info melody-event)
   )
 
 (defn get-dur-beats-from-melody-event
@@ -115,49 +116,54 @@
   )
 
 (defn get-event-time-from-melody-event
- [melody-event]
- (:event-time melody-event)
- )
+  [melody-event]
+  (:event-time melody-event)
+  )
 
 (defn get-play-time-from-melody-event
- [melody-event]
- (:play-time melody-event)
- )
+  [melody-event]
+  (:play-time melody-event)
+  )
 
 (defn get-instrument-info-from-melody-event
- [melody-event]
- (:instrument-info melody-event)
- )
+  [melody-event]
+  (:instrument-info melody-event)
+  )
 
 (defn get-instrument-settings-from-melody-event
- [melody-event]
- (:instrument-settings melody-event)
- )
+  [melody-event]
+  (:instrument-settings melody-event)
+  )
 
 (defn get-freq-from-melody-event
   [melody-event]
   (:freq melody-event)
- )
+  )
 
 (defn get-note-off-from-melody-event
- [melody-event]
- (:note-off melody-event)
- )
+  [melody-event]
+  (:note-off melody-event)
+  )
 
 (defn get-player-id-from-melody-event
- [melody-event]
- (:player-id melody-event)
- )
+  [melody-event]
+  (:player-id melody-event)
+  )
+
+(defn get-release-millis-from-melody-event
+  [melody-event]
+  (* (node-get-control (:sc-instrument-id melody-event) :release) 1000)
+  )
 
 (defn get-sc-instrument-id-from-melody-event
- [melody-event]
- (:sc-instrument-id melody-event)
- )
+  [melody-event]
+  (:sc-instrument-id melody-event)
+  )
 
 (defn get-volume-from-melody-event
- [melody-event]
- (:volume melody-event)
- )
+  [melody-event]
+  (:volume melody-event)
+  )
 
 (defn print-melody-event
   [melody-event]

@@ -9,10 +9,10 @@
    [{:pitch-midi-note 69
      :dur-millis 11000
      :volume 0.5
-     :instrument-settings (:attack 4.0)
+     :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch-freq nil
-     :dur-millis 12000
+     :dur-millis 19000
      }
     ]
    }
@@ -24,9 +24,10 @@
    [{:pitch-midi-note 74
      :dur-millis 8000
      :volume 0.5
+     :instrument-settings (:attack 2.5 :release 3.0)
      }
     {:pitch-freq nil
-     :dur-millis 8574
+     :dur-millis 21000
      }
     ]
    }
@@ -36,11 +37,12 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 76
-     :dur-millis 7500
+     :dur-millis 18500
      :volume 0.5
+     :instrument-settings (:attack 5.5 :release 4.7)
      }
     {:pitch-freq nil
-     :dur-millis 10375
+     :dur-millis 19000
      }
     ]
    }
@@ -50,11 +52,12 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 81
-     :dur-millis 6000
+     :dur-millis 14000
      :volume 0.5
+     :instrument-settings (:attack 7.0 :release 4.0)
      }
     {:pitch-freq nil
-     :dur-millis 9000
+     :dur-millis 24000
      }
     ]
    }

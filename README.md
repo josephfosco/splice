@@ -7,7 +7,10 @@ FIXME: description
 
 ## Usage
 
-Note: when defining instruments :freq should always be the first param and :vol should always be the second param
+Note: when defining instruments 
+- :freq should always be the first param 
+- :vol should always be the second param
+- :release should be the param name for :envelope release time in secs
 
 ## Options
 

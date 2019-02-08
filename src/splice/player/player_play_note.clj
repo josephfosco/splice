@@ -27,16 +27,17 @@
                                       update-player-and-melody]]
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info]]
    [splice.melody.melody-event :refer [get-dur-info-from-melody-event
-                                        get-dur-millis-from-melody-event
-                                        get-event-time-from-melody-event
-                                        get-freq-from-melody-event
-                                        get-instrument-info-from-melody-event
-                                        get-instrument-settings-from-melody-event
-                                        get-note-off-from-melody-event
-                                        get-player-id-from-melody-event
-                                        get-sc-instrument-id-from-melody-event
-                                        get-volume-from-melody-event
-                                        set-play-info]]
+                                       get-dur-millis-from-melody-event
+                                       get-event-time-from-melody-event
+                                       get-freq-from-melody-event
+                                       get-instrument-info-from-melody-event
+                                       get-instrument-settings-from-melody-event
+                                       get-note-off-from-melody-event
+                                       get-player-id-from-melody-event
+                                       get-release-millis-from-melody-event
+                                       get-sc-instrument-id-from-melody-event
+                                       get-volume-from-melody-event
+                                       set-play-info]]
    [splice.player.player-utils :refer [get-next-melody-event
                                        NEXT-METHOD]]
    [splice.util.settings :refer [get-setting]]
@@ -144,8 +145,9 @@
       (apply-at (+ event-time
                    (- (get-dur-millis-from-dur-info
                        (get-dur-info-from-melody-event melody-event))
-                      (get-release-millis-from-instrument-info
-                       (get-instrument-info-from-melody-event melody-event))
+                   (- (get-release-millis-from-instrument-info
+                       (get-instrument-info-from-melody-event melody-event)))
+                   ;;   (get-release-millis-from-melody-event melody-event)
                       ))
                 stop-instrument
                 [cur-inst-id]
