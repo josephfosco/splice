@@ -138,20 +138,16 @@
                                          event-time
                                          (System/currentTimeMillis)
                                          )
-
         ]
     ;; schedule note-off for melody-event
     (when (get-note-off-from-melody-event full-melody-event)
       (apply-at (+ event-time
                    (- (get-dur-millis-from-dur-info
                        (get-dur-info-from-melody-event melody-event))
-                   (- (get-release-millis-from-instrument-info
-                       (get-instrument-info-from-melody-event melody-event)))
-                   ;;   (get-release-millis-from-melody-event melody-event)
+                      (get-release-millis-from-melody-event full-melody-event)
                       ))
                 stop-instrument
-                [cur-inst-id]
-                )
+                [cur-inst-id])
       )
     full-melody-event
     )
@@ -159,7 +155,7 @@
 
 (defn play-next-note
   [player-id sched-time]
-  (println)
+  (println "-")
   (println "start -" player-id)
   (let [event-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)

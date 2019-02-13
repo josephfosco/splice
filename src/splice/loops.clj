@@ -1,5 +1,5 @@
-{:min-start-offset 5
- :max-start-offset 20
+{:min-start-offset 1
+ :max-start-offset 7
 
  :loops
  [{:name "loop-1"
@@ -7,12 +7,12 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 69
-     :dur-millis 11000
+     :dur-millis 10000
      :volume 0.5
      :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch-freq nil
-     :dur-millis 19000
+     :dur-millis 12000
      }
     ]
    }

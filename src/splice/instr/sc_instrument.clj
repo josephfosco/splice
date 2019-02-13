@@ -22,3 +22,9 @@
   [sc-instrument-id]
   (ctl sc-instrument-id :gate 0)
   )
+
+(defn get-release-millis-from-instrument
+  ""
+  [sc-instrument-id]
+  (*  (node-get-control sc-instrument-id :release) 1000)
+  )
