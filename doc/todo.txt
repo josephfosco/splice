@@ -6,3 +6,9 @@ Make it possible for a player (loop) to run a function when it is supposed to pl
 Additional loop types
   markov
   l-system
+
+Be able to attach effects on the main output bus
+
+Be able to start loops at the same time
+
+De able to play chords in loops

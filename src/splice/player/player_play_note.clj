@@ -45,7 +45,7 @@
    )
   )
 
-(def NEXT-NOTE-PROCESS-MILLIS 2)
+(def NEXT-NOTE-PROCESS-MILLIS 5)
 
 (defn is-playing?
  "Returns:
@@ -136,7 +136,9 @@
         full-melody-event (set-play-info melody-event
                                          cur-inst-id
                                          event-time
-                                         (System/currentTimeMillis)
+                                         (if cur-inst-id
+                                           (System/currentTimeMillis)
+                                           event-time)
                                          )
         ]
     ;; schedule note-off for melody-event
