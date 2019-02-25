@@ -16,6 +16,7 @@
 (ns splice.control
   (:require
    [overtone.live :refer [apply-at now stop]]
+   [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
@@ -109,6 +110,16 @@
                                ))
   )
 
+(defn init-main-bus-effects
+  [effects]
+  (dorun (for [effect effects]
+           (println (second effect))
+           (cond (= (first effect) :reverb) (apply reverb (second effect))
+                 )
+           )
+         )
+  )
+
 (defn- play-first-note
   [player-id min-time-offset max-time-offset]
 
@@ -140,6 +151,7 @@
           init-melodies (map init-melody (range number-of-players))
           init-msgs (for [x (range number-of-players)] [])
           ]
+      (init-main-bus-effects (:main-bus-effects player-settings))
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       (init-splice initial-players init-melodies init-msgs)
       (start-playing (or (:min-start-offset player-settings) 0)

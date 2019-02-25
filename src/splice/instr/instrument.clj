@@ -25,6 +25,7 @@
                                          get-release-dur-from-instrument-info
                                          ]]
    [splice.instr.instruments.elec-instruments :refer :all]
+   [splice.instr.instruments.loop-synths :refer :all]
    [splice.instr.instruments.misc-instruments :refer :all]
    [splice.instr.instruments.osc-instruments :refer :all]
    [splice.instr.instruments.pitched-perc-instruments :refer :all]
@@ -67,6 +68,11 @@
                        :envelope-type "ASR"
                        :range-lo 59
                        :range-hi 96}
+                      :gong
+                      {:instrument gong
+                       :envelope-type "AR"
+                       :range-lo 20
+                       :range-hi 40}
                       :organ-m1
                       {:instrument organ-m1
                        :envelope-type "ADSR"
@@ -117,6 +123,12 @@
                        :range-lo 15
                        :range-hi (last MIDI-RANGE)
                        :release-dur 0.1}
+                      :woosh
+                      {:instrument woosh
+                       :envelope-type "AR"
+                       :range-lo 15
+                       :range-hi 40
+                       :release-dur 8.0}
                         })
 
 (defn non-perc-instruments
