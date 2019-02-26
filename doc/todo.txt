@@ -9,6 +9,8 @@ Additional loop types
 
 Be able to attach effects on the main output bus
 
-Be able to start loops at the same time
+Be able to start multiple loops at the same time
 
-De able to play chords in loops
+Be able to play chords (polyphonic) in loops
+
+Recompute density taking into account instruments release

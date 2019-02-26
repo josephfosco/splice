@@ -1,8 +1,12 @@
-{:min-start-offset 1
- :max-start-offset 24
+{
+:min-start-offset minimum amount of time to wait before starting a loop (defaults to 0)
+:max-start-offset maximum amount of time to wait before starting a loop (defaults to 0)
 
- :main-bus-effects
- {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ :main-bus-effects - a map of effects to add to the main stereo output bus
+ {:reverb adds reverb uses the params in the map that follows 
+ (:wet-dry 0.9 :room-size 1.0)
+ 
+ }
 
  :loops
  [

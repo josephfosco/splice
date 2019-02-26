@@ -15,20 +15,24 @@
 
 (ns splice.effects.effects
   (:require
-   [overtone.live :refer [fx-freeverb]]
+   [overtone.live :refer [fx-freeverb defsynth replace-out in free-verb2]]
    )
   )
+
+(defsynth fx-freeverb2
+  "Uses the free-verb2 (stereo) ugen."
+  [bus1 0 bus2 1 wet-dry 0.5 room-size 0.5 dampening 0.5]
+  (let [source1 (in bus1)
+        source2 (in bus2)
+        verbed (free-verb2 source1 source2 wet-dry room-size dampening)]
+    (replace-out [bus1 bus2] (* 1.4 verbed))))
 
 (defn reverb
   [& {:keys [wet-dry room-size dampening]
     :or {wet-dry 0.5 room-size 0.5 dampening 0.2}}
    ]
   (println wet-dry room-size dampening)
-  (def fxl (fx-freeverb :bus 0
-                        :wet-dry wet-dry
-                        :room-size room-size
-                        :dampening dampening))
-  (def fxr (fx-freeverb :bus 1
+  (def fxrvb (fx-freeverb2
                         :wet-dry wet-dry
                         :room-size room-size
                         :dampening dampening))

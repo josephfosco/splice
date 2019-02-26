@@ -113,7 +113,6 @@
 (defn init-main-bus-effects
   [effects]
   (dorun (for [effect effects]
-           (println (second effect))
            (cond (= (first effect) :reverb) (apply reverb (second effect))
                  )
            )
@@ -155,7 +154,7 @@
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       (init-splice initial-players init-melodies init-msgs)
       (start-playing (or (:min-start-offset player-settings) 0)
-                     (or (:max-start-offset player-settings) 20000))
+                     (or (:max-start-offset player-settings) 0))
       (reset! is-playing? true)
       ))
   )
