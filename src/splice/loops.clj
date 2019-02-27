@@ -127,7 +127,7 @@
      :instrument-settings (:attack 7.0 :release 4.0)
      }
     {:pitch-freq nil
-     :dur-millis 34000
+     :dur-millis 26000
      }
     ]
    }

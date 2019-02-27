@@ -17,14 +17,13 @@
   (:require
    [clojure.core.async :refer [>!!]]
    [overtone.live :refer [apply-at ctl midi->hz]]
-   [splice.instr.instrumentinfo :refer [get-release-millis-from-instrument-info
-                                         get-instrument-from-instrument-info]]
+   [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    [splice.instr.sc-instrument :refer [stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
-                                      get-melody
-                                      get-player
-                                      update-player-and-melody]]
+                                     get-melody
+                                     get-player
+                                     update-player-and-melody]]
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info]]
    [splice.melody.melody-event :refer [get-dur-info-from-melody-event
                                        get-dur-millis-from-melody-event

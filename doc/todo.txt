@@ -1,16 +1,26 @@
-Load additional setting filenames (in control.clj) from command line and/or
-conf file
+********* LOOP ENHANCEMENTS *********
 
 Make it possible for a player (loop) to run a function when it is supposed to play
 
 Additional loop types
   markov
   l-system
-
-Be able to attach effects on the main output bus
+  ostinato loop
 
 Be able to start multiple loops at the same time
 
 Be able to play chords (polyphonic) in loops
 
+Have a loop change notes, but only a certain number of notes each time it plays,
+and also restrict the notes it can choose,
+with an option to allow octave equivalence within the instruments range
+
+
+----------------------------------------------------------------------------------------
+
+Load additional setting filenames (in control.clj) from command line and/or
+conf file
+
 Recompute density taking into account instruments release
+
+Be able to attach effects on the main output bus

@@ -15,14 +15,13 @@
 
 (ns splice.instr.instrumentinfo)
 
-(defrecord InstrumentInfo [instrument envelope-type release-dur range-hi range-lo])
+(defrecord InstrumentInfo [instrument envelope-type range-hi range-lo])
 
 (defn create-instrument-info
   "Used to create an InstrumentInfo record"
-  [& {:keys [instrument envelope-type release-dur range-hi range-lo]}]
+  [& {:keys [instrument envelope-type range-hi range-lo]}]
   (InstrumentInfo. instrument
                    envelope-type
-                   release-dur
                    range-hi
                    range-lo
                    )
@@ -43,19 +42,6 @@
 (defn get-range-lo-from-instrument-info
   [inst-info]
   (:range-lo inst-info))
-
-(defn get-release-dur-from-instrument-info
-  [inst-info]
-  (:release-dur inst-info))
-
-(defn get-release-millis-from-instrument-info
-  [inst-info]
-  (let [release-dur (:release-dur inst-info)]
-    (if release-dur
-      (int (* (:release-dur inst-info) 1000))
-      0
-      ))
-  )
 
 (defn get-range-hi-for-instrument-info
   [inst-info]

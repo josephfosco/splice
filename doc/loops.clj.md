@@ -12,8 +12,8 @@
  
  :loops - array of 1 or more maps of loops to play 
  [
-  {:name - loop name (documentation)
-   :loop-type Required currently can only be set to :loop. Plays :melody-info in a loop 
+  {:name - loop name 
+   :loop-type Required options for type :loop. Plays :melody-info in a loop 
    :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
    :melody-info - an array of melody elemants to play
    [

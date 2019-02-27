@@ -22,7 +22,6 @@
                                          get-envelope-type-from-instrument-info
                                          get-range-hi-from-instrument-info
                                          get-range-lo-from-instrument-info
-                                         get-release-dur-from-instrument-info
                                          ]]
    [splice.instr.instruments.elec-instruments :refer :all]
    [splice.instr.instruments.loop-synths :refer :all]
@@ -173,7 +172,6 @@
     (create-instrument-info
      :instrument (get-instrument-from-instrument-info inst-info)
      :envelope-type (get-envelope-type-from-instrument-info inst-info)
-     :release-dur (get-release-dur-from-instrument-info inst-info)
      :range-hi (get-range-hi-from-instrument-info inst-info)
      :range-lo (get-range-lo-from-instrument-info inst-info))
     ))

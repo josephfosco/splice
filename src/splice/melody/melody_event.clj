@@ -17,7 +17,6 @@
   (:require
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
-   [splice.instr.instrumentinfo :refer [get-release-millis-from-instrument-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument]]
    [overtone.live :refer [node-get-control]]
    )
@@ -44,23 +43,6 @@
 ;;  note-off - true if a note-off was scheduled for this event note
 ;;             false if note-off event was not scheduled for this note
 ;;             nil if this event is a rest (freq = nil)
-
-(defn sched-note-off?
-  "If this is not a rest and
-    this note has a release
-    the note length > release
-  then return true
-  else return false"
-  [freq dur-info instrument-info]
-
-  (if (and (not (nil? freq))
-           (> (get-dur-millis-from-dur-info dur-info)
-              (get-release-millis-from-instrument-info instrument-info)
-              )
-           )
-    true
-    false)
-  )
 
 (defn create-melody-event
   [& {:keys [:melody-event-id
