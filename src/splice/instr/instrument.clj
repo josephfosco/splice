@@ -49,14 +49,12 @@
                       {:instrument bassoon
                        :envelope-type "ASR"
                        :range-lo 25
-                       :range-hi 84
-                       :release-dur 0.1}
+                       :range-hi 84}
                       :clarinet
                       {:instrument clarinet
                        :envelope-type "ASR"
                        :range-lo 20
-                       :range-hi 100
-                       :release-dur 0.1}
+                       :range-hi 100}
                       :drum-m1
                       {:instrument drum-m1
                        :envelope-type "AD"
@@ -76,8 +74,7 @@
                       {:instrument organ-m1
                        :envelope-type "ADSR"
                        :range-lo 40
-                       :range-hi (last MIDI-RANGE)
-                       :release-dur 0.3}
+                       :range-hi (last MIDI-RANGE)}
                       :plink-m1
                       {:instrument plink-m1
                        :envelope-type "AD"
@@ -92,20 +89,17 @@
                       {:instrument reedy-organ
                        :envelope-type "ASR"
                        :range-lo 20
-                       :range-hi (last MIDI-RANGE)
-                       :release-dur 0.1}
+                       :range-hi (last MIDI-RANGE)}
                       :saw-wave-sus
                       {:instrument saw-wave-sus
                        :envelope-type "ASR"
                        :range-lo 25
-                       :range-hi (last MIDI-RANGE)
-                       :release-dur 0.1}
+                       :range-hi (last MIDI-RANGE)}
                       :sine-wave-sus
                       {:instrument sine-wave-sus
                        :envelope-type "ASR"
                        :range-lo (first MIDI-RANGE)
-                       :range-hi (last MIDI-RANGE)
-                       :release-dur 0.1}
+                       :range-hi (last MIDI-RANGE)}
                       :steel-drum
                       {:instrument steel-drum
                        :envelope-type "AD"
@@ -120,14 +114,12 @@
                       {:instrument tri-wave-sus
                        :envelope-type "ASR"
                        :range-lo 15
-                       :range-hi (last MIDI-RANGE)
-                       :release-dur 0.1}
+                       :range-hi (last MIDI-RANGE)}
                       :woosh
                       {:instrument woosh
                        :envelope-type "AR"
                        :range-lo 15
-                       :range-hi 40
-                       :release-dur 8.0}
+                       :range-hi 40}
                         })
 
 (defn non-perc-instruments
@@ -149,7 +141,6 @@
     (create-instrument-info
      :instrument (:instrument inst-info)
      :envelope-type (:envelope-type inst-info)
-     :release-dur (:release-dur inst-info)
      :range-hi (:range-hi inst-info)
      :range-lo (:range-lo inst-info)
      )
@@ -203,7 +194,6 @@
 ;;     (create-instrument-info
 ;;      :instrument (get-instrument-for-inst-info inst-info)
 ;;      :envelope-type (get-envelope-type-for-inst-info inst-info)
-;;      :release-dur (get-release-dur-for-inst-info inst-info)
 ;;      :range-hi (get-range-hi-for-inst-info inst-info)
 ;;      :range-lo (get-range-lo-for-inst-info inst-info)
 ;;      )
