@@ -17,8 +17,9 @@
   (:require
    [overtone.live :refer [midi->hz]]
    [splice.melody.melody-event :refer [create-melody-event]]
-   [splice.melody.dur-info :refer [create-dur-info]]
-   [splice.player.loops.base-loop :refer [create-base-loop]]
+   [splice.player.loops.base-loop :refer [create-base-loop
+                                          get-dur-info-for-loop-event
+                                          ]]
    [splice.player.player-utils :refer [get-player-id
                                        get-player-instrument-info]]
    )
@@ -40,10 +41,7 @@
                                 (if-let [note-no (:pitch-midi-note melody-info)]
                                   (midi->hz note-no)
                                   ))
-                      :dur-info (create-dur-info
-                                 :dur-millis (:dur-millis melody-info)
-                                 :dur-beats (:dur-beats melody-info)
-                                 )
+                      :dur-info (get-dur-info-for-loop-event melody-info)
                       :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
                       :instrument-settings (:instrument-settings melody-info)

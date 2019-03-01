@@ -12,26 +12,32 @@
    :melody-info
    [
     {:pitch-freq nil
-     :dur-millis 20000
+     :dur {:type :fixed
+           :dur-millis 20000}
      }
     {:pitch-midi-note 105
-     :dur-millis 200
+     :dur {:type :fixed
+           :dur-millis 200}
      :volume 0.5
      }
     {:pitch-midi-note 112
-     :dur-millis 200
+     :dur {:type :fixed
+           :dur-millis 200}
      :volume 0.5
      }
     {:pitch-midi-note 110
-     :dur-millis 200
+     :dur {:type :fixed
+           :dur-millis 200}
      :volume 0.5
      }
     {:pitch-midi-note 109
-     :dur-millis 200
+     :dur {:type :fixed
+           :dur-millis 200}
      :volume 0.5
      }
     {:pitch-freq nil
-     :dur-millis 23000
+     :dur {:type :fixed
+           :dur-millis 23000}
      }
     ]
    }
@@ -42,14 +48,17 @@
    :melody-info
    [
     {:pitch-freq nil
-     :dur-millis 28000
+     :dur {:type :fixed
+           :dur-millis 28000}
      }
     {:pitch-midi-note 38
-     :dur-millis 10000
+     :dur {:type :fixed
+           :dur-millis 10000}
      :volume 0.45
      }
     {:pitch-freq nil
-     :dur-millis 43000
+     :dur {:type :fixed
+           :dur-millis 43000}
      }
     ]
    }
@@ -60,14 +69,17 @@
    :melody-info
    [
     {:pitch-freq nil
-     :dur-millis 40000
+     :dur {:type :fixed
+           :dur-millis 40000}
      }
     {:pitch-midi-note 38
-     :dur-millis 10000
+     :dur {:type :fixed
+           :dur-millis 10000}
      :volume 0.5
      }
     {:pitch-freq nil
-     :dur-millis 35000
+     :dur {:type :fixed
+           :dur-millis 38000}
      }
     ]
    }
@@ -77,12 +89,14 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 69
-     :dur-millis 11000
+     :dur {:type :fixed
+           :dur-millis 11000}
      :volume 0.2
      :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch-freq nil
-     :dur-millis 14000
+     :dur {:type :fixed
+           :dur-millis 14000}
      }
     ]
    }
@@ -92,12 +106,14 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 74
-     :dur-millis 8500
+     :dur {:type :fixed
+           :dur-millis 8500}
      :volume 0.2
      :instrument-settings (:attack 2.5 :release 3.0)
      }
     {:pitch-freq nil
-     :dur-millis 27000
+     :dur {:type :fixed
+           :dur-millis 22000}
      }
     ]
    }
@@ -107,12 +123,14 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 76
-     :dur-millis 1200
+     :dur {:type :fixed
+           :dur-millis 1200}
      :volume 0.2
      :instrument-settings (:attack 5.5 :release 4.7)
      }
     {:pitch-freq nil
-     :dur-millis 28000
+     :dur {:type :fixed
+           :dur-millis 28000}
      }
     ]
    }
@@ -122,12 +140,14 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch-midi-note 81
-     :dur-millis 9000
+     :dur {:type :fixed
+           :dur-millis 9000}
      :volume 0.2
      :instrument-settings (:attack 7.0 :release 4.0)
      }
     {:pitch-freq nil
-     :dur-millis 26000
+     :dur {:type :fixed
+           :dur-millis 26000}
      }
     ]
    }

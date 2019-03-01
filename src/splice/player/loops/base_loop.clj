@@ -13,7 +13,11 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(ns splice.player.loops.base-loop)
+(ns splice.player.loops.base-loop
+  (:require
+   [splice.melody.dur-info :refer [create-dur-info]]
+   )
+  )
 
 (defrecord BaseLoop [name next-melody-fn])
 
@@ -27,3 +31,16 @@
   [loop-structr]
   (:next-melody-fn (:base-loop loop-structr))
  )
+
+(defn get-dur-info-for-loop-event
+  [loop-info]
+  (let [loop-dur (:dur loop-info)]
+    (condp = (:type loop-dur)
+      :fixed (create-dur-info
+              :dur-millis (:dur-millis loop-dur)
+              :dur-beats (:dur-beats loop-dur)
+              )
+      :variable-time nil
+      :variable-pct nil
+      ))
+  )
