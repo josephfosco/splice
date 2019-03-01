@@ -16,6 +16,7 @@
 (ns splice.player.loops.base-loop
   (:require
    [splice.melody.dur-info :refer [create-dur-info]]
+   [splice.melody.rhythm :refer [select-random-dur-info]]
    )
   )
 
@@ -40,7 +41,9 @@
               :dur-millis (:dur-millis loop-dur)
               :dur-beats (:dur-beats loop-dur)
               )
-      :variable-time nil
-      :variable-pct nil
-      ))
+      :variable-millis (select-random-dur-info
+                        (:min-millis loop-dur)
+                        (:max-millis loop-dur)
+                        )
+      :variable-pct nil))
   )

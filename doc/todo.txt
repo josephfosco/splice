@@ -9,6 +9,12 @@ Additional loop types
 
 Be able to start multiple loops at the same time
 
+Be able to group a section of a loop
+
+Be able to start a loop immediately - ignoring xxx-start-offset
+
+Be able to set start-offset by loop - ignoring tha main xxx-start-offset
+
 Be able to play chords (polyphonic) in loops
 
 Have a loop change notes, but only a certain number of notes each time it plays,

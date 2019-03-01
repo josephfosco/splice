@@ -31,7 +31,7 @@
   ([min max] (random-int min max))
   )
 
-(defn select-random-rhythm
+(defn select-random-dur-info
   ([]
    (DurInfo. (get-random-dur-millis) nil))
   ([min max]

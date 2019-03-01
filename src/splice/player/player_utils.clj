@@ -17,7 +17,7 @@
   (:require
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
-   [splice.melody.rhythm :refer [select-random-rhythm]]
+   [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn]]
    )
   )
@@ -44,7 +44,7 @@
   [player-id event-id]
   (create-melody-event :melody-event-id event-id
                        :freq nil
-                       :dur-info (select-random-rhythm)
+                       :dur-info (select-random-dur-info)
                        :volume nil
                        :instrument-info nil
                        :player-id player-id
