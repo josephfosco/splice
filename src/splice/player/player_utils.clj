@@ -18,7 +18,8 @@
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
-   [splice.player.loops.base-loop :refer [get-melody-fn]]
+   [splice.player.loops.base-loop :refer [get-melody-fn
+                                          get-base-loop-name]]
    )
   )
 
@@ -39,6 +40,10 @@
 (defn get-loop-structr
   [player]
   (:loop-structr player))
+
+(defn get-loop-name
+  [player]
+  (get-base-loop-name (:loop-structr player)))
 
 (defn create-random-rest-melody-event
   [player-id event-id]
@@ -81,7 +86,6 @@
   "Returns an updated player and a melody-event"
   [ensemble player melody player-id]
 
-  (println "get-next-melody-event")
   (let [loop-structr (get-loop-structr player)
         [upd-loop-structr melody-event ]
         ((get-melody-fn loop-structr) player

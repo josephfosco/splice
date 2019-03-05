@@ -16,8 +16,10 @@
            :dur-millis 20000}
      }
     {:pitch-midi-note 105
-     :dur {:type :fixed
-           :dur-millis 200}
+     :dur {:type :variable-inc-millis
+           :dur-millis 200
+           :inc-millis 50
+           :dec-millis 50}
      :volume 0.5
      }
     {:pitch-midi-note 112

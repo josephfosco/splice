@@ -57,7 +57,7 @@
      ]
 
     )
- )
+  )
 
 (defn create-loop
   [& {:keys [name melody-info next-melody-event-ndx]}]

@@ -28,6 +28,11 @@
              )
   )
 
+(defn get-base-loop-name
+  [loop-structr]
+  (:name (:base-loop loop-structr))
+  )
+
 (defn get-melody-fn
   [loop-structr]
   (:next-melody-fn (:base-loop loop-structr))
@@ -45,5 +50,11 @@
                         (:min-millis loop-dur)
                         (:max-millis loop-dur)
                         )
-      :variable-pct nil))
+      :variable-inc-millis (let [base-dur (:dur-millis loop-dur)]
+                             (select-random-dur-info
+                              (- base-dur (:dec-millis loop-dur))
+                              (+ base-dur (:inc-millis loop-dur))
+                              ))
+      :variable-pct nil
+      ))
   )

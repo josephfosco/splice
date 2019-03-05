@@ -37,7 +37,8 @@
                                        get-sc-instrument-id-from-melody-event
                                        get-volume-from-melody-event
                                        set-play-info]]
-   [splice.player.player-utils :refer [get-next-melody-event
+   [splice.player.player-utils :refer [get-loop-name
+                                       get-next-melody-event
                                        NEXT-METHOD]]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
@@ -172,6 +173,7 @@
                                             event-time)
         upd-melody (update-melody-with-event melody upd-melody-event)
         ]
+    (println player-id (get-loop-name player))
     (check-prior-event-note-off (last melody) upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (sched-next-note upd-melody-event)
