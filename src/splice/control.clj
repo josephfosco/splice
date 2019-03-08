@@ -139,11 +139,11 @@
   )
 
 (defn start-splice
-  []
-  (println "about to start")
+  [{loops :loops :or {loops "src/splice/loops.clj"} :as args}]
+  (println "about to start with args: " args)
   (if (false? is-playing?)
     (println "STARTING")
-    (let [player-settings (load-settings "src/splice/loops.clj")
+    (let [player-settings (load-settings loops)
           number-of-players (set-setting! :num-players
                                           (count (:loops player-settings)))
           initial-players (init-players player-settings)

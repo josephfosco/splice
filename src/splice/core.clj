@@ -41,11 +41,11 @@
 (defn splice-start
   "Start playing.
   "
-  []
+  [& {:keys [] :as args} ]
   (get-settings "src/splice/settings.clj")
   (log/set-print-log-level! true)
   (log/set-log-level! (get-setting :log-level))
-  (start-splice)
+  (start-splice args)
 )
 
 (defn splice-quit

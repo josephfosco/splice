@@ -24,9 +24,12 @@ with an option to allow octave equivalence within the instruments range
 
 ----------------------------------------------------------------------------------------
 
-Load additional setting filenames (in control.clj) from command line and/or
-conf file
+Load additional setting filenames (in control.clj) from conf file
+
+******** COMPLETE ********
 
 Recompute density taking into account instruments release
 
 Be able to attach effects on the main output bus
+
+Load additional setting filenames (in control.clj) from command line
