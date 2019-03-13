@@ -17,6 +17,11 @@ Be able to set start-offset by loop - ignoring tha main xxx-start-offset
 
 Be able to play chords (polyphonic) in loops
 
+Be able to have a loop that changes control values of the instrument
+of a different loop. Perhaps this is part of polyphonic loops
+
+Be able to specify the loops.clj file in the settings
+
 Have a loop change notes, but only a certain number of notes each time it plays,
 and also restrict the notes it can choose,
 with an option to allow octave equivalence within the instruments range

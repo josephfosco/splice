@@ -39,7 +39,7 @@ To run tests in one namespace
 
 ## License
 
-Copyright © 2017-2018 Joseph Fosco. All Rights Reserved
+Copyright © 2017-2019 Joseph Fosco. All Rights Reserved
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
