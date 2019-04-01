@@ -39,22 +39,21 @@
  )
 
 (defn get-dur-info-for-loop-event
-  [loop-info]
-  (let [loop-dur (:dur loop-info)]
-    (condp = (:type loop-dur)
-      :fixed (create-dur-info
-              :dur-millis (:dur-millis loop-dur)
-              :dur-beats (:dur-beats loop-dur)
-              )
-      :variable-millis (select-random-dur-info
-                        (:min-millis loop-dur)
-                        (:max-millis loop-dur)
-                        )
-      :variable-inc-millis (let [base-dur (:dur-millis loop-dur)]
-                             (select-random-dur-info
-                              (- base-dur (:dec-millis loop-dur))
-                              (+ base-dur (:inc-millis loop-dur))
-                              ))
-      :variable-pct nil
-      ))
+  [dur-info]
+  (condp = (:type dur-info)
+    :fixed (create-dur-info
+            :dur-millis (:dur-millis dur-info)
+            :dur-beats (:dur-beats dur-info)
+            )
+    :variable-millis (select-random-dur-info
+                      (:min-millis dur-info)
+                      (:max-millis dur-info)
+                      )
+    :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
+                           (select-random-dur-info
+                            (- base-dur (:dec-millis dur-info))
+                            (+ base-dur (:inc-millis dur-info))
+                            ))
+    :variable-pct nil
+    )
   )

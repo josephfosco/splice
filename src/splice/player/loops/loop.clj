@@ -41,7 +41,7 @@
                                 (if-let [note-no (:pitch-midi-note melody-info)]
                                   (midi->hz note-no)
                                   ))
-                      :dur-info (get-dur-info-for-loop-event melody-info)
+                      :dur-info (get-dur-info-for-loop-event (:dur melody-info))
                       :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
                       :instrument-settings (:instrument-settings melody-info)

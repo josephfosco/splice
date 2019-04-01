@@ -18,6 +18,7 @@
    :melody-info - an array of melody elemants to play
    [
     {:pitch-freq | :pitch-midi-note - the pitch to play as a frequency or midi note number. Can be nil for a rest.
+     :dur - Required map containing duration info for this event
      :dur-millis - Required Duration of melody element in milliseconds
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: (:attack 4.0 :release 3.0)
@@ -27,3 +28,20 @@
 
  ]
 }
+
+:dur
+{
+  :type  - Required :fixed | :variable-millis | :variable-inc-millis
+  :dur-millis - Required if :type == :fixed or :variable-inc-millis
+  :min-millis - Required if type == :fixed or :variable-millis
+  :max-millis - Required if type == :fixed or :variable-millis
+  :inc-millis - Required if type == :variable-inc-millis
+  :dec-millis - Required if type == :variable-inc-millis
+}
+
+:dur-millis - if type == :fixed, the duration of this loop event
+              if type == :variable-inc-millis, the base duration of this event
+:min-millis - the minimum duration of this event
+:max-millis - the maximum duration of this event
+:inc-millis - the maximum amount dur-millis can be incremented
+:dec-millis - the maximum amount dur-millis can be decremented
