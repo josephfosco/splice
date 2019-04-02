@@ -26,6 +26,8 @@ Have a loop change notes, but only a certain number of notes each time it plays,
 and also restrict the notes it can choose,
 with an option to allow octave equivalence within the instruments range
 
+Be able to load or reload loops while playing
+
 
 ----------------------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 {
-  :min-start-offset minimum amount of time to wait before starting a loop (defaults to 0)
-  :max-start-offset maximum amount of time to wait before starting a loop (defaults to 0)
+  :min-start-offset - minimum amount of time to wait before starting a loop (defaults to 0)
+  :max-start-offset - maximum amount of time to wait before starting a loop (defaults to 0)
+    The start of each loop is computed independently using these two values
 
   :main-bus-effects - a map of effects to add to the main stereo output bus
   {:reverb adds reverb uses the params in the map that follows 

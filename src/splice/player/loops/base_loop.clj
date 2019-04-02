@@ -15,6 +15,7 @@
 
 (ns splice.player.loops.base-loop
   (:require
+   [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    )
@@ -38,7 +39,7 @@
   (:next-melody-fn (:base-loop loop-structr))
  )
 
-(defn get-dur-info-for-loop-event
+(defn get-loop-dur-info
   [dur-info]
   (condp = (:type dur-info)
     :fixed (create-dur-info
@@ -55,5 +56,18 @@
                             (+ base-dur (:inc-millis dur-info))
                             ))
     :variable-pct nil
+    )
+  )
+
+(defn get-loop-pitch
+  [pitch-info]
+  (condp = (:type pitch-info)
+    :fixed (or (:pitch-freq pitch-info)
+               (if-let [note-no (:pitch-midi-note pitch-info)]
+                 (midi->hz note-no)
+                 ))
+    :variable (if (= :midi-note (:pitch-type pitch-info))
+                (midi->hz (rand-nth (:pitches pitch-info)))
+                (rand-nth (:pitches pitch-info))) ;; :pitch-type = :freq
     )
   )
