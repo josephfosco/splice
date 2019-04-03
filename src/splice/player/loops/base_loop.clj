@@ -66,8 +66,10 @@
                (if-let [note-no (:pitch-midi-note pitch-info)]
                  (midi->hz note-no)
                  ))
-    :variable (if (= :midi-note (:pitch-type pitch-info))
-                (midi->hz (rand-nth (:pitches pitch-info)))
-                (rand-nth (:pitches pitch-info))) ;; :pitch-type = :freq
+    :variable (let [pitch (rand-nth (:pitches pitch-info))]
+                (if (and pitch (= :midi-note (:pitch-type pitch-info)))
+                  (midi->hz pitch)
+                  pitch) ;; :pitch-type = :freq or pitch is nil (rest)
+                )
     )
   )

@@ -18,20 +18,20 @@
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 112 110 109]}
+             :pitches [105 112 110 109 nil]}
      :dur {:type :fixed
            :dur-millis 200}
      :volume 0.5}
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 112 110 109]}
+             :pitches [105 112 110 109 nil]}
      :dur {:type :fixed
            :dur-millis 200}
      :volume 0.5
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 112 110 109]}
+             :pitches [105 112 110 109 nil]}
      :dur {:type :variable-inc-millis
            :dur-millis 200
            :inc-millis 50
@@ -40,7 +40,7 @@
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 112 110 109]}
+             :pitches [105 112 110 109 nil]}
      :dur {:type :fixed
            :dur-millis 200}
      :volume 0.5
