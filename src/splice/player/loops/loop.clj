@@ -30,10 +30,40 @@
                  base-loop
                  ])
 
+(defn play-event?
+  [play-prob]
+  (if (< (rand-int 100) play-prob)
+    true
+    false)
+  )
+
+(defn get-next-loop-event-ndx
+  "Returns the next loop-event index to use starting at start-ndx
+   checks each loop-events :play-prob (play probability) if it exists
+  "
+  [loop-structr start-ndx]
+  (first
+   (take 1
+         (for [ndx (iterate
+                    #(mod (inc %1)
+                          (count (:melody-info  loop-structr))) start-ndx)
+               :when (let [play-prob (:play-prob ((:melody-info loop-structr)
+                                                  ndx))]
+                       (println ndx)
+                       (if play-prob
+                         (play-event? play-prob)
+                         ndx
+                         ))
+               ]
+           ndx)
+         ))
+)
+
 (defn get-next-melody
   "Returns an updated loop structure and a melody-event"
   [player melody loop-structr next-id]
-  (let [melody-ndx (:next-melody-event-ndx loop-structr)
+  (let [melody-ndx (get-next-loop-event-ndx loop-structr
+                                            (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
         melody-event (create-melody-event
                       :melody-event-id next-id
