@@ -70,6 +70,11 @@
                        :envelope-type "AR"
                        :range-lo 20
                        :range-hi 40}
+                      :marimba
+                      {:instrument marimba
+                       :envelope-type "AR"
+                       :range-lo 45
+                       :range-hi 100}
                       :organ-m1
                       {:instrument organ-m1
                        :envelope-type "ADSR"

@@ -38,3 +38,24 @@
   )
 (def steel-drum-sus-delay (inst-fx! steel-drum-sus fx-echo))
 (ctl steel-drum-sus-delay :delay-time 0.1)
+
+(definst marimba
+  [freq 440 vol 0.8 gate 1.0 action FREE]
+  (-> (sin-osc freq)
+      (* (env-gen (perc 0.001
+                        ;; shorter felease for higher notes
+                        (let [rel (/ 220 freq)]
+                          (cond
+                            (<= 0.25 rel 1.0) rel
+                            (> rel 1.0) 1.0
+                            :else 0.25
+                            )
+                          )
+                        )
+                  gate
+                  vol
+                  0 1
+                  action))
+      )
+
+  )

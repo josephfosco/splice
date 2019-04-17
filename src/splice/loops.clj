@@ -2,7 +2,7 @@
  :max-start-offset 24
 
  :main-bus-effects
- {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ {:reverb (:wet-dry 0.5 :room-size 1.0)}
 
  :loops
  [
@@ -175,6 +175,162 @@
              :pitch-freq nil}
      :dur {:type :fixed
            :dur-millis 26000}
+     }
+    ]
+   }
+
+  {:name "marimaba-loop"
+   :loop-type :loop
+   :instrument-name :marimba
+   :melody-info
+   [
+    {:name e1
+     :pitch {:type :fixed
+             :pitch-freq nil}
+     :dur {:type :fixed
+           :dur-millis 3000}
+     }
+    {:name e2
+     :play-prob 70
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e3
+     :play-prob 60
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e4
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e5
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e6
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e7
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e8
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e9
+     :play-prob 20
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [91 93]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e10
+     :play-prob 40
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [91 93]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e11
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e12
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e313
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e14
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e15
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e16
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e17
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e18
+     :play-prob 80
+     :pitch {:type :variable
+             :pitch-type :midi-note
+             :pitches [81 83 86 88 91 93 nil]}
+     :dur {:type :fixed
+           :dur-millis 175}
+     :volume 0.2}
+    {:name e19
+     :pitch {:type :fixed
+             :pitch-freq nil}
+     :dur {:type :fixed
+           :dur-millis 3000}
      }
     ]
    }

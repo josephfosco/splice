@@ -163,11 +163,11 @@
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
         melody (get-melody ensemble player-id)
-        [upd-player next-melody-event] (get-next-melody-event
-                                        ensemble
-                                        player
-                                        melody
-                                        player-id)
+        [upd-player next-melody-event loop-event-name] (get-next-melody-event
+                                                        ensemble
+                                                        player
+                                                        melody
+                                                        player-id)
         upd-melody-event (play-melody-event (last melody)
                                             next-melody-event
                                             event-time)
@@ -175,6 +175,7 @@
         ]
     (println player-id
              (get-loop-name player)
+             loop-event-name
              (if (get-freq-from-melody-event upd-melody-event)
                ""
                "REST"))

@@ -81,6 +81,7 @@
                                                      (count (:melody-info
                                                              loop-structr))))
      melody-event
+     (:name melody-info)
      ]
 
     )

@@ -87,7 +87,7 @@
   [ensemble player melody player-id]
 
   (let [loop-structr (get-loop-structr player)
-        [upd-loop-structr melody-event ]
+        [upd-loop-structr melody-event loop-event-name]
         ((get-melody-fn loop-structr) player
                                       melody
                                       loop-structr
@@ -96,6 +96,7 @@
     [
      (assoc player :loop-structr upd-loop-structr)
      melody-event
+     loop-event-name
      ]
     )
   )
