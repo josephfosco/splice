@@ -106,9 +106,9 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed
-             :pitch-midi-note 69
+             ;; :pitch-midi-note 69
+             :pitch-freq 440
              }
-             ;; :pitch-freq 440
      :dur {:type :variable-millis
            :min-millis 7000
            :max-millis 13500
@@ -129,9 +129,9 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed
-             :pitch-midi-note 74
+             ;; :pitch-midi-note 74
+             :pitch-freq 586.66667
              }
-             ;; :pitch-freq
      :dur {:type :fixed
            :dur-millis 8500}
      :volume 0.2
@@ -150,9 +150,9 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed
-             :pitch-midi-note 76
+             ;; :pitch-midi-note 76
+             :pitch-freq 660
              }
-             ;; :pitch-freq 733.333348
      :dur {:type :fixed
            :dur-millis 1200}
      :volume 0.2
@@ -171,9 +171,9 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed
-             :pitch-midi-note 81
+             ;; :pitch-midi-note 81
+             :pitch-freq 880
              }
-             ;; :pitch-freq 880
      :dur {:type :fixed
            :dur-millis 9000}
      :volume 0.2
