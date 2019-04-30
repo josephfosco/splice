@@ -33,6 +33,8 @@ Be able to load or reload loops while playing
 
 Load additional setting filenames (in control.clj) from conf file
 
+Ne able to put each loop in a seperate file and use 1 file to load them all
+
 ******** COMPLETE ********
 
 Recompute density taking into account instruments release

@@ -19,6 +19,7 @@
    [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
+   [splice.instr.instrumentinfo :refer [create-instrument-info]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [play-next-note]]
    [splice.melody.melody-event :refer [create-melody-event]]
@@ -104,7 +105,11 @@
                                :freq nil
                                :dur-info nil
                                :volume nil
-                               :instrument-info nil
+                               :instrument-info (create-instrument-info
+                                                 :instrument nil
+                                                 :envelope-type "NE"
+                                                 :range-hi nil
+                                                 :range-lo nil)
                                :player-id player-id
                                :event-time 0
                                ))
@@ -140,23 +145,27 @@
 
 (defn start-splice
   [{loops :loops :or {loops "src/splice/loops.clj"} :as args}]
-  (println "about to start with args: " args)
-  (if (false? is-playing?)
-    (println "STARTING")
-    (let [player-settings (load-settings loops)
-          number-of-players (set-setting! :num-players
-                                          (count (:loops player-settings)))
-          initial-players (init-players player-settings)
-          init-melodies (map init-melody (range number-of-players))
-          init-msgs (for [x (range number-of-players)] [])
-          ]
-      (init-main-bus-effects (:main-bus-effects player-settings))
-      (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
-      (init-splice initial-players init-melodies init-msgs)
-      (start-playing (or (:min-start-offset player-settings) 0)
-                     (or (:max-start-offset player-settings) 0))
-      (reset! is-playing? true)
-      ))
+  (try
+    (log/debug (str "about to start with args: " args))
+    (if (false? @is-playing?)
+      (let [player-settings (load-settings loops)
+            number-of-players (set-setting! :num-players
+                                            (count (:loops player-settings)))
+            initial-players (init-players player-settings)
+            init-melodies (map init-melody (range number-of-players))
+            init-msgs (for [x (range number-of-players)] [])
+            ]
+        (init-main-bus-effects (:main-bus-effects player-settings))
+        (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+        (init-splice initial-players init-melodies init-msgs)
+        (start-playing (or (:min-start-offset player-settings) 0)
+                       (or (:max-start-offset player-settings) 0))
+        (reset! is-playing? true)
+        ))
+    (catch Exception e
+      (log/error (str "**** Exception during initialization: " (.getMessage e)))
+      )
+    )
   )
 
 (defn clear-splice

@@ -18,6 +18,8 @@
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument]]
+   [splice.instr.instrumentinfo :refer [get-envelope-type-from-instrument-info
+                                        perc-instrument?]]
    [overtone.live :refer [node-get-control]]
    )
   )
@@ -144,10 +146,16 @@
          :event-time event-time
          :play-time play-time
          :sc-instrument-id sc-instrument-id
+         ;; set note-off true if this is a perc instrument or
+         ;;  the note duration is longer than the instruments release
          :note-off (if sc-instrument-id
-                       (> (get-dur-millis-from-melody-event melody-event)
-                          (get-release-millis-from-instrument sc-instrument-id)
-                          ))
+                     (or
+                      (perc-instrument?
+                       (get-instrument-info-from-melody-event melody-event))
+                      (> (get-dur-millis-from-melody-event melody-event)
+                         (get-release-millis-from-instrument sc-instrument-id)
+                         ))
+                     )
 
          ))
 
@@ -160,9 +168,13 @@
                           :instrument-info
                           {:name (:name (:instrument inst-inf))
                            :range-lo (:range-lo inst-inf)
-                           :range-hi (:range-hi inst-inf)}
+                           :range-hi (:range-hi inst-inf)
+                           :envelope-type (get-envelope-type-from-instrument-info inst-inf)
+                           }
                           :dur-info
                           (into {} (:dur-info melody-event))
+                          :note-off
+                          (get-note-off-from-melody-event melody-event)
                           ))
         ]
     (println melody-map)

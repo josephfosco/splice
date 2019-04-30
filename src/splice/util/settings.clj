@@ -16,11 +16,13 @@
 (ns splice.util.settings
   (:require
    [clojure.java.io :as io]
+   [splice.util.log :as log]
    )
   )
 
 (defn load-settings
   [filename]
+  (log/debug "Loading settings from: " filename)
   (with-open [r (io/reader filename)]
     (binding [*read-eval* false]
              (read (java.io.PushbackReader. r))))

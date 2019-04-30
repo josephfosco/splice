@@ -18,11 +18,13 @@
    [overtone.live :refer :all]
    ;; [splice.constants :refer :all]
    [splice.instr.instrumentinfo :refer [create-instrument-info
-                                         get-instrument-from-instrument-info
-                                         get-envelope-type-from-instrument-info
-                                         get-range-hi-from-instrument-info
-                                         get-range-lo-from-instrument-info
-                                         ]]
+                                        get-instrument-from-instrument-info
+                                        get-envelope-type-from-instrument-info
+                                        get-range-hi-from-instrument-info
+                                        get-range-lo-from-instrument-info
+                                        perc-env
+                                        non-perc-env
+                                        ]]
    [splice.instr.instruments.elec-instruments :refer :all]
    [splice.instr.instruments.loop-synths :refer :all]
    [splice.instr.instruments.misc-instruments :refer :all]
@@ -33,9 +35,6 @@
    [splice.util.print :refer [print-msg]]
    )
   )
-
-(def perc-env (sorted-set "AD" "NE"))
-(def non-perc-env (sorted-set "ADSR" "ASR"))
 
 ;; Note: when defining instruments :freq should always be the first param and
 ;;       :vol should always be the second param
@@ -67,12 +66,12 @@
                        :range-hi 96}
                       :gong
                       {:instrument gong
-                       :envelope-type "AR"
+                       :envelope-type "AD"
                        :range-lo 20
                        :range-hi 40}
                       :marimba
                       {:instrument marimba
-                       :envelope-type "AR"
+                       :envelope-type "AD"
                        :range-lo 45
                        :range-hi 100}
                       :organ-m1
@@ -122,7 +121,7 @@
                        :range-hi (last MIDI-RANGE)}
                       :woosh
                       {:instrument woosh
-                       :envelope-type "AR"
+                       :envelope-type "AD"
                        :range-lo 15
                        :range-hi 40}
                         })

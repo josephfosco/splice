@@ -27,6 +27,9 @@
                    )
   )
 
+(def perc-env (sorted-set "AD" "NE"))
+(def non-perc-env (sorted-set "ADSR" "ASR"))
+
 (defn get-instrument-from-instrument-info
   [inst-info]
   (:instrument inst-info))
@@ -57,4 +60,9 @@
    :range-hi (:range-hi inst-info)
    :range-lo (:range-lo inst-info)
    :instrument (:instrument inst-info)}
+  )
+
+(defn perc-instrument?
+  [inst-info]
+  (contains? perc-env (get-envelope-type-from-instrument-info inst-info))
   )

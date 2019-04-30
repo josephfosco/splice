@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+ 3;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
   (:require
    [clojure.core.async :refer [>!!]]
    [overtone.live :refer [apply-at ctl midi->hz]]
-   [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
+   [splice.instr.instrumentinfo :refer [get-envelope-type-from-instrument-info
+                                        get-instrument-from-instrument-info
+                                        perc-instrument?]]
    [splice.instr.sc-instrument :refer [stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
@@ -36,10 +38,13 @@
                                        get-release-millis-from-melody-event
                                        get-sc-instrument-id-from-melody-event
                                        get-volume-from-melody-event
-                                       set-play-info]]
+                                       set-play-info
+                                       print-melody-event
+                                       ]]
    [splice.player.player-utils :refer [get-loop-name
                                        get-next-melody-event
                                        NEXT-METHOD]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
    )
@@ -66,6 +71,19 @@
     )
   )
 
+(defn note-off-scheduled?
+  "Returns true if this melody event scheduled a note-off, or
+   this melody event does not need a note-off scheduled because
+   it is a percussive instrument or rest
+  "
+  [melody-event]
+  (or
+   (nil? (get-freq-from-melody-event melody-event))
+   (get-note-off-from-melody-event melody-event)
+   (perc-instrument? (get-instrument-info-from-melody-event melody-event))
+   )
+  )
+
 (defn check-prior-event-note-off
    " if the prior note was not turned off and
        either this note is a rest or
@@ -73,7 +91,7 @@
      then
        turn off the prior note"
   [prior-melody-event cur-melody-event]
-  (when (and (false? (get-note-off-from-melody-event prior-melody-event))
+  (when (and (false? (note-off-scheduled? prior-melody-event))
              (or (not (nil? (get-freq-from-melody-event cur-melody-event)))
                  (not=
                   (get-sc-instrument-id-from-melody-event prior-melody-event)
@@ -90,11 +108,11 @@
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     ;; apply not tested???
     (apply ctl inst-id
-         :freq (get-freq-from-melody-event melody-event)
-         :vol (* (get-volume-from-melody-event melody-event)
-                 (get-setting :volume-adjust))
-         (get-instrument-settings-from-melody-event melody-event)
-         )
+           :freq (get-freq-from-melody-event melody-event)
+           :vol (* (get-volume-from-melody-event melody-event)
+                   (get-setting :volume-adjust))
+           (get-instrument-settings-from-melody-event melody-event)
+           )
     inst-id
     )
   )
@@ -128,7 +146,7 @@
   (let [cur-inst-id
         (cond (nil? (get-freq-from-melody-event melody-event))
               nil
-              (not (false? (get-note-off-from-melody-event prior-melody-event)))
+              (true? (note-off-scheduled? prior-melody-event))
               (play-note-new-instrument melody-event)
               :else
               (play-note-prior-instrument prior-melody-event melody-event)
@@ -157,34 +175,42 @@
 
 (defn play-next-note
   [player-id sched-time]
-  (println "-")
-  (println "start -" player-id)
-  (let [event-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
-        [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
-        player (get-player ensemble player-id)
-        melody (get-melody ensemble player-id)
-        [upd-player next-melody-event loop-event-name] (get-next-melody-event
-                                                        ensemble
-                                                        player
-                                                        melody
-                                                        player-id)
-        upd-melody-event (play-melody-event (last melody)
-                                            next-melody-event
-                                            event-time)
-        upd-melody (update-melody-with-event melody upd-melody-event)
-        ]
-    (println player-id
-             (get-loop-name player)
-             loop-event-name
-             (if (get-freq-from-melody-event upd-melody-event)
-               ""
-               "REST"))
-    (check-prior-event-note-off (last melody) upd-melody-event)
-    (update-player-and-melody upd-player upd-melody player-id)
-    (sched-next-note upd-melody-event)
-    (>!! (get-msg-channel) {:msg :melody-event
-                             :data upd-melody-event
-                             :time (System/currentTimeMillis)})
-    (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
+  (try
+    (println "-")
+    (println "start -" player-id)
+    (let [event-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
+          [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
+          player (get-player ensemble player-id)
+          melody (get-melody ensemble player-id)
+          [upd-player next-melody-event loop-event-name] (get-next-melody-event
+                                                          ensemble
+                                                          player
+                                                          melody
+                                                          player-id)
+          upd-melody-event (play-melody-event (last melody)
+                                              next-melody-event
+                                              event-time)
+          upd-melody (update-melody-with-event melody upd-melody-event)
+          ]
+      (println player-id
+               (get-loop-name player)
+               (or loop-event-name "")
+               (if (get-freq-from-melody-event upd-melody-event)
+                 ""
+                 "REST"))
+      (check-prior-event-note-off (last melody) upd-melody-event)
+      (update-player-and-melody upd-player upd-melody player-id)
+      (sched-next-note upd-melody-event)
+      (>!! (get-msg-channel) {:msg :melody-event
+                              :data upd-melody-event
+                              :time (System/currentTimeMillis)})
+      (println "end:   "
+               player-id
+               " time: " (- (System/currentTimeMillis) event-time)
+               "melody-event: " (:melody-event-id upd-melody-event))
+      )
+    (catch Exception e
+      (log/error (str "Exception!!!: " (.getMessage e)))
+      )
     )
  )
