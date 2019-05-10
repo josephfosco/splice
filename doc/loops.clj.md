@@ -13,22 +13,23 @@
  
  :loops - array of 1 or more maps of loops to play 
  [
-  {:name - loop name 
-   :loop-type Required options for type :loop. Plays :melody-info in a loop 
-   :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
-   :melody-info - an array of melody elemants to play
-   [
+  {:name - string - loop name
+   :loop-type - a loop-type - Required options for type :loop. Plays :melody-info in a loop 
+   :instrument-name - an instrument name from src/splice/instr/instrument.clj - all-instruments
+   :melody-info - an array of melody-info to play
+  }
+
+ ]
+}
+
+
+melody-info - a dictionary of melody-info elements
     {:pitch-freq | :pitch-midi-note - the pitch to play as a frequency or midi note number. Can be nil for a rest.
      :dur - Required map containing duration info for this event
      :dur-millis - Required Duration of melody element in milliseconds
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: (:attack 4.0 :release 3.0)
     }
-   ]
-  }
-
- ]
-}
 
 :dur
 {

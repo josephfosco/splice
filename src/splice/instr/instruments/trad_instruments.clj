@@ -69,7 +69,10 @@
        (out [0 1]
         (-> (lpf
              (-> (pulse :freq freq :width (+ 0.5 (* 0.4 (sin-osc:kr 3))))
-                 (+ (var-saw :freq (+ freq (* freq 0.01)) :width 0))
+                 (+ (* 0.7 (var-saw :freq (+ freq (* freq 0.01)) :width 0)))
+                 (+ (sin-osc-fb :freq (+ freq
+                                         (* freq (* (lfd-noise1:kr 85) 0.01) ))
+                                :feedback (clip (* 10 (lf-noise1:kr 200)) 1)))
                  (* 0.3)
                  )
              2000
