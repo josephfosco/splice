@@ -139,7 +139,7 @@
   [instrument-name]
   (let [inst-info (instrument-name all-instruments)]
     (when (nil? inst-info)
-      (throw (Throwable. (str "Invalid :instrument-name "
+      (throw (Exception. (str "Invalid :instrument-name "
                               instrument-name
                               " in loop"))))
     (create-instrument-info

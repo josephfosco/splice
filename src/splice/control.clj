@@ -81,8 +81,6 @@
    )
   )
 
-
-
 (defn validate-player-settings
   [player-settings]
   (let [loop-key-msgs (validate-loops (:loops player-settings))]
@@ -107,7 +105,7 @@
       (do
         (doseq [error-msg errors]
           (log/error error-msg))
-        (throw (Throwable. "Validation error(s) in player loops"))
+        (throw (Exception. "Validation error(s) in player loops"))
         )
       (doall (map new-player
                   (range (get-setting :num-players))

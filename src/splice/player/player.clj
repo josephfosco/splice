@@ -38,10 +38,10 @@
                      :next-melody-event-ndx 0
                      )
         (= (:loop-type loop-settings) nil)
-        (throw (Throwable. (str ":loop-type missing")))
+        (throw (Exception. (str ":loop-type missing")))
         :else
         (do
-          (throw (Throwable. (str "Invalid :loop-type "
+          (throw (Exception. (str "Invalid :loop-type "
                                   (:loop-type loop-settings))))
           )
         )
@@ -51,7 +51,7 @@
   [& {:keys [id loop-settings]}]
   (log/info (str "player/create-player - Creating player " id))
   (when (nil? (:instrument-name loop-settings))
-    (throw (Throwable. "Missing :instrument-name in loop")))
+    (throw (Exception. "Missing :instrument-name in loop")))
   (Player. id
            (build-loop-structr loop-settings)
            nil  ;; key
