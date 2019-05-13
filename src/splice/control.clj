@@ -53,22 +53,39 @@
   (start-ensemble-status)
   )
 
-(defn validate-loop-keys
-  [loop-settings]
+(defn validate-loops
+  [all-loop-settings]
   (flatten
-   (for [loop loop-settings]
-     (let [loop-keys (keys loop)]
-       (for [loop-key loop-keys
-             :when (not (contains? valid-loop-keys loop-key))]
-         (str "Invalid loop key " loop-key " in player-settings")
-         )
-       )
-     ))
+   (loop [loop-settings all-loop-settings
+          error-msgs []
+          loop-names '#{}
+          ]
+     (if (= (count loop-settings) 0)
+       error-msgs
+       (let [loop (first loop-settings)
+             loop-keys (keys loop)
+             key-errors (for [loop-key loop-keys
+                              :when (not (contains? valid-loop-keys loop-key))]
+                          (str "Invalid loop key " loop-key " in player-settings")
+                          )
+             name-error (if (contains? loop-names (:name loop))
+                          (str "Duplicate loop name " (:name loop))
+                          '()
+                          )
+             ]
+         (recur (rest loop-settings)
+                (conj error-msgs key-errors name-error)
+                (conj loop-names (:name loop)))
+         ))
+     )
+   )
   )
+
+
 
 (defn validate-player-settings
   [player-settings]
-  (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
+  (let [loop-key-msgs (validate-loops (:loops player-settings))]
     (cond-> '()
       (< (count (:loops player-settings)) 1)
       (conj ":loops not found in player-settings file")
