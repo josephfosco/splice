@@ -1,4 +1,4 @@
- 3;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -41,9 +41,8 @@
                                        set-play-info
                                        print-melody-event
                                        ]]
-   [splice.player.player-utils :refer [get-loop-name
-                                       get-next-melody-event
-                                       NEXT-METHOD]]
+   [splice.player.player-utils :refer [get-next-melody-event
+                                       get-loop-name]]
    [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]

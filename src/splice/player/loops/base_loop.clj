@@ -17,17 +17,16 @@
   (:require
    [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
+   [splice.melody.melody-event :refer [create-melody-event]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
+   [splice.player.player-info :refer [get-player-id
+                                       get-player-instrument-info]]
    )
   )
 
-(defrecord BaseLoop [name next-melody-fn])
-
-(defn create-base-loop
-  [& {:keys [name next-melody-fn]}]
-  (BaseLoop. name next-melody-fn
-             )
-  )
+(defrecord BaseLoop [name
+                     next-melody-fn
+                     ])
 
 (defn get-base-loop-name
   [loop-structr]
@@ -72,4 +71,79 @@
                   pitch) ;; :pitch-type = :freq or pitch is nil (rest)
                 )
     )
+  )
+
+(defn play-event?
+  [play-prob]
+  (if (< (rand-int 100) play-prob)
+    true
+    false)
+  )
+
+(defn get-next-loop-event-ndx
+  "Returns the next loop-event index to use starting at start-ndx
+   checks each loop-events :play-prob (play probability) if it exists
+  "
+  [loop-structr start-ndx]
+  (first
+   (take 1
+         (for [ndx (iterate
+                    #(mod (inc %1)
+                          (count (:melody-info  loop-structr))) start-ndx)
+               :when (let [play-prob (:play-prob ((:melody-info loop-structr)
+                                                  ndx))]
+                       (if play-prob
+                         (play-event? play-prob)
+                         true
+                         ))
+               ]
+           ndx)
+         ))
+  )
+
+(defn get-next-melody
+  "Returns an updated loop structure a melody-event, and the loop name"
+  [player melody loop-structr next-id]
+  (let [melody-ndx (get-next-loop-event-ndx loop-structr
+                                            (:next-melody-event-ndx loop-structr))
+        melody-info ((:melody-info loop-structr) melody-ndx)
+        ;; melody-event (create-melody-event
+        ;;               :melody-event-id next-id
+        ;;               :freq ((:pitch-fn loop-structr) (:pitch melody-info))
+        ;;               :dur-info ((:dur-fn loop-structr) (:dur melody-info))
+        ;;               :volume (:volume melody-info)
+        ;;               :instrument-info (get-player-instrument-info player)
+        ;;               :instrument-settings (:instrument-settings melody-info)
+        ;;               :player-id (get-player-id player)
+        ;;               :event-time nil
+        ;;               )
+        melody-event (create-melody-event
+                      :melody-event-id next-id
+                      :freq (get-loop-pitch (:pitch melody-info))
+                      :dur-info (get-loop-dur-info (:dur melody-info))
+                      :volume (:volume melody-info)
+                      :instrument-info (get-player-instrument-info player)
+                      :instrument-settings (:instrument-settings melody-info)
+                      :player-id (get-player-id player)
+                      :event-time nil
+                      )
+        ]
+    [
+     (assoc loop-structr :next-melody-event-ndx (mod (inc melody-ndx)
+                                                     (count (:melody-info
+                                                             loop-structr))))
+     melody-event
+     (:name melody-info)
+     ]
+
+    )
+  )
+
+(defn create-base-loop
+  [& {:keys [name
+             next-melody-fn]
+      :or {next-melody-fn get-next-melody}}
+   ]
+  (BaseLoop. name next-melody-fn
+             )
   )

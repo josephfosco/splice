@@ -20,6 +20,8 @@
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
                                           get-base-loop-name]]
+   [splice.player.player-info :refer [get-player-id
+                                      get-loop-structr]]
    )
   )
 
@@ -28,18 +30,6 @@
 (def CONTINUE 1)  ;; Processing complete - do not call additional methods
 (def NEW-MELODY 2)  ;; Processing complete - last melody event is new
 (def NEXT-METHOD 3)  ;; Select and call another method
-
-(defn get-player-id
-  [player]
-  (:id player))
-
-(defn get-player-instrument-info
-  [player]
-  (:instrument-info player))
-
-(defn get-loop-structr
-  [player]
-  (:loop-structr player))
 
 (defn get-loop-name
   [player]
@@ -87,7 +77,7 @@
   [ensemble player melody player-id]
 
   (let [loop-structr (get-loop-structr player)
-        [upd-loop-structr melody-event loop-event-name]
+        [upd-loop-structr melody-event loop-name]
         ((get-melody-fn loop-structr) player
                                       melody
                                       loop-structr
@@ -96,7 +86,7 @@
     [
      (assoc player :loop-structr upd-loop-structr)
      melody-event
-     loop-event-name
+     loop-name
      ]
     )
   )

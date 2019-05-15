@@ -28,12 +28,27 @@ with an option to allow octave equivalence within the instruments range
 
 Be able to load or reload loops while playing
 
+De able to change the volume of individual notes as they are playing or the
+overall volume of a loop or section of a loop as it is playing
+
+Be able to specify that the melody should not repeat a note
 
 ----------------------------------------------------------------------------------------
 
 Load additional setting filenames (in control.clj) from conf file
 
 Ne able to put each loop in a seperate file and use 1 file to load them all
+
+----------------------------------------------------------------------------------------
+
+********* LIVE PERF ENHANCEMENTS *********
+
+Be able to start up new loops as it is playing
+
+Be able to stop and start individual loops at will
+
+
+----------------------------------------------------------------------------------------
 
 ******** COMPLETE ********
 

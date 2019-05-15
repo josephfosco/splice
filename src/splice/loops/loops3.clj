@@ -1,31 +1,3 @@
-;; { :main-bus-effects
-;;  {:reverb (:wet-dry 0.5 :room-size 1.0)}
-
-;;  :loops
-;;  [
-;;    {:name "organ-arp"
-;;    :loop-type :arpeggio
-;;    :instrument-name :organ-m1
-;;    :melody-info
-;;    [
-;;     {:pitch {:type :fixed
-;;              :pitch-freq nil}
-;;      :dur {:type :fixed
-;;            :dur-millis 1000}
-;;      }
-;;     {:pitches {:type :fixed
-;;                :pitch-midi-notes []
-;;                :dur-millis 250
-;;                }
-;;      :dur {:type :fixed
-;;            :dur-millis 10000}
-;;      :volume 0.45
-;;      }
-;;     ]
-;;    }
-
-;;   ]}
-
 {:min-start-offset 1
  :max-start-offset 24
 
