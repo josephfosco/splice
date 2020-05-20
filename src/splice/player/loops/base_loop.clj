@@ -15,7 +15,6 @@
 
 (ns splice.player.loops.base-loop
   (:require
-   [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
@@ -26,6 +25,7 @@
 
 (defrecord BaseLoop [name
                      next-melody-fn
+                     pitch-fn
                      ])
 
 (defn get-base-loop-name
@@ -55,21 +55,6 @@
                             (+ base-dur (:inc-millis dur-info))
                             ))
     :variable-pct nil
-    )
-  )
-
-(defn get-loop-pitch
-  [pitch-info]
-  (condp = (:type pitch-info)
-    :fixed (or (:pitch-freq pitch-info)
-               (if-let [note-no (:pitch-midi-note pitch-info)]
-                 (midi->hz note-no)
-                 ))
-    :variable (let [pitch (rand-nth (:pitches pitch-info))]
-                (if (and pitch (= :midi-note (:pitch-type pitch-info)))
-                  (midi->hz pitch)
-                  pitch) ;; :pitch-type = :freq or pitch is nil (rest)
-                )
     )
   )
 
@@ -119,7 +104,7 @@
         ;;               )
         melody-event (create-melody-event
                       :melody-event-id next-id
-                      :freq (get-loop-pitch (:pitch melody-info))
+                      :freq ((:pitch-fn (:base-loop loop-structr)) (:pitch melody-info))
                       :dur-info (get-loop-dur-info (:dur melody-info))
                       :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
@@ -141,9 +126,12 @@
 
 (defn create-base-loop
   [& {:keys [name
-             next-melody-fn]
+             next-melody-fn
+             pitch-fn]
       :or {next-melody-fn get-next-melody}}
    ]
-  (BaseLoop. name next-melody-fn
+  (BaseLoop. name
+             next-melody-fn
+             pitch-fn
              )
   )
