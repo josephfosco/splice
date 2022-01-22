@@ -1,0 +1,19 @@
+{:paths ["src/splice", "src"]
+ :deps
+ {org.clojure/clojure {:mvn/version "1.10.3"}
+  org.clojure/core.async {:mvn/version "1.3.618"}
+  overtone/overtone {:mvn/version "0.10.6"}
+  ;; overtone {:local/root "/home/joseph/src/clj/splice-new/overtone"}
+  }
+ :aliases
+  {:repl-server
+   {:exec-fn clojure.core.server/start-server
+    :exec-args {:name "repl-server"
+                :port 7777
+                :accept clojure.core.server/repl
+                :server-daemon false
+                }}
+   :cider-clj {:extra-deps {cider/cider-nrepl {:mvn/version "0.25.1"}}
+               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}
+   }
+}

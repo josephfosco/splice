@@ -45,20 +45,20 @@
 ;;             nil if this event is a rest (freq = nil)
 
 (defn create-melody-event
-  [& {:keys [:melody-event-id
-             :freq
-             :dur-info
-             :volume
-             :instrument-info
-             :instrument-settings
-             :player-id
-             :event-time
-             :play-time
-             :sc-instrument-id
+  [& {:keys [melody-event-id
+             freq
+             dur-info
+             volume
+             instrument-info
+             instrument-settings
+             player-id
+             event-time
+             play-time
+             sc-instrument-id
              ]
-      :or {:instrument-settings nil
-           :play-time nil
-           :sc-instrument-id nil}}]
+      :or {instrument-settings nil
+           play-time nil
+           sc-instrument-id nil}}]
   (MelodyEvent. melody-event-id
                 freq
                 dur-info
