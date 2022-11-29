@@ -19,8 +19,7 @@
    :melody-info - an array of melody elemants to play
    [
     {:pitch-freq | :pitch-midi-note - the pitch to play as a frequency or midi note number. Can be nil for a rest.
-     :dur - Required map containing duration info for this event
-     :dur-millis - Required Duration of melody element in milliseconds
+     :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: (:attack 4.0 :release 3.0)
     }
