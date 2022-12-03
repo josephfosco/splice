@@ -7,7 +7,27 @@ FIXME: description
 
 ## Usage
 
-Note: when defining instruments 
+### To start playing in a terminal
+- Open qjackctl in a window and go to the "Graph" page
+- in a new Terminal window type `make cider`
+- at the user=> prompt type `(require 'splice.core)`
+- Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
+  the input 1 and 2 of the computer speakers
+- In the clojure terminal at the user=> prompt type`(ns splice.core)`
+- at the splice.core=> prompt type `(splice-start)`
+- To stop, in the clojure window type `(splice-stop)`
+ 
+### To run this form emacs using cider:
+- Run the steps above up through connecting the Overtone server to the speakers in qjackctl
+- In emacs type M-x cider-connect
+- Just hit <enter> at any prompts
+- A clojure repl will open in an new emacs buffer. This repl is connected to the clojure server you started above
+- Type `(ns core.splice)` in the emacs clojure session
+- Type `(splice-start)` in the emacs clojure repl to start plating
+- Type `(splice-stop)` in the emacs clojure repl to stop playing
+- Type C-x k to quit the emacs cider repl. When emacs asks if you want to kill the active process type `y`
+ 
+### Note: when defining instruments 
 - :freq should always be the first param 
 - :vol should always be the second param
 - :release should be the param name for :envelope release time in secs
@@ -39,7 +59,7 @@ To run tests in one namespace
 
 ## License
 
-Copyright © 2017-2019 Joseph Fosco. All Rights Reserved
+Copyright © 2017-2022 Joseph Fosco. All Rights Reserved
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
