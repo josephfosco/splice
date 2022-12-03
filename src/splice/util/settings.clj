@@ -20,6 +20,8 @@
   )
 
 (defn load-settings
+  "reads a settings file and returns the contents. For settings,
+   this file should be a map"
   [filename]
   (with-open [r (io/reader filename)]
     (binding [*read-eval* false]
