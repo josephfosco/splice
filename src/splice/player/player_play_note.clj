@@ -173,7 +173,6 @@
                                             event-time)
         upd-melody (update-melody-with-event melody upd-melody-event)
         ]
-    (println next-melody-event)
     (println player-id
              (get-loop-name player)
              (if (get-freq-from-melody-event upd-melody-event)
