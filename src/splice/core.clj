@@ -100,5 +100,3 @@
   (overtone/stop))
 
 (splice-help)
-
-(+ 1 2)

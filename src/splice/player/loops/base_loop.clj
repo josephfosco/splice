@@ -83,6 +83,10 @@
   (condp = (:type volume-info)
     :fixed (:level volume-info)
     :random (select-random-volume)
+    :variable-volume (select-random-volume
+                      (:min-volume volume-info)
+                      (:max-volume volume-info)
+                      )
     nil ;; default - used when this is a rest and volume-info is nil
     )
   )

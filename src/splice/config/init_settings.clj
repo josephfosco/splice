@@ -15,6 +15,6 @@
 
 
 {:log-level :warn
- :min-volume 0.2
+ :min-volume 0.1
  :volume-adjust 1
  }
