@@ -21,16 +21,13 @@
              :pitches [105 109 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
-     }
+     :volume 0.5}
     {:pitch {:type :variable
              :pitch-type :midi-note
              :pitches [105 109 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume 0.5
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
@@ -39,16 +36,14 @@
            :dur-millis 200
            :inc-millis 50
            :dec-millis 50}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume 0.5
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
              :pitches [105 109 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume 0.5
      }
     {:pitch {:type :fixed
              :pitch-freq nil}
@@ -72,8 +67,7 @@
              :pitch-midi-note 38}
      :dur {:type :fixed
            :dur-millis 10000}
-     :volume {:type :fixed
-              :level 0.45}
+     :volume 0.45
      }
     {:pitch {:type :fixed
              :pitch-freq nil}
@@ -97,8 +91,7 @@
              :pitch-midi-note 38}
      :dur {:type :fixed
            :dur-millis 10000}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume 0.5
      }
     {:pitch {:type :fixed
              :pitch-freq nil}
@@ -118,9 +111,7 @@
            :min-millis 7000
            :max-millis 13500
            }
-     :volume {:type :variable-volume
-              :min-volume 0.1
-              :max-volume 0.4}
+     :volume 0.2
      :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch {:type :fixed
@@ -139,9 +130,7 @@
              :pitch-midi-note 74}
      :dur {:type :fixed
            :dur-millis 8500}
-     :volume {:type :variable-volume
-              :min-volume 0.1
-              :max-volume 0.4}
+     :volume 0.2
      :instrument-settings (:attack 2.5 :release 3.0)
      }
     {:pitch {:type :fixed
@@ -160,9 +149,7 @@
              :pitch-midi-note 76}
      :dur {:type :fixed
            :dur-millis 1200}
-     :volume {:type :variable-volume
-              :min-volume 0.1
-              :max-volume 0.4}
+     :volume 0.2
      :instrument-settings (:attack 5.5 :release 4.7)
      }
     {:pitch {:type :fixed
@@ -181,9 +168,7 @@
              :pitch-midi-note 81}
      :dur {:type :fixed
            :dur-millis 9000}
-     :volume {:type :variable-volume
-              :min-volume 0.1
-              :max-volume 0.4}
+     :volume 0.2
      :instrument-settings (:attack 7.0 :release 4.0)
      }
     {:pitch {:type :fixed

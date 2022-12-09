@@ -15,13 +15,6 @@
 
 (ns splice.util.random)
 
-(defn rand-range
-  "Returns a random number between lo and hi
-  Does not check that lo < hi"
-  [lo hi]
-  (+ lo (rand (- hi lo)))
-  )
-
 (defn random-int
   "Returns a random integer between lo (inclusive) and hi (inclusive).
   Does not check that lo < hi"

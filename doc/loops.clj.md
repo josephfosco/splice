@@ -45,11 +45,3 @@
 :max-millis - the maximum duration of this event
 :inc-millis - the maximum amount dur-millis can be incremented
 :dec-millis - the maximum amount dur-millis can be decremented
-
-:volume
-{
-    :type - Required :fixed | random
-    :level - Required if type == :fixed
-}
-
-:level - the volume level of this event. Must be between 0 and 1 inclusive
