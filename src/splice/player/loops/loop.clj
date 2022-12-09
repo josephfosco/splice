@@ -19,7 +19,6 @@
    [splice.player.loops.base-loop :refer [create-base-loop
                                           get-loop-dur-info
                                           get-loop-pitch
-                                          get-loop-volume
                                           ]]
    [splice.player.player-utils :refer [get-player-id
                                        get-player-instrument-info]]
@@ -70,7 +69,7 @@
                       :melody-event-id next-id
                       :freq (get-loop-pitch (:pitch melody-info))
                       :dur-info (get-loop-dur-info (:dur melody-info))
-                      :volume (get-loop-volume (:volume melody-info))
+                      :volume (:volume melody-info)
                       :instrument-info (get-player-instrument-info player)
                       :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)

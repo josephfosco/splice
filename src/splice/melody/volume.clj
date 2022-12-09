@@ -15,20 +15,14 @@
 
 (ns splice.melody.volume
   (:require
-   [splice.util.random :refer [rand-range]]
    [splice.util.settings :refer [get-setting]]
    ))
 
 (def min-vol (get-setting :min-volume))
 
 (defn select-random-volume
+  " Returns a random value between min-vol and 1"
   ([]
-   ;; Returns a random value between min-vol and 1
    (+ (rand (- 1 min-vol)) min-vol))
   ([lo hi]
-   (let [adjusted-lo-vol (if (<= min-vol lo) lo min-vol)
-         adjusted-hi-vol (if (<= min-vol hi) hi min-vol)]
-     ;; returns a random value between lo and hi
-     (rand-range adjusted-lo-vol adjusted-hi-vol))
-   )
-  )
+   (rand lo hi)))

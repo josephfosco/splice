@@ -9,7 +9,7 @@ FIXME: description
 
 ### To start playing in a terminal
 - Open qjackctl in a window and go to the "Graph" page
-- in a new Terminal window type `make repl`
+- in a new Terminal window type `make cider`
 - at the user=> prompt type `(require 'splice.core)`
 - Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
   the input 1 and 2 of the computer speakers
@@ -18,11 +18,7 @@ FIXME: description
 - To stop, in the clojure window type `(splice-stop)`
  
 ### To run this form emacs using cider:
-- Open qjackctl in a window and go to the "Graph" page
-- in a new Terminal window type `make cider`
-- at the user=> prompt type `(require 'splice.core)`
-- Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
-  the input 1 and 2 of the computer speakers
+- Run the steps above up through connecting the Overtone server to the speakers in qjackctl
 - In emacs type M-x cider-connect
 - Just hit <enter> at any prompts
 - A clojure repl will open in an new emacs buffer. This repl is connected to the clojure server you started above
