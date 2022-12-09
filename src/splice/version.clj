@@ -18,7 +18,7 @@
 (def SPLICE-VERSION {:major 0
                      :minor 1
                      :patch 0
-                     :development true})
+                     :development false})
 
 (def SPLICE-VERSION-STR
   (let [version SPLICE-VERSION]

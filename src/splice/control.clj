@@ -166,7 +166,7 @@
 
 (defn pause-splice
   []
-  (printn "*** pause-splice not implemented ***")
+  (println "*** pause-splice not implemented ***")
   )
 
 (defn quit-splice
