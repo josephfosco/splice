@@ -161,10 +161,12 @@
 
 (defn clear-splice
   []
+  (println "*** clear-splice not implemented ***")
   )
 
 (defn pause-splice
   []
+  (println "*** pause-splice not implemented ***")
   )
 
 (defn quit-splice
