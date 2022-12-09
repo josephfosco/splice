@@ -83,7 +83,7 @@
   (condp = (:type volume-info)
     :fixed (:level volume-info)
     :random (select-random-volume)
-    :variable-volume (select-random-volume
+    :variable (select-random-volume
                       (:min-volume volume-info)
                       (:max-volume volume-info)
                       )

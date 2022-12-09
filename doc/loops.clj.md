@@ -29,27 +29,42 @@
  ]
 }
 
-:dur
-{
-  :type  - Required :fixed | :variable-millis | :variable-inc-millis
-  :dur-millis - Required if :type == :fixed or :variable-inc-millis
-  :min-millis - Required if type == :fixed or :variable-millis
-  :max-millis - Required if type == :fixed or :variable-millis
-  :inc-millis - Required if type == :variable-inc-millis
-  :dec-millis - Required if type == :variable-inc-millis
-}
+:pitch
+[
+  {
+    :type - :fixed | :variable
+  }
+]
 
-:dur-millis - if type == :fixed, the duration of this loop event
+:dur
+[
+  {
+    :type  - Required :fixed | :variable-millis | :variable-inc-millis
+    :dur-millis - Required if :type == :fixed or :variable-inc-millis
+    :min-millis - Required if :type == :fixed or :variable-millis
+    :max-millis - Required if :type == :fixed or :variable-millis
+    :inc-millis - Required if :type == :variable-inc-millis
+    :dec-millis - Required if :type == :variable-inc-millis
+  }
+
+  :dur-millis - if type == :fixed, the duration of this loop event
               if type == :variable-inc-millis, the base duration of this event
-:min-millis - the minimum duration of this event
-:max-millis - the maximum duration of this event
-:inc-millis - the maximum amount dur-millis can be incremented
-:dec-millis - the maximum amount dur-millis can be decremented
+  :min-millis - if :type == :variable-millis, the minimum duration of this event
+  :max-millis - if :type == :variable-millis, the maximum duration of this event
+  :inc-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be incremented
+  :dec-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be decremented
+]
 
 :volume
-{
-    :type - Required :fixed | random
-    :level - Required if type == :fixed
-}
+[
+  {
+    :type - Required :fixed | random | variable
+    :level - Required if type == :fixed, not used if :type == random or variable
+    :min-volume - Required if :type == :variable, not used if :type == :fixed or :random
+    :max-volume - Required if :type == :variable, not used if :type == :fixed or :random
+  }
 
-:level - the volume level of this event. Must be between 0 and 1 inclusive
+  :level - if :type == :fixed the volume level of this event. Must be between 0 and 1 inclusive
+  :min-volume - if :type == :variable the minimum volume for this event
+  :max-volume - if :type == :variable the maximum volume for this event, for :variable type
+]
