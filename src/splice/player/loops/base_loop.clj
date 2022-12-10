@@ -75,6 +75,7 @@
                   (midi->hz pitch)
                   pitch) ;; :pitch-type = :freq or pitch is nil (rest)
                 )
+    :rest nil
     )
   )
 

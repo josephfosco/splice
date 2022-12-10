@@ -18,14 +18,13 @@
    :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
    :melody-info - an array of melody elemants to play
    [
-    {:pitch-freq | :pitch-midi-note - the pitch to play as a frequency or midi note number. Can be nil for a rest.
+    {:pitch - Required - Map containing pitch information for this note
      :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: (:attack 4.0 :release 3.0)
     }
    ]
   }
-
  ]
 }
 
@@ -33,7 +32,17 @@
 [
   {
     :type - :fixed | :variable
+    :pitch-midi-note - This or :pitch-freq are required if :type == :fixed
+    :pitch-freq - This or :pitch-midi-note are required if :type == :fixed
+    :pitch-type - Required if type == :variable.
+    :pitches - Required if :type == :variable.
   }
+
+  :pitch-midi-note - The midi note number of the note to play
+  :pitch-freq - The frequency (Hz) of the note to play
+  :pitch-type - :midi-note | :freq
+  :pitches - An array of integers representing midi-notes if :pitch-type == :midi-note or
+             frequencies (Hz.) if :pitch-type ==:freq. To include a rest in the array use nil.
 ]
 
 :dur

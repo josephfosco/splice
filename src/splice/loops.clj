@@ -11,8 +11,7 @@
    :instrument-name :plink-m1
    :melody-info
    [
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 20000}
      }
@@ -50,8 +49,7 @@
      :volume {:type :fixed
               :level 0.5}
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 23000}
      }
@@ -63,8 +61,7 @@
    :instrument-name :gong
    :melody-info
    [
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 28000}
      }
@@ -75,8 +72,7 @@
      :volume {:type :fixed
               :level 0.45}
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 43000}
      }
@@ -88,8 +84,7 @@
    :instrument-name :woosh
    :melody-info
    [
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 40000}
      }
@@ -100,8 +95,7 @@
      :volume {:type :fixed
               :level 0.5}
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 38000}
      }
@@ -123,8 +117,7 @@
               :max-volume 0.4}
      :instrument-settings (:attack 4.0 :release 3.0)
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 14000}
      }
@@ -144,8 +137,7 @@
               :max-volume 0.4}
      :instrument-settings (:attack 2.5 :release 3.0)
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 22000}
      }
@@ -165,8 +157,7 @@
               :max-volume 0.4}
      :instrument-settings (:attack 5.5 :release 4.7)
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 28000}
      }
@@ -186,8 +177,7 @@
               :max-volume 0.4}
      :instrument-settings (:attack 7.0 :release 4.0)
      }
-    {:pitch {:type :fixed
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 26000}
      }
