@@ -17,6 +17,7 @@
   (:require
    [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
+   [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    )
   )
@@ -65,11 +66,27 @@
     :fixed (or (:pitch-freq pitch-info)
                (if-let [note-no (:pitch-midi-note pitch-info)]
                  (midi->hz note-no)
-                 ))
+                 )
+               ;; returns nil (rest) if neither :pitch-freq or :pitch-midi-note
+               ;;    are specified
+               )
     :variable (let [pitch (rand-nth (:pitches pitch-info))]
                 (if (and pitch (= :midi-note (:pitch-type pitch-info)))
                   (midi->hz pitch)
                   pitch) ;; :pitch-type = :freq or pitch is nil (rest)
                 )
+    )
+  )
+
+(defn get-loop-volume
+  [volume-info]
+  (condp = (:type volume-info)
+    :fixed (:level volume-info)
+    :random (select-random-volume)
+    :variable-volume (select-random-volume
+                      (:min-volume volume-info)
+                      (:max-volume volume-info)
+                      )
+    nil ;; default - used when this is a rest and volume-info is nil
     )
   )
