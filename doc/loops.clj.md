@@ -18,38 +18,62 @@
    :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
    :melody-info - an array of melody elemants to play
    [
-    {:pitch-freq | :pitch-midi-note - the pitch to play as a frequency or midi note number. Can be nil for a rest.
+    {:pitch - Required - Map containing pitch information for this note
      :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: (:attack 4.0 :release 3.0)
     }
    ]
   }
-
  ]
 }
 
-:dur
-{
-  :type  - Required :fixed | :variable-millis | :variable-inc-millis
-  :dur-millis - Required if :type == :fixed or :variable-inc-millis
-  :min-millis - Required if type == :fixed or :variable-millis
-  :max-millis - Required if type == :fixed or :variable-millis
-  :inc-millis - Required if type == :variable-inc-millis
-  :dec-millis - Required if type == :variable-inc-millis
-}
+:pitch
+[
+  {
+    :type - :fixed | :variable
+    :pitch-midi-note - This or :pitch-freq are required if :type == :fixed
+    :pitch-freq - This or :pitch-midi-note are required if :type == :fixed
+    :pitch-type - Required if type == :variable.
+    :pitches - Required if :type == :variable.
+  }
 
-:dur-millis - if type == :fixed, the duration of this loop event
+  :pitch-midi-note - The midi note number of the note to play
+  :pitch-freq - The frequency (Hz) of the note to play
+  :pitch-type - :midi-note | :freq
+  :pitches - An array of integers representing midi-notes if :pitch-type == :midi-note or
+             frequencies (Hz.) if :pitch-type ==:freq. To include a rest in the array use nil.
+]
+
+:dur
+[
+  {
+    :type  - Required :fixed | :variable-millis | :variable-inc-millis
+    :dur-millis - Required if :type == :fixed or :variable-inc-millis
+    :min-millis - Required if :type == :fixed or :variable-millis
+    :max-millis - Required if :type == :fixed or :variable-millis
+    :inc-millis - Required if :type == :variable-inc-millis
+    :dec-millis - Required if :type == :variable-inc-millis
+  }
+
+  :dur-millis - if type == :fixed, the duration of this loop event
               if type == :variable-inc-millis, the base duration of this event
-:min-millis - the minimum duration of this event
-:max-millis - the maximum duration of this event
-:inc-millis - the maximum amount dur-millis can be incremented
-:dec-millis - the maximum amount dur-millis can be decremented
+  :min-millis - if :type == :variable-millis, the minimum duration of this event
+  :max-millis - if :type == :variable-millis, the maximum duration of this event
+  :inc-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be incremented
+  :dec-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be decremented
+]
 
 :volume
-{
-    :type - Required :fixed | random
-    :level - Required if type == :fixed
-}
+[
+  {
+    :type - Required :fixed | random | variable
+    :level - Required if type == :fixed, not used if :type == random or variable
+    :min-volume - Required if :type == :variable, not used if :type == :fixed or :random
+    :max-volume - Required if :type == :variable, not used if :type == :fixed or :random
+  }
 
-:level - the volume level of this event. Must be between 0 and 1 inclusive
+  :level - if :type == :fixed the volume level of this event. Must be between 0 and 1 inclusive
+  :min-volume - if :type == :variable the minimum volume for this event
+  :max-volume - if :type == :variable the maximum volume for this event, for :variable type
+]
