@@ -18,7 +18,6 @@
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument]]
-   [overtone.live :refer [node-get-control]]
    )
   )
 

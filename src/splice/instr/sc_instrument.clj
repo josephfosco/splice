@@ -14,17 +14,19 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns splice.instr.sc-instrument
-  (:require
-   [overtone.live :refer :all]
-   ))
-
-(defn stop-instrument
-  [sc-instrument-id]
-  (ctl sc-instrument-id :gate 0)
+  ;; (:require
+  ;;  [overtone.live :refer :all]
+  ;;  )
   )
+
+;; (defn stop-instrument
+;;   [sc-instrument-id]
+;;   (ctl sc-instrument-id :gate 0)
+;;   )
 
 (defn get-release-millis-from-instrument
   ""
   [sc-instrument-id]
-  (*  (node-get-control sc-instrument-id :release) 1000)
+  ;; (*  (node-get-control sc-instrument-id :release) 1000)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
   )

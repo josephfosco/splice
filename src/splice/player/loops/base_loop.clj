@@ -15,10 +15,10 @@
 
 (ns splice.player.loops.base-loop
   (:require
-   [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
+   [splice.music.music :refer [midi->hz]]
    )
   )
 

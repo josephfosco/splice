@@ -1,0 +1,8 @@
+Add midi functions from overtone/src/overtone/midi.clj
+  and/or overtone/src/overtone/studio/midi.clj (possibly do this)
+
+Implement core/splice_stop and control/stop_splice
+
+Set log settings (dir and level for sc-osc
+
+need to fix clj-osc location in sc-osc/deps.edn

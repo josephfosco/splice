@@ -1,4 +1,4 @@
-;    Copyright (C) 2019 Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2019, 2023 Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,9 +16,11 @@
 (ns splice.core
   (:gen-class)
   (:require
-   [overtone.live :as overtone]
-   [splice.control :refer [clear-splice pause-splice quit-splice
-                           start-splice ]]
+   ;; [overtone.live :as overtone]
+   [sc-osc.sc :refer [sc-connect]]
+   ;; [splice.control :refer [clear-splice pause-splice quit-splice
+   ;;                         start-splice ]]
+   [splice.control :refer [quit-splice start-splice ]]
    [splice.util.log :as log]
    [splice.util.settings :refer [get-setting load-settings set-setting!]]
    [splice.version :refer [SPLICE-VERSION-STR]]
@@ -67,13 +69,16 @@
 (defn splice-pause
   "Stop playing after players finish what they have scheduled"
   []
-  (pause-splice)
+  ;; (pause-splice)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-pause"))
+
 )
 
 (defn splice-clear
   "Clears the scheduler, message-processor, and players"
   []
-  (clear-splice)
+  ;; (clear-splice)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-clear"))
   )
 
 (defn splice-help
@@ -95,8 +100,11 @@
   (println "")
   )
 
-(defn stop
+(defn splice-stop
   []
-  (overtone/stop))
+  ;; (stop-splice)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-stop"))
+  )
 
 (splice-help)
+(sc-connect)

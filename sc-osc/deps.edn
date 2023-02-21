@@ -1,0 +1,7 @@
+{
+ :paths ["src"]
+ :deps
+ {org.clojure/clojure {:mvn/version "1.11.1"}
+  overtone/osc-clj {:local/root "/home/joseph/src/clj/osc-tst/osc-clj"}
+  }
+ }

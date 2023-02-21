@@ -15,7 +15,7 @@
 
 (ns splice.config.constants
   (:require
-   [overtone.live :refer [midi->hz MIDI-RANGE]]
+   [splice.music.music :refer [midi->hz MIDI-RANGE]]
    )
   )
 
