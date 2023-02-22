@@ -122,7 +122,7 @@
 
 (defn load-sc-synthdefs
   [loops]
-  (println "loading....")
+  (println "loading synthdefs....")
   (let [synth-files (set (for [loop loops]
                           (str
                            "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"
@@ -130,9 +130,9 @@
                            ".scsyndef")
                           ))
 
-        missing-files (for [file synth-files :when (not (.exists (io/file file)))] file )
+        missing-files (filter #(not (.exists (java.io.File. %))) synth-files)
         ]
-    (if (not= () missing-files)
+    (if (seq missing-files)
       missing-files
       (map (partial sc-send-msg "/d_load") synth-files)
       )
@@ -168,8 +168,14 @@
           initial-players (init-players player-settings)
           ;; init-melodies (map init-melody (range number-of-players))
           ;; init-msgs (for [x (range number-of-players)] [])
+          missing-synthdefs (load-sc-synthdefs (:loops player-settings))
           ]
-      (load-sc-synthdefs (:loops player-settings))
+      (if (seq (filter some? missing-synthdefs))
+        (throw (Throwable.
+                (str "The following SynthDef files are missing:\n"
+                     (clojure.string/join "\n" missing-synthdefs))
+                  ))
+        )
       ;; (init-main-bus-effects (:main-bus-effects player-settings))
       ;; (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       ;; (init-splice initial-players init-melodies init-msgs)

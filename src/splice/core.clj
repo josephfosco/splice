@@ -17,7 +17,7 @@
   (:gen-class)
   (:require
    ;; [overtone.live :as overtone]
-   [sc-osc.sc :refer [sc-connect]]
+   [sc-osc.sc :refer [sc-connect sc-connection-status]]
    ;; [splice.control :refer [clear-splice pause-splice quit-splice
    ;;                         start-splice ]]
    [splice.control :refer [quit-splice start-splice ]]
@@ -47,6 +47,9 @@
   (get-settings "src/splice/settings.clj")
   (log/set-print-log-level! true)
   (log/set-log-level! (get-setting :log-level))
+  (if (not= (sc-connection-status) :connected)
+    (sc-connect)
+    )
   (start-splice args)
 )
 
@@ -107,4 +110,3 @@
   )
 
 (splice-help)
-(sc-connect)

@@ -15,7 +15,7 @@
 
 (ns sc-osc.sc
   (:require [overtone.osc :refer [in-osc-bundle]]
-            [sc-osc.connection :refer [connect]]
+            [sc-osc.connection :refer [connect connection-status*]]
             [sc-osc.server-comms :refer [server-osc-peer* server-snd]]
             ))
 
@@ -26,7 +26,6 @@
 
 (defn sc-send-msg
   [path & args]
-  (println "* " args ) " *"
   (apply server-snd path args)
   )
 
@@ -39,3 +38,8 @@
   "Return the current time in milliseconds"
   []
   (System/currentTimeMillis))
+
+(defn sc-connection-status
+  []
+  @connection-status*
+  )
