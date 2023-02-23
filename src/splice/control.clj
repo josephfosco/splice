@@ -16,7 +16,7 @@
 (ns splice.control
   (:require
    ;; [overtone.live :refer [apply-at]]
-   [sc-osc.sc :refer [sc-send-msg sc-now]]
+   [sc-osc.sc :refer [sc-debug sc-send-msg sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
    ;; [splice.ensemble.ensemble :refer [init-ensemble]]
    ;; [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
@@ -28,7 +28,6 @@
    ;; [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    ;; [splice.util.util :refer [close-msg-channel start-msg-channel]]
-   [clojure.java.io :as io]
   ))
 
 (def ^:private is-playing? (atom false))
@@ -133,7 +132,11 @@
         missing-files (filter #(not (.exists (java.io.File. %))) synth-files)
         ]
     (if (seq missing-files)
-      missing-files
+      (throw (Throwable.
+              (str "MISSING SYNTHDEF FILES\n"
+                   "The following SynthDef files are missing:\n"
+                   (clojure.string/join "\n" missing-files))
+              ))
       (map (partial sc-send-msg "/d_load") synth-files)
       )
     ))
@@ -158,7 +161,7 @@
 ;;   )
 
 (defn start-splice
-  [{loops :loops :or {loops "src/splice/loops.clj"} :as args}]
+  [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
   (println "about to start with args: " args)
   (if (false? is-playing?)
     (println "STARTING")
@@ -168,14 +171,8 @@
           initial-players (init-players player-settings)
           ;; init-melodies (map init-melody (range number-of-players))
           ;; init-msgs (for [x (range number-of-players)] [])
-          missing-synthdefs (load-sc-synthdefs (:loops player-settings))
           ]
-      (if (seq (filter some? missing-synthdefs))
-        (throw (Throwable.
-                (str "The following SynthDef files are missing:\n"
-                     (clojure.string/join "\n" missing-synthdefs))
-                  ))
-        )
+      (load-sc-synthdefs (:loops player-settings))
       ;; (init-main-bus-effects (:main-bus-effects player-settings))
       ;; (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       ;; (init-splice initial-players init-melodies init-msgs)

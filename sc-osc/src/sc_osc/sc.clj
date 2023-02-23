@@ -43,3 +43,16 @@
   []
   @connection-status*
   )
+
+(defn sc-debug
+  [val]
+  (if val
+    (do
+      (sc-osc.event/event-debug-on)
+      (overtone.osc/osc-debug true)
+      (sc-osc.sc/sc-send-msg "/dumpOSC" 1))
+    (do
+      (sc-osc.event/event-debug-off)
+      (overtone.osc/osc-debug false)
+      (sc-osc.sc/sc-send-msg "/dumpOSC" 0))
+    ))
