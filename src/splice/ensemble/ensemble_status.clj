@@ -15,8 +15,7 @@
 
 (ns splice.ensemble.ensemble-status
   (:require
-   [clojure.core.async :refer [<! >!! chan go-loop sub]]
-   [overtone.live :refer [apply-at]]
+   [clojure.core.async :refer [<! >!! chan go-loop sub timeout]]
    [splice.config.constants :refer [STATUS-UPDATE-MILLIS
                                      DECREASING
                                      INCREASING
@@ -26,6 +25,7 @@
                                         get-event-time-from-melody-event
                                         get-play-time-from-melody-event
                                         ]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel get-msg-pub]]
    )
@@ -35,6 +35,7 @@
 ;; of a note that was played. Used to compute ensemble density
 (def ^:private note-times (atom []))
 (def ^:private ensemble-density (atom 0.0))
+(def ^:private stop-processing-status-mgs (atom false))
 
 (defrecord EnsembleStatus [density density-trend])
 
@@ -152,22 +153,32 @@
           :status ens-status
           :time (System/currentTimeMillis)})
     )
-  (apply-at (+ (System/currentTimeMillis) STATUS-UPDATE-MILLIS)
-            update-ensemble-status)
   )
 
 (defn reset-ensemble-status
   []
+  (reset! stop-processing-status-mgs false)
   (reset! note-times [])
   (reset! ensemble-density 0)
+  )
+
+(defn stop-ensemble-status
+  []
+  (reset! stop-processing-status-mgs true)
   )
 
 (defn start-ensemble-status
   []
   (reset-ensemble-status)
 
-  (apply-at (+ (System/currentTimeMillis) STATUS-UPDATE-MILLIS)
-            update-ensemble-status)
+  ;; call update-ensemble-status event STATUS-UPDATE-MILLIS
+  (go-loop []
+    (if @stop-processing-status-mgs
+      (log/info "ensemble_status message loop stopped.")
+      (do
+        (<! (timeout STATUS-UPDATE-MILLIS))
+        (update-ensemble-status)
+        (recur))))
 
   (def status-out-channel (chan (* 2 (get-setting :num-players))))
   (sub (get-msg-pub) :melody-event status-out-channel)

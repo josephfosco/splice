@@ -18,16 +18,16 @@
    ;; [overtone.live :refer [apply-at]]
    [sc-osc.sc :refer [sc-debug sc-send-msg sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
-   ;; [splice.ensemble.ensemble :refer [init-ensemble]]
-   ;; [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
+   [splice.ensemble.ensemble :refer [init-ensemble]]
+   [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
    ;; [splice.player.player-play-note :refer [play-next-note]]
-   ;; [splice.melody.melody-event :refer [create-melody-event]]
+   [splice.melody.melody-event :refer [create-melody-event]]
    [splice.util.log :as log]
    ;; [splice.util.print :refer [print-banner]]
    ;; [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
-   ;; [splice.util.util :refer [close-msg-channel start-msg-channel]]
+   [splice.util.util :refer [close-msg-channel start-msg-channel]]
   ))
 
 (def ^:private is-playing? (atom false))
@@ -38,19 +38,19 @@
                             :name
                             )))
 
-;; (defn init-splice
-;;   "Initialize splice to play.
+(defn init-splice
+  "Initialize splice to play.
 
-;;    args -
-;;    players - list of all initial players
-;;    melodies - list of all initial melodies (1 for each player)
-;;    msgs -  an empty list to be used for msgs sent to the player
-;;   "
-;;   [players melodies msgs]
-;;   (start-msg-channel)
-;;   (init-ensemble players melodies msgs)
-;;   (start-ensemble-status)
-;;   )
+   args -
+   players - list of all initial players
+   melodies - list of all initial melodies (1 for each player)
+   msgs -  an empty list to be used for msgs sent to the player
+  "
+  [players melodies msgs]
+  (start-msg-channel)
+  (init-ensemble players melodies msgs)
+  (start-ensemble-status)
+  )
 
 (defn validate-loop-keys
   [loop-settings]
@@ -97,18 +97,18 @@
       ))
  )
 
-;; (defn init-melody
-;;   [player-id]
+(defn init-melody
+  [player-id]
 
-;;   (vector (create-melody-event :melody-event-id 0
-;;                                :freq nil
-;;                                :dur-info nil
-;;                                :volume nil
-;;                                :instrument-info nil
-;;                                :player-id player-id
-;;                                :event-time 0
-;;                                ))
-;;   )
+  (vector (create-melody-event :melody-event-id 0
+                               :freq nil
+                               :dur-info nil
+                               :volume nil
+                               :instrument-info nil
+                               :player-id player-id
+                               :event-time 0
+                               ))
+  )
 
 ;; (defn init-main-bus-effects
 ;;   [effects]
@@ -152,13 +152,13 @@
 ;;               ))
 ;;   )
 
-;; (defn- start-playing
-;;   "calls play-note the first time for every player in ensemble"
-;;   [min-start-offset max-start-offset]
-;;   (log/info "********** Start-playing ****************")
-;;   (dotimes [id (get-setting :num-players)]
-;;     (play-first-note id min-start-offset max-start-offset))
-;;   )
+(defn- start-playing
+  "calls play-note the first time for every player in ensemble"
+  [min-start-offset max-start-offset]
+  (log/info "********** Start-playing ****************")
+  (dotimes [id (get-setting :num-players)]
+    (play-first-note id min-start-offset max-start-offset))
+  )
 
 (defn start-splice
   [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
@@ -169,28 +169,28 @@
           number-of-players (set-setting! :num-players
                                           (count (:loops player-settings)))
           initial-players (init-players player-settings)
-          ;; init-melodies (map init-melody (range number-of-players))
-          ;; init-msgs (for [x (range number-of-players)] [])
+          init-melodies (map init-melody (range number-of-players))
+          init-msgs (for [x (range number-of-players)] [])
           ]
       (load-sc-synthdefs (:loops player-settings))
       ;; (init-main-bus-effects (:main-bus-effects player-settings))
-      ;; (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
-      ;; (init-splice initial-players init-melodies init-msgs)
+      (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+      (init-splice initial-players init-melodies init-msgs)
       ;; (start-playing (or (:min-start-offset player-settings) 0)
       ;;                (or (:max-start-offset player-settings) 0))
       ;; (reset! is-playing? true)
       ))
   )
 
-;; (defn clear-splice
-;;   []
-;;   (println "*** clear-splice not implemented ***")
-;;   )
+(defn clear-splice
+  []
+  (println "*** clear-splice not implemented ***")
+  )
 
-;; (defn pause-splice
-;;   []
-;;   (println "*** pause-splice not implemented ***")
-;;   )
+(defn pause-splice
+  []
+  (println "*** pause-splice not implemented ***")
+  )
 
 (defn quit-splice
   []

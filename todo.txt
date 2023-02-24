@@ -2,7 +2,13 @@ Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
 
 Implement core/splice_stop and control/stop_splice
+if the nessage system is used make certain ensemble/ensemble_status.clj catches the message
+  and calls stop-ensemble-status to stop the ensemble-status message loop.
 
 Set log settings (dir and level for sc-osc
 
 need to fix clj-osc location in sc-osc/deps.edn
+
+check if I want to use blocking or unblocking channels in ensemble_status.clj
+currently I use blocking channels if I want to switch to unblocking channels, change
+(chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
