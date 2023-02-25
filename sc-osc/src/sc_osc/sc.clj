@@ -48,6 +48,7 @@
   [val]
   (if val
     (do
+      (println "Activating detailed OSC debug logs....")
       (sc-osc.event/event-debug-on)
       (overtone.osc/osc-debug true)
       (sc-osc.sc/sc-send-msg "/dumpOSC" 1))

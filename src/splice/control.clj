@@ -1,4 +1,4 @@
-;    Copyright (C) 2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,17 +15,17 @@
 
 (ns splice.control
   (:require
-   ;; [overtone.live :refer [apply-at]]
+   [clojure.core.async :refer [<! go timeout]]
    [sc-osc.sc :refer [sc-debug sc-send-msg sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
-   ;; [splice.player.player-play-note :refer [play-next-note]]
+   [splice.player.player-play-note :refer [play-next-note]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.util.log :as log]
    ;; [splice.util.print :refer [print-banner]]
-   ;; [splice.util.random :refer [random-int]]
+   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel start-msg-channel]]
   ))
@@ -137,20 +137,19 @@
                    "The following SynthDef files are missing:\n"
                    (clojure.string/join "\n" missing-files))
               ))
-      (map (partial sc-send-msg "/d_load") synth-files)
+      (doall (map (partial sc-send-msg "/d_load") synth-files))
       )
     ))
 
-;; (defn- play-first-note
-;;   [player-id min-time-offset max-time-offset]
-
-;;   (let [note-time (+ (sc-now) (random-int (* min-time-offset 1000)
-;;                                        (* max-time-offset 1000)))]
-;;     (apply-at note-time
-;;               play-next-note
-;;               [player-id note-time]
-;;               ))
-;;   )
+(defn- play-first-note
+  [player-id min-time-offset max-time-offset]
+  (let [delay-millis (+ (random-int (* min-time-offset 1000)
+                                    (* max-time-offset 1000)))
+        note-time (+ (sc-now) delay-millis)
+        ]
+    (go (<! (timeout delay-millis))
+        (play-next-note player-id note-time)))
+  )
 
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
@@ -176,9 +175,9 @@
       ;; (init-main-bus-effects (:main-bus-effects player-settings))
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       (init-splice initial-players init-melodies init-msgs)
-      ;; (start-playing (or (:min-start-offset player-settings) 0)
-      ;;                (or (:max-start-offset player-settings) 0))
-      ;; (reset! is-playing? true)
+      (start-playing (or (:min-start-offset player-settings) 0)
+                     (or (:max-start-offset player-settings) 0))
+      (reset! is-playing? true)
       ))
   )
 

@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!!]]
-   [overtone.live :refer [apply-at ctl midi->hz]]
+   ;; [overtone.live :refer [apply-at ctl midi->hz]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
-   [splice.instr.sc-instrument :refer [stop-instrument]]
+   ;; [splice.instr.sc-instrument :refer [stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
                                      get-melody
@@ -37,6 +37,7 @@
                                        get-sc-instrument-id-from-melody-event
                                        get-volume-from-melody-event
                                        set-play-info]]
+   [splice.music.music :refer [midi->hz]]
    [splice.player.player-utils :refer [get-loop-name
                                        get-next-melody-event
                                        NEXT-METHOD]]
@@ -81,7 +82,7 @@
                   )
                  )
              )
-    (stop-instrument (get-sc-instrument-id-from-melody-event prior-melody-event))
+    ;; (stop-instrument (get-sc-instrument-id-from-melody-event prior-melody-event))
     )
   )
 
@@ -89,12 +90,12 @@
   [prior-melody-event melody-event]
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     ;; apply not tested???
-    (apply ctl inst-id
-         :freq (get-freq-from-melody-event melody-event)
-         :vol (* (get-volume-from-melody-event melody-event)
-                 (get-setting :volume-adjust))
-         (get-instrument-settings-from-melody-event melody-event)
-         )
+    ;; (apply ctl inst-id
+    ;;      :freq (get-freq-from-melody-event melody-event)
+    ;;      :vol (* (get-volume-from-melody-event melody-event)
+    ;;              (get-setting :volume-adjust))
+    ;;      (get-instrument-settings-from-melody-event melody-event)
+    ;;      )
     inst-id
     )
   )
@@ -117,11 +118,11 @@
                           (get-dur-millis-from-melody-event melody-event)
                           )
                        NEXT-NOTE-PROCESS-MILLIS)]
-      (apply-at next-time
-                play-next-note
-                [(get-player-id-from-melody-event melody-event) next-time]
-                )))
-  )
+      ;; (apply-at next-time
+      ;;           play-next-note
+      ;;           [(get-player-id-from-melody-event melody-event) next-time]
+      ;;           )
+      )))
 
 (defn play-melody-event
   [prior-melody-event melody-event event-time]
@@ -143,13 +144,13 @@
         ]
     ;; schedule note-off for melody-event
     (when (get-note-off-from-melody-event full-melody-event)
-      (apply-at (+ event-time
-                   (- (get-dur-millis-from-dur-info
-                       (get-dur-info-from-melody-event melody-event))
-                      (get-release-millis-from-melody-event full-melody-event)
-                      ))
-                stop-instrument
-                [cur-inst-id])
+      ;; (apply-at (+ event-time
+      ;;              (- (get-dur-millis-from-dur-info
+      ;;                  (get-dur-info-from-melody-event melody-event))
+      ;;                 (get-release-millis-from-melody-event full-melody-event)
+      ;;                 ))
+      ;;           stop-instrument
+      ;;           [cur-inst-id])
       )
     full-melody-event
     )
@@ -160,30 +161,31 @@
   (println "-")
   (println "start -" player-id)
   (let [event-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
+        ;; TODO document why we are clearing messages here
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
         melody (get-melody ensemble player-id)
-        [upd-player next-melody-event] (get-next-melody-event
-                                        ensemble
-                                        player
-                                        melody
-                                        player-id)
-        upd-melody-event (play-melody-event (last melody)
-                                            next-melody-event
-                                            event-time)
-        upd-melody (update-melody-with-event melody upd-melody-event)
+  ;;       [upd-player next-melody-event] (get-next-melody-event
+  ;;                                       ensemble
+  ;;                                       player
+  ;;                                       melody
+  ;;                                       player-id)
+  ;;       upd-melody-event (play-melody-event (last melody)
+  ;;                                           next-melody-event
+  ;;                                           event-time)
+  ;;       upd-melody (update-melody-with-event melody upd-melody-event)
         ]
-    (println player-id
-             (get-loop-name player)
-             (if (get-freq-from-melody-event upd-melody-event)
-               ""
-               "REST"))
-    (check-prior-event-note-off (last melody) upd-melody-event)
-    (update-player-and-melody upd-player upd-melody player-id)
-    (sched-next-note upd-melody-event)
-    (>!! (get-msg-channel) {:msg :melody-event
-                             :data upd-melody-event
-                             :time (System/currentTimeMillis)})
-    (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
+  ;;   (println player-id
+  ;;            (get-loop-name player)
+  ;;            (if (get-freq-from-melody-event upd-melody-event)
+  ;;              ""
+  ;;              "REST"))
+  ;;   (check-prior-event-note-off (last melody) upd-melody-event)
+  ;;   (update-player-and-melody upd-player upd-melody player-id)
+  ;;   (sched-next-note upd-melody-event)
+  ;;   (>!! (get-msg-channel) {:msg :melody-event
+  ;;                            :data upd-melody-event
+  ;;                            :time (System/currentTimeMillis)})
+    ;; (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
     )
  )

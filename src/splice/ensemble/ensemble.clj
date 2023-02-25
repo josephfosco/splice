@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
   )
 
 (def ^:private ensemble (atom nil))
+;; TODO document what player-msgs is doing.
+;; I am not sure anything is ever being put in here
 (def ^:private player-msgs (atom nil))
 
 (defn get-ensemble
