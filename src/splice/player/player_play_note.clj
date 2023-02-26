@@ -102,6 +102,10 @@
 
 (defn play-note-new-instrument
   [melody-event]
+  ;; ---------->>>>>>>>>>>
+  ;;  need to use /n_set to create a new synth node and send args along
+  ;; also need to set up default group before this ever gets called
+  ;; ---------->>>>>>>>>>>
   (apply (get-instrument-from-instrument-info
     (get-instrument-info-from-melody-event melody-event)
     )
@@ -129,7 +133,8 @@
   (let [cur-inst-id
         (cond (nil? (get-freq-from-melody-event melody-event))
               nil
-              (not (false? (get-note-off-from-melody-event prior-melody-event)))
+              (true? (get-note-off-from-melody-event prior-melody-event))
+              ;; --> here
               (play-note-new-instrument melody-event)
               :else
               (play-note-prior-instrument prior-melody-event melody-event)
@@ -165,14 +170,14 @@
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
         melody (get-melody ensemble player-id)
-  ;;       [upd-player next-melody-event] (get-next-melody-event
-  ;;                                       ensemble
-  ;;                                       player
-  ;;                                       melody
-  ;;                                       player-id)
-  ;;       upd-melody-event (play-melody-event (last melody)
-  ;;                                           next-melody-event
-  ;;                                           event-time)
+        [upd-player next-melody-event] (get-next-melody-event
+                                        ensemble
+                                        player
+                                        melody
+                                        player-id)
+        upd-melody-event (play-melody-event (last melody)
+                                            next-melody-event
+                                            event-time)
   ;;       upd-melody (update-melody-with-event melody upd-melody-event)
         ]
   ;;   (println player-id

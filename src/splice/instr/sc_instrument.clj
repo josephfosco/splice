@@ -1,4 +1,4 @@
-;    Copyright (C) 2014-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,15 +14,16 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns splice.instr.sc-instrument
-  ;; (:require
+  (:require
+   [sc-osc.sc :refer [sc-send-msg]]
   ;;  [overtone.live :refer :all]
-  ;;  )
+    )
   )
 
-;; (defn stop-instrument
-;;   [sc-instrument-id]
-;;   (ctl sc-instrument-id :gate 0)
-;;   )
+(defn stop-instrument
+  [sc-instrument-id]
+  (sc-send-msg "n_set" sc-instrument-id 0.0)
+  )
 
 (defn get-release-millis-from-instrument
   ""

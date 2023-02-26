@@ -1,3 +1,3 @@
 (ns user
-  ;; (:require [splice.core])
+  (:use [splice.core])
   )

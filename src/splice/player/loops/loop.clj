@@ -1,4 +1,4 @@
-;    Copyright (C) 2018-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -43,6 +43,12 @@
    checks each loop-events :play-prob (play probability) if it exists
   "
   [loop-structr start-ndx]
+  ;; ndx in the for will range between 0 and start-ndx, but will start at start-ndx
+  ;; If there is a play-prob, for the next melody-info event it will check if it
+  ;; should play the event based on the play-prob. If it should it will return that
+  ;; ndx, otherwise it will continue trying with the next ndx until it finds the event
+  ;; ndx it should play. If there is no play-prob for the event, it will rutrun the next
+  ;; event ndx.
   (first
    (take 1
          (for [ndx (iterate
@@ -61,7 +67,8 @@
 )
 
 (defn get-next-melody
-  "Returns an updated loop structure and a melody-event"
+  "Returns an updated loop structure with the :next-melody-event-ndx updated and
+  a new melody-event"
   [player melody loop-structr next-id]
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
