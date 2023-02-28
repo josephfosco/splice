@@ -16,7 +16,7 @@
 (ns sc-osc.sc
   (:require [overtone.osc :refer [in-osc-bundle]]
             [sc-osc.connection :refer [connect connection-status*]]
-            [sc-osc.server-comms :refer [server-osc-peer* server-snd]]
+            [sc-osc.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
             ))
 
 (defn sc-connect
@@ -25,8 +25,8 @@
   )
 
 (defn sc-send-msg
-  [path & args]
-  (apply server-snd path args)
+  [& args]
+  (apply server-snd args)
   )
 
 (defn sc-send-bundle
@@ -42,6 +42,11 @@
 (defn sc-connection-status
   []
   @connection-status*
+  )
+
+(defn sc-with-server-sync
+  [& args]
+  (apply with-server-sync args)
   )
 
 (defn sc-debug

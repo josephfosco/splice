@@ -16,7 +16,7 @@
 (ns splice.control
   (:require
    [clojure.core.async :refer [<! go timeout]]
-   [sc-osc.sc :refer [sc-debug sc-send-msg sc-now]]
+   [sc-osc.sc :refer [sc-debug sc-send-msg sc-with-server-sync sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
@@ -119,7 +119,12 @@
 ;;          )
 ;;   )
 
-(defn load-sc-synthdefs
+(defn- send-load-msg
+  [filename]
+  (sc-with-server-sync #(sc-send-msg "/d_load" filename))
+  )
+
+(defn- load-sc-synthdefs
   [loops]
   (println "loading synthdefs....")
   (let [synth-files (set (for [loop loops]
@@ -137,7 +142,7 @@
                    "The following SynthDef files are missing:\n"
                    (clojure.string/join "\n" missing-files))
               ))
-      (doall (map (partial sc-send-msg "/d_load") synth-files))
+      (doall (map send-load-msg synth-files))
       )
     ))
 

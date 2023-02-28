@@ -81,27 +81,27 @@
 ;;   (reset! (:current-val lossy-worker) new-val)
 ;;   (.put (:queue lossy-worker) :job))
 
-;; (defn on-event
-;;   "Asynchronously runs handler whenever events of event-type are
-;;   fired. This asynchronous behaviour can be overridden if required - see
-;;   sync-event for more information. Events may be triggered with the fns
-;;   event and sync-event.
+(defn on-event
+  "Asynchronously runs handler whenever events of event-type are
+  fired. This asynchronous behaviour can be overridden if required - see
+  sync-event for more information. Events may be triggered with the fns
+  event and sync-event.
 
-;;   Takes an event-type (name of the event), a handler fn and a key (to
-;;   refer back to this handler in the future). The handler must accept a
-;;   single event argument, which is a map containing the :event-type
-;;   property and any other properties specified when it was fired.
+  Takes an event-type (name of the event), a handler fn and a key (to
+  refer back to this handler in the future). The handler must accept a
+  single event argument, which is a map containing the :event-type
+  property and any other properties specified when it was fired.
 
-;;   (on-event \"/tr\" handler ::status-check )
-;;   (on-event :midi-note-down (fn [event]
-;;                               (funky-bass (:note event)))
-;;                             ::midi-note-down-hdlr)
+  (on-event \"/tr\" handler ::status-check )
+  (on-event :midi-note-down (fn [event]
+                              (funky-bass (:note event)))
+                            ::midi-note-down-hdlr)
 
-;;   Handlers can return :sc-osc/remove-handler to be removed from
-;;   the handler list after execution."
-;;   [event-type handler key]
-;;   (log-event "Registering async event handler:: " event-type " with key: " key)
-;;   (handlers/add-handler! handler-pool event-type key handler ))
+  Handlers can return :sc-osc/remove-handler to be removed from
+  the handler list after execution."
+  [event-type handler key]
+  (log-event "Registering async event handler:: " event-type " with key: " key)
+  (handlers/add-handler! handler-pool event-type key handler ))
 
 (defn on-sync-event
   "Synchronously runs handler whenever events of type event-type are
