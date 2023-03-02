@@ -15,7 +15,7 @@
 
 (ns splice.player.player-play-note
   (:require
-   [clojure.core.async :refer [>!!]]
+   [clojure.core.async :refer [>!! <! go timeout]]
    ;; [overtone.live :refer [apply-at ctl midi->hz]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    ;; [splice.instr.sc-instrument :refer [stop-instrument]]
@@ -106,27 +106,26 @@
   ;;  need to use /n_set to create a new synth node and send args along
   ;; also need to set up default group before this ever gets called
   ;; ---------->>>>>>>>>>>
-  (apply (get-instrument-from-instrument-info
-    (get-instrument-info-from-melody-event melody-event)
-    )
-   (get-freq-from-melody-event melody-event)
-   (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
-   (get-instrument-settings-from-melody-event melody-event))
+  ;; (apply (get-instrument-from-instrument-info
+  ;;   (get-instrument-info-from-melody-event melody-event)
+  ;;   )
+  ;;  (get-freq-from-melody-event melody-event)
+  ;;  (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+  ;;  (get-instrument-settings-from-melody-event melody-event))
+  (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event))) " %%%%%%%%%%%%%%%"
   )
 
 (declare play-next-note)
 (defn sched-next-note
   [melody-event]
-  (when (get-dur-info-from-melody-event melody-event)
+  (when-let [d-info (get-dur-info-from-melody-event melody-event)]
     (let [next-time (- (+ (get-event-time-from-melody-event melody-event)
-                          (get-dur-millis-from-melody-event melody-event)
+                          (get-dur-millis-from-dur-info d-info)
                           )
                        NEXT-NOTE-PROCESS-MILLIS)]
-      ;; (apply-at next-time
-      ;;           play-next-note
-      ;;           [(get-player-id-from-melody-event melody-event) next-time]
-      ;;           )
-      )))
+      (go (<! (timeout (get-dur-millis-from-dur-info d-info)))
+          (play-next-note (get-player-id-from-melody-event melody-event) next-time))
+    )))
 
 (defn play-melody-event
   [prior-melody-event melody-event event-time]
@@ -187,7 +186,7 @@
   ;;              "REST"))
   ;;   (check-prior-event-note-off (last melody) upd-melody-event)
   ;;   (update-player-and-melody upd-player upd-melody player-id)
-  ;;   (sched-next-note upd-melody-event)
+     (sched-next-note upd-melody-event)
   ;;   (>!! (get-msg-channel) {:msg :melody-event
   ;;                            :data upd-melody-event
   ;;                            :time (System/currentTimeMillis)})
