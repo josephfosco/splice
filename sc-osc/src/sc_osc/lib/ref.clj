@@ -4,7 +4,7 @@
 (ns
     ^{:doc "Reference helper fns"
       :author "Sam Aaron"}
-  sc-osc.ref)
+  sc-osc.lib.ref)
 
 (defn swap-returning-prev!
   "Similar to swap! except returns vector containing the previous and new values

@@ -15,24 +15,22 @@
 
 (ns sc-osc.sc
   (:require [overtone.osc :refer [in-osc-bundle]]
-            [sc-osc.connection :refer [connect connection-status*]]
-            [sc-osc.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
+            [sc-osc.lib.connection :refer [connect connection-status*]]
+            [sc-osc.lib.counters :refer [next-id]]
+            [sc-osc.lib.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
             ))
 
 (defn sc-connect
   []
-  (connect)
-  )
+  (connect))
 
 (defn sc-send-msg
   [& args]
-  (apply server-snd args)
-  )
+  (apply server-snd args))
 
 (defn sc-send-bundle
   [time & msgs]
-  (in-osc-bundle @server-osc-peer* time msgs)
-  )
+  (in-osc-bundle @server-osc-peer* time msgs))
 
 (defn sc-now
   "Return the current time in milliseconds"
@@ -41,24 +39,26 @@
 
 (defn sc-connection-status
   []
-  @connection-status*
-  )
+  @connection-status*)
 
 (defn sc-with-server-sync
   [& args]
-  (apply with-server-sync args)
-  )
+  (apply with-server-sync args))
+
+(defn sc-next-id
+  [& args]
+  (apply next-id args))
 
 (defn sc-debug
   [val]
   (if val
     (do
       (println "Activating detailed OSC debug logs....")
-      (sc-osc.event/event-debug-on)
+      (sc-osc.lib.event/event-debug-on)
       (overtone.osc/osc-debug true)
-      (sc-osc.sc/sc-send-msg "/dumpOSC" 1))
+      (sc-send-msg "/dumpOSC" 1))
     (do
-      (sc-osc.event/event-debug-off)
+      (sc-osc.lib.event/event-debug-off)
       (overtone.osc/osc-debug false)
-      (sc-osc.sc/sc-send-msg "/dumpOSC" 0))
+      (sc-send-msg "/dumpOSC" 0))
     ))

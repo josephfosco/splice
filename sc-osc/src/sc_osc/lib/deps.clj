@@ -6,9 +6,9 @@
     ^{:doc "A basic dependency system for specifying the execution of
            fns once dependencies have been met."
       :author "Sam Aaron & Jeff Rose"}
-  sc-osc.deps
+  sc-osc.lib.deps
   (:require [clojure.set :as set]
-            [sc-osc.log :as log]
+            [sc-osc.lib.log :as log]
             )
   )
 

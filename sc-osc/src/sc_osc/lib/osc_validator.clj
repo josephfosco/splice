@@ -8,9 +8,9 @@
             OSC messages to reduce the number of bogus messages that may
             potentially crash the server."
       :author "Sam Aaron"}
-  sc-osc.osc-validator
+  sc-osc.lib.osc-validator
   (:use [overtone.osc])
-  (:require [sc-osc.log :as log])
+  (:require [sc-osc.lib.log :as log])
   )
 
 (def TYPES

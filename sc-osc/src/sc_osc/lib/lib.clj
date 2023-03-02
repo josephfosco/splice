@@ -4,7 +4,7 @@
 (ns ^{:doc "Library of general purpose utility functions for Overtone
             internals."
       :author "Jeff Rose and Sam Aaron"}
-  sc-osc.lib
+  sc-osc.lib.lib
   (:import ;; [java.util ArrayList Collections]
            ;; [java.util.concurrent TimeUnit TimeoutException]
            [java.util.concurrent TimeoutException]

@@ -4,7 +4,7 @@
 (ns
     ^{:doc "Useful system information fns"
       :author "Sam Aaron and Jeff Rose"}
-  sc-osc.system)
+  sc-osc.lib.system)
 
 ;; (defn system-user-name
 ;;   "returns the name of the current user"

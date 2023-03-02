@@ -5,11 +5,11 @@
 (ns
   ^{:doc "Basic logging functionality."
      :author "Jeff Rose"}
-  sc-osc.log
+  sc-osc.lib.log
   (:import [java.util.logging Logger Level ConsoleHandler FileHandler
             StreamHandler Formatter LogRecord]
            [java.util Date])
-  (:use [sc-osc.config]
+  (:use [sc-osc.lib.config]
         [clojure.pprint :only (pprint)]))
 
 ;; Usage:

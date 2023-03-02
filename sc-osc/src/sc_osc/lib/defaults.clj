@@ -2,7 +2,7 @@
 
 
 
-(ns sc-osc.defaults
+(ns sc-osc.lib.defaults
   ;; (:use [overtone.helpers.file]
   ;;       [overtone.helpers.lib :only [windows-sc-path]])
   ;; (:require [overtone.at-at :as at-at]

@@ -1,4 +1,4 @@
-(ns sc-osc.config)
+(ns sc-osc.lib.config)
 
 (def CONFIG {:log-level :debug
              }

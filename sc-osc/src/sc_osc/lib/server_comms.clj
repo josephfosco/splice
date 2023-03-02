@@ -1,14 +1,14 @@
 ;; copied from the Overtone project overtone.sc.machinery.server.comms
 
 
-(ns sc-osc.server-comms
-  (:use [sc-osc.osc-validator]
-        [sc-osc.counters]
-        [sc-osc.event]
+(ns sc-osc.lib.server-comms
+  (:use [sc-osc.lib.osc-validator]
+        [sc-osc.lib.counters]
+        [sc-osc.lib.event]
         )
   (:require
-   [sc-osc.lib :refer [uuid deref!]]
-   [sc-osc.log :as log]
+   [sc-osc.lib.lib :refer [uuid deref!]]
+   [sc-osc.lib.log :as log]
    )
   )
 

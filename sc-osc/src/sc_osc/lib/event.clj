@@ -4,11 +4,11 @@
 (ns
   ^{:doc "A simple event system that processes fired events in a thread pool."
      :author "Jeff Rose, Sam Aaron"}
-  sc-osc.event
+  sc-osc.lib.event
   (:import [java.util.concurrent LinkedBlockingQueue])
-  (:use [sc-osc.ref :only [swap-returning-prev!]])
-  (:require [sc-osc.log :as log]
-            [sc-osc.handlers :as handlers])
+  (:use [sc-osc.lib.ref :only [swap-returning-prev!]])
+  (:require [sc-osc.lib.log :as log]
+            [sc-osc.lib.handlers :as handlers])
   )
 
 (defonce ^:private handler-pool (handlers/mk-handler-pool "SuperCollider Event Handlers"))
@@ -219,7 +219,7 @@
     )
   (when @monitoring?*
     (swap! monitor* assoc event-type args))
-  (binding [sc-osc.handlers/*log-fn* log/error]
+  (binding [sc-osc.lib.handlers/*log-fn* log/error]
     (let [event-info (if (and (= 1 (count args))
                               (map? (first args)))
                        (first args)

@@ -3,7 +3,7 @@
 (ns
     ^{:doc "Basic stateful keyword indexed integer counters"
       :author "Jeff Rose and Sam Aaron"}
-    sc-osc.counters)
+    sc-osc.lib.counters)
 
 (defonce counters* (atom {}))
 
