@@ -86,7 +86,7 @@
   "Returns an updated player and a melody-event"
   [ensemble player melody player-id]
 
-  (println player-id " " player " " melody)
+  (println player-id " PLAYER: " player " MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
         [upd-loop-structr melody-event ]
         ((get-melody-fn loop-structr) player

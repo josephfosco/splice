@@ -88,6 +88,7 @@
 
 (defn play-note-prior-instrument
   [prior-melody-event melody-event]
+  (println "play_note_prior_instrument")
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     ;; apply not tested???
     ;; (apply ctl inst-id
@@ -106,13 +107,14 @@
   ;;  need to use /n_set to create a new synth node and send args along
   ;; also need to set up default group before this ever gets called
   ;; ---------->>>>>>>>>>>
+  (println "play_note_new_instrument")
   ;; (apply (get-instrument-from-instrument-info
   ;;   (get-instrument-info-from-melody-event melody-event)
   ;;   )
   ;;  (get-freq-from-melody-event melody-event)
   ;;  (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
   ;;  (get-instrument-settings-from-melody-event melody-event))
-  (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event))) " %%%%%%%%%%%%%%%"
+  (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))) " %%%%%%%%%%%%%%%"
   )
 
 (declare play-next-note)
@@ -132,7 +134,7 @@
   (let [cur-inst-id
         (cond (nil? (get-freq-from-melody-event melody-event))
               nil
-              (true? (get-note-off-from-melody-event prior-melody-event))
+              (not (false? (get-note-off-from-melody-event prior-melody-event)))
               ;; --> here
               (play-note-new-instrument melody-event)
               :else
@@ -177,19 +179,19 @@
         upd-melody-event (play-melody-event (last melody)
                                             next-melody-event
                                             event-time)
-  ;;       upd-melody (update-melody-with-event melody upd-melody-event)
+        upd-melody (update-melody-with-event melody upd-melody-event)
         ]
-  ;;   (println player-id
-  ;;            (get-loop-name player)
-  ;;            (if (get-freq-from-melody-event upd-melody-event)
-  ;;              ""
-  ;;              "REST"))
-  ;;   (check-prior-event-note-off (last melody) upd-melody-event)
-  ;;   (update-player-and-melody upd-player upd-melody player-id)
+    (println player-id
+             (get-loop-name player)
+             (if (get-freq-from-melody-event upd-melody-event)
+               ""
+               "REST"))
+    (check-prior-event-note-off (last melody) upd-melody-event)
+    (update-player-and-melody upd-player upd-melody player-id)
      (sched-next-note upd-melody-event)
-  ;;   (>!! (get-msg-channel) {:msg :melody-event
-  ;;                            :data upd-melody-event
-  ;;                            :time (System/currentTimeMillis)})
-    ;; (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
+     (>!! (get-msg-channel) {:msg :melody-event
+                             :data upd-melody-event
+                             :time (System/currentTimeMillis)})
+    (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
     )
  )
