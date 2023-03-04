@@ -16,7 +16,7 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! go timeout]]
-   ;; [overtone.live :refer [apply-at ctl midi->hz]]
+   [sc-osc.sc :refer [sc-next-id sc-send-msg]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    ;; [splice.instr.sc-instrument :refer [stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
@@ -41,6 +41,8 @@
    [splice.player.player-utils :refer [get-loop-name
                                        get-next-melody-event
                                        NEXT-METHOD]]
+   [splice.sc.groups :refer [base-group-ids*]]
+   [splice.sc.sc-constants :refer [tail]]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
    )
@@ -103,10 +105,6 @@
 
 (defn play-note-new-instrument
   [melody-event]
-  ;; ---------->>>>>>>>>>>
-  ;;  need to use /n_set to create a new synth node and send args along
-  ;; also need to set up default group before this ever gets called
-  ;; ---------->>>>>>>>>>>
   (println "play_note_new_instrument")
   ;; (apply (get-instrument-from-instrument-info
   ;;   (get-instrument-info-from-melody-event melody-event)
@@ -114,7 +112,21 @@
   ;;  (get-freq-from-melody-event melody-event)
   ;;  (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
   ;;  (get-instrument-settings-from-melody-event melody-event))
-  (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))) " %%%%%%%%%%%%%%%"
+  (let [synth-id (sc-next-id :node)]
+    (apply sc-send-msg
+           "/s_new"
+          (get-instrument-from-instrument-info (get-instrument-from-instrument-info melody-event))
+          (sc-next-id :node)
+          :tail
+          (:instrument-group-id base-group-ids*)
+          "freq" (get-freq-from-melody-event melody-event)
+          "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+          (get-instrument-settings-from-melody-event melody-event))
+    (println "$$$$$$$$$$$$$$$ " synth-id)
+    synth-id
+    )
+  ;; (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))) " %%%%%%%%%%%%%%%"
+  ;;(println "%%%%%%%%% "  " %%%%%%%%%%%%%%%")
   )
 
 (declare play-next-note)
@@ -134,6 +146,7 @@
   (let [cur-inst-id
         (cond (nil? (get-freq-from-melody-event melody-event))
               nil
+              ;; Need to use (not (false? here because note-off can be false or nil
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
               ;; --> here
               (play-note-new-instrument melody-event)

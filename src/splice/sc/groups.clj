@@ -16,24 +16,20 @@
 (ns splice.sc.groups
   (:require
    [sc-osc.sc :refer [sc-next-id sc-send-msg sc-with-server-sync]]
+   [splice.sc.sc-constants :refer [head after]]
    ))
 
 ;; The root group is allocated by supercollider
 (defonce ^:private _root-group_ (sc-next-id :node))
-(defonce ^:private head 0)
-(defonce ^:private tail 1)
-(defonce ^:private before 2)
-(defonce ^:private after 3)
-(defonce ^:private replce 4)
 
-(def empty-initial-group-ids {:splice-group-id        nil
-                              :instrument-group-i     nil
-                              :effect-group-id        nil
+(def empty-base-group-ids {:splice-group-id        nil
+                           :instrument-group-id    nil
+                           :effect-group-id        nil
                            })
 
-(defonce initial-group-ids* (atom empty-initial-group-ids))
+(defonce base-group-ids* (atom empty-base-group-ids))
 
-(defn setup-initial-groups
+(defn setup-base-groups
   []
   (let [splice-group-id (sc-next-id :node)
         instrument-group-id (sc-next-id :node)
@@ -45,11 +41,11 @@
       "whilst creating the Splice instrument group")
     (sc-with-server-sync #(sc-send-msg "/g_new" effect-group-id after instrument-group-id)
       "whilst creating the Splice effect group")
-     (swap! initial-group-ids* assoc
+     (swap! base-group-ids* assoc
            :splice-group-id         splice-group-id
            :instrument-group-id     instrument-group-id
            :effect-group-id         effect-group-id
            )
      )
-  ;; (satisfy-deps :initial-groups-created)
+  ;; (satisfy-deps :base-groups-created)
   )

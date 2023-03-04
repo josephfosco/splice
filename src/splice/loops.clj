@@ -115,7 +115,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 4.0 :release 3.0)
+     :instrument-settings ("attack" 4.0 "release" 3.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -135,7 +135,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 2.5 :release 3.0)
+     :instrument-settings ("attack" 2.5 "release" 3.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -155,7 +155,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 5.5 :release 4.7)
+     :instrument-settings ("attack" 5.5 "release" 4.7)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -175,7 +175,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 7.0 :release 4.0)
+     :instrument-settings ("attack" 7.0 "release" 4.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed

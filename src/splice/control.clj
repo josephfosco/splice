@@ -22,7 +22,7 @@
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [play-next-note]]
-   [splice.sc.groups :refer [setup-initial-groups]]
+   [splice.sc.groups :refer [setup-base-groups]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.util.log :as log]
    ;; [splice.util.print :refer [print-banner]]
@@ -177,7 +177,7 @@
           init-melodies (map init-melody (range number-of-players))
           init-msgs (for [x (range number-of-players)] [])
           ]
-      (setup-initial-groups)
+      (setup-base-groups)
       (load-sc-synthdefs (:loops player-settings))
       ;; (init-main-bus-effects (:main-bus-effects player-settings))
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
