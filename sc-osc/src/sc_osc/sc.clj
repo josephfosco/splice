@@ -17,6 +17,8 @@
   (:require [overtone.osc :refer [in-osc-bundle]]
             [sc-osc.lib.connection :refer [connect connection-status*]]
             [sc-osc.lib.counters :refer [next-id]]
+            [sc-osc.lib.event :refer [on-sync-event]]
+            [sc-osc.lib.lib :refer [deref! uuid]]
             [sc-osc.lib.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
             ))
 
@@ -45,9 +47,22 @@
   [& args]
   (apply with-server-sync args))
 
+(defn sc-on-sync-event
+  [& args]
+  (apply on-sync-event args))
+
+(defn sc-deref!
+  [& args]
+  (apply deref! args)
+  )
+
 (defn sc-next-id
   [& args]
   (apply next-id args))
+
+(defn sc-uuid
+  []
+  (uuid))
 
 (defn sc-debug
   [val]

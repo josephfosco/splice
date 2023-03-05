@@ -149,7 +149,6 @@
               nil
               ;; Need to use (not (false? here because note-off can be false or nil
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
-              ;; --> here
               (play-note-new-instrument melody-event)
               :else
               (play-note-prior-instrument prior-melody-event melody-event)

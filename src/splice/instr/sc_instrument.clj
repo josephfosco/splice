@@ -15,7 +15,7 @@
 
 (ns splice.instr.sc-instrument
   (:require
-   [sc-osc.sc :refer [sc-send-msg]]
+   [sc-osc.sc :refer [sc-deref! sc-on-sync-event sc-send-msg sc-uuid]]
   ;;  [overtone.live :refer :all]
     )
   )
@@ -27,8 +27,36 @@
 
 (defn get-release-millis-from-instrument
   ""
-  [sc-instrument-id]
   ;; (*  (node-get-control sc-instrument-id :release) 1000)
-  (sc-send-msg "/s_get" sc-instrument-id "release")
-  ;; (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
-  )
+  ([sc-instrument-id] get-release-millis-from-instrument sc-instrument-id nil)
+  ([sc-instrument-id matcher-fn]
+   ;; (sc-send-msg "/s_get" sc-instrument-id "release")
+   (let [p     (promise)
+         key   (sc-uuid)
+         res   (do (sc-on-sync-event "/n_set"
+                                     (fn [info]
+                                       (when (or (nil? matcher-fn)
+                                                 (matcher-fn info))
+                                         (deliver p info)
+                                         :overtone/remove-handler))
+                                     key)
+                   p)
+         cvals (do (sc-send-msg "/s_get" sc-instrument-id "release")
+                   (:args (sc-deref! res (str "attempting to get control values " name " for sc-instrument-id " (with-out-str (pr sc-instrument-id))))))]
+     (println "&&&&&&&&&&&&&&&&")
+     (println cvals)
+
+     ;; ([path matcher-fn]
+     ;;    (let [p   (promise)
+     ;;          key (uuid)]
+     ;;      (on-sync-event path
+     ;;                     (fn [info]
+     ;;                       (when (or (nil? matcher-fn)
+     ;;                                 (matcher-fn info))
+     ;;                         (deliver p info)
+     ;;                         :overtone/remove-handler))
+     ;;                     key)
+     ;;      p))
+
+     ;; (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
+     )))
