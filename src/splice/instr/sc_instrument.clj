@@ -29,5 +29,6 @@
   ""
   [sc-instrument-id]
   ;; (*  (node-get-control sc-instrument-id :release) 1000)
-  (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
+  (sc-send-msg "/s_get" sc-instrument-id "release")
+  ;; (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
   )

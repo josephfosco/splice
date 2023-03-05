@@ -106,6 +106,9 @@
 (defn play-note-new-instrument
   [melody-event]
   (println "play_note_new_instrument")
+  (println "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+  (println (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event)))
+  (println (type (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))))
   ;; (apply (get-instrument-from-instrument-info
   ;;   (get-instrument-info-from-melody-event melody-event)
   ;;   )
@@ -115,18 +118,16 @@
   (let [synth-id (sc-next-id :node)]
     (apply sc-send-msg
            "/s_new"
-          (get-instrument-from-instrument-info (get-instrument-from-instrument-info melody-event))
-          (sc-next-id :node)
-          :tail
-          (:instrument-group-id base-group-ids*)
+          (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))
+          synth-id
+          tail
+          (:instrument-group-id @base-group-ids*)
           "freq" (get-freq-from-melody-event melody-event)
           "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
           (get-instrument-settings-from-melody-event melody-event))
     (println "$$$$$$$$$$$$$$$ " synth-id)
     synth-id
     )
-  ;; (println "%%%%%%%%% " (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))) " %%%%%%%%%%%%%%%"
-  ;;(println "%%%%%%%%% "  " %%%%%%%%%%%%%%%")
   )
 
 (declare play-next-note)
