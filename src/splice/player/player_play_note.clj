@@ -106,9 +106,6 @@
 (defn play-note-new-instrument
   [melody-event]
   (println "play_note_new_instrument")
-  (println "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-  (println (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event)))
-  (println (type (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))))
   ;; (apply (get-instrument-from-instrument-info
   ;;   (get-instrument-info-from-melody-event melody-event)
   ;;   )

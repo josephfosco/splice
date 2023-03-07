@@ -16,9 +16,7 @@
 (ns splice.instr.sc-instrument
   (:require
    [sc-osc.sc :refer [sc-deref! sc-on-sync-event sc-send-msg sc-uuid]]
-  ;;  [overtone.live :refer :all]
-    )
-  )
+   ))
 
 (defn stop-instrument
   [sc-instrument-id]
@@ -28,9 +26,8 @@
 (defn get-release-millis-from-instrument
   ""
   ;; (*  (node-get-control sc-instrument-id :release) 1000)
-  ([sc-instrument-id] get-release-millis-from-instrument sc-instrument-id nil)
+  ([sc-instrument-id] (get-release-millis-from-instrument sc-instrument-id nil))
   ([sc-instrument-id matcher-fn]
-   ;; (sc-send-msg "/s_get" sc-instrument-id "release")
    (let [p     (promise)
          key   (sc-uuid)
          res   (do (sc-on-sync-event "/n_set"
@@ -38,13 +35,17 @@
                                        (when (or (nil? matcher-fn)
                                                  (matcher-fn info))
                                          (deliver p info)
-                                         :overtone/remove-handler))
+                                         :sc-osc/remove-handler))
                                      key)
                    p)
          cvals (do (sc-send-msg "/s_get" sc-instrument-id "release")
-                   (:args (sc-deref! res (str "attempting to get control values " name " for sc-instrument-id " (with-out-str (pr sc-instrument-id))))))]
-     (println "&&&&&&&&&&&&&&&&")
-     (println cvals)
+                   (:args (sc-deref! res
+                                     (str "attempting to get control value release for sc-instrument-id "
+                                          (with-out-str (pr sc-instrument-id))))))]
+     ;; cvals should be a list something like this
+     ;; (7 release 3.0) sc-instrument-id contro-param ("release") param-value
+     (last cvals)
+     )))
 
      ;; ([path matcher-fn]
      ;;    (let [p   (promise)
@@ -59,4 +60,3 @@
      ;;      p))
 
      ;; (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))
-     )))
