@@ -20,7 +20,7 @@
 
 (defn stop-instrument
   [sc-instrument-id]
-  (sc-send-msg "n_set" sc-instrument-id 0.0)
+  (sc-send-msg "/n_set" sc-instrument-id "gate" 0.0)
   )
 
 (defn get-release-millis-from-instrument
@@ -44,19 +44,5 @@
                                           (with-out-str (pr sc-instrument-id))))))]
      ;; cvals should be a list something like this
      ;; (7 release 3.0) sc-instrument-id contro-param ("release") param-value
-     (last cvals)
+     (* (last cvals) 1000)
      )))
-
-     ;; ([path matcher-fn]
-     ;;    (let [p   (promise)
-     ;;          key (uuid)]
-     ;;      (on-sync-event path
-     ;;                     (fn [info]
-     ;;                       (when (or (nil? matcher-fn)
-     ;;                                 (matcher-fn info))
-     ;;                         (deliver p info)
-     ;;                         :overtone/remove-handler))
-     ;;                     key)
-     ;;      p))
-
-     ;; (throw (Throwable. "COMMENTED OUT CODE in splice.instr.sc-instrument/get-release-millis-from-instrument"))

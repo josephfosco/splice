@@ -18,7 +18,7 @@
    [clojure.core.async :refer [>!! <! go timeout]]
    [sc-osc.sc :refer [sc-next-id sc-send-msg]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
-   ;; [splice.instr.sc-instrument :refer [stop-instrument]]
+   [splice.instr.sc-instrument :refer [stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
                                      get-melody
@@ -84,7 +84,7 @@
                   )
                  )
              )
-    ;; (stop-instrument (get-sc-instrument-id-from-melody-event prior-melody-event))
+    (stop-instrument (get-sc-instrument-id-from-melody-event prior-melody-event))
     )
   )
 
@@ -122,7 +122,6 @@
           "freq" (get-freq-from-melody-event melody-event)
           "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
           (get-instrument-settings-from-melody-event melody-event))
-    (println "$$$$$$$$$$$$$$$ " synth-id)
     synth-id
     )
   )
@@ -160,13 +159,11 @@
         ]
     ;; schedule note-off for melody-event
     (when (get-note-off-from-melody-event full-melody-event)
-      ;; (apply-at (+ event-time
-      ;;              (- (get-dur-millis-from-dur-info
-      ;;                  (get-dur-info-from-melody-event melody-event))
-      ;;                 (get-release-millis-from-melody-event full-melody-event)
-      ;;                 ))
-      ;;           stop-instrument
-      ;;           [cur-inst-id])
+      (go (<! (timeout (- (get-dur-millis-from-dur-info
+                   (get-dur-info-from-melody-event melody-event))
+                  (get-release-millis-from-melody-event full-melody-event)
+                  )))
+          (stop-instrument (get-sc-instrument-id-from-melody-event full-melody-event)))
       )
     full-melody-event
     )
