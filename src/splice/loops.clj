@@ -2,7 +2,8 @@
  :max-start-offset 24
 
  :main-bus-effects
- {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ ;; {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ {"FreeVerb2" ()}
 
  :loops
  [

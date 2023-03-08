@@ -105,13 +105,6 @@
 
 (defn play-note-new-instrument
   [melody-event]
-  (println "play_note_new_instrument")
-  ;; (apply (get-instrument-from-instrument-info
-  ;;   (get-instrument-info-from-melody-event melody-event)
-  ;;   )
-  ;;  (get-freq-from-melody-event melody-event)
-  ;;  (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
-  ;;  (get-instrument-settings-from-melody-event melody-event))
   (let [synth-id (sc-next-id :node)]
     (apply sc-send-msg
            "/s_new"

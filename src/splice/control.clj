@@ -24,6 +24,8 @@
    [splice.player.player-play-note :refer [play-next-note]]
    [splice.sc.groups :refer [setup-base-groups]]
    [splice.melody.melody-event :refer [create-melody-event]]
+   [splice.sc.groups :refer [base-group-ids*]]
+   [splice.sc.sc-constants :refer [head]]
    [splice.util.log :as log]
    ;; [splice.util.print :refer [print-banner]]
    [splice.util.random :refer [random-int]]
@@ -111,14 +113,23 @@
                                ))
   )
 
-;; (defn init-main-bus-effects
-;;   [effects]
-;;   (dorun (for [effect effects]
-;;            (cond (= (first effect) :reverb) (apply reverb (second effect))
-;;                  )
-;;            )
-;;          )
-;;   )
+(defn init-main-bus-effects
+  [effects]
+  ;;   (dorun (for [effect effects]
+  ;;            (cond (= (first effect) :reverb) (apply reverb (second effect))
+  ;;                  )
+  ;;            )
+  ;;          )
+
+  (dorun (for [effect effects]
+           (sc-with-server-sync #(sc-send-msg
+                                  "/s_new"
+                                  (first effect)
+                                  head
+                                  (:effect-group-id @base-group-ids*))
+                                "whilst initializing the main bus effects"))
+)
+  )
 
 (defn- send-load-msg
   [filename]
@@ -179,7 +190,7 @@
           ]
       (setup-base-groups)
       (load-sc-synthdefs (:loops player-settings))
-      ;; (init-main-bus-effects (:main-bus-effects player-settings))
+      (init-main-bus-effects (:main-bus-effects player-settings))
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       (init-splice initial-players init-melodies init-msgs)
       (start-playing (or (:min-start-offset player-settings) 0)
