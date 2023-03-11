@@ -28,57 +28,57 @@
   []
   (System/currentTimeMillis))
 
-;; (defn- process-handler
-;;   "Returns a new deps map containing either processed handler or it
-;;   placed in the todo list"
-;;   [dep-state key deps task]
-;;   (apply assoc dep-state
-;;          (if (set/superset? (:satisfied dep-state) deps)
-;;            (do
-;;              (task)
-;;              [:done (conj (:done dep-state)
-;;                           [key deps task])
-;;               :history (conj (:history dep-state)
-;;                              {:action :processed
-;;                               :ts     (now)
-;;                               :key    key
-;;                               :deps   deps})])
+(defn- process-handler
+  "Returns a new deps map containing either processed handler or it
+  placed in the todo list"
+  [dep-state key deps task]
+  (apply assoc dep-state
+         (if (set/superset? (:satisfied dep-state) deps)
+           (do
+             (task)
+             [:done (conj (:done dep-state)
+                          [key deps task])
+              :history (conj (:history dep-state)
+                             {:action :processed
+                              :ts     (now)
+                              :key    key
+                              :deps   deps})])
 
-;;            [:todo (conj (:todo dep-state)
-;;                         [key deps task])
-;;             :history (conj (:history dep-state)
-;;                            {:action :registered-todo
-;;                             :ts     (now)
-;;                             :key    key
-;;                             :deps   deps})])))
+           [:todo (conj (:todo dep-state)
+                        [key deps task])
+            :history (conj (:history dep-state)
+                           {:action :registered-todo
+                            :ts     (now)
+                            :key    key
+                            :deps   deps})])))
 
-;; (defn- replace-handler
-;;   "Replace all occurances of handers with the given key with the new
-;;   handler and deps set"
-;;   [dep-state key deps task]
-;;   (let [replacer-fn #(if (= key (first %))
-;;                        [key deps task]
-;;                        %)]
-;;     {:satisfied (:satisfied dep-state)
-;;      :todo      (map replacer-fn (:todo dep-state))
-;;      :done      (map replacer-fn (:done dep-state))
-;;      :history   (:history dep-state)}))
+(defn- replace-handler
+  "Replace all occurances of handers with the given key with the new
+  handler and deps set"
+  [dep-state key deps task]
+  (let [replacer-fn #(if (= key (first %))
+                       [key deps task]
+                       %)]
+    {:satisfied (:satisfied dep-state)
+     :todo      (map replacer-fn (:todo dep-state))
+     :done      (map replacer-fn (:done dep-state))
+     :history   (:history dep-state)}))
 
-;; (defn- key-known?
-;;   "Returns true or false depending on whether this key is associated
-;;   with a handler in either the completed or todo lists."
-;;   [dep-state key]
-;;   (some #(= key (first %)) (concat (:done dep-state) (:todo dep-state))))
+(defn- key-known?
+  "Returns true or false depending on whether this key is associated
+  with a handler in either the completed or todo lists."
+  [dep-state key]
+  (some #(= key (first %)) (concat (:done dep-state) (:todo dep-state))))
 
-;; (defn- on-deps*
-;;   "If a handler with this key has already been registered, just replace
-;;   the handler - either in todo or completed. If the key is unknown, then
-;;   either execute the handler if the deps are satisfied or add it to the
-;;   todo list"
-;;   [dep-state key deps task]
-;;   (if (key-known? dep-state key)
-;;     (replace-handler dep-state key deps task)
-;;     (process-handler dep-state key deps task)))
+(defn- on-deps*
+  "If a handler with this key has already been registered, just replace
+  the handler - either in todo or completed. If the key is unknown, then
+  either execute the handler if the deps are satisfied or add it to the
+  todo list"
+  [dep-state key deps task]
+  (if (key-known? dep-state key)
+    (replace-handler dep-state key deps task)
+    (process-handler dep-state key deps task)))
 
 (defn- satisfy*
   [{:keys [satisfied todo done] :as dep-state} new-deps]
@@ -114,19 +114,19 @@
     (set deps)
     (set [deps])))
 
-;; (defn on-deps
-;;   "Specify that a function should be called once one or more
-;;    dependencies have been satisfied. The function is run immediately if
-;;    the deps have already been satisfied, otherwise it will run as soon
-;;    as they are.
+(defn on-deps
+  "Specify that a function should be called once one or more
+   dependencies have been satisfied. The function is run immediately if
+   the deps have already been satisfied, otherwise it will run as soon
+   as they are.
 
-;;    If a dep handler has already been registered with the same key, a
-;;    second registration with just replace the first.
+   If a dep handler has already been registered with the same key, a
+   second registration with just replace the first.
 
-;;    Uses an agent so it's safe to call this from within a transaction."
-;;   [deps key handler]
-;;   (let [deps (deps->set deps)]
-;;     (send-off dep-state* on-deps* key deps handler)))
+   Uses an agent so it's safe to call this from within a transaction."
+  [deps key handler]
+  (let [deps (deps->set deps)]
+    (send-off dep-state* on-deps* key deps handler)))
 
 (defn satisfy-deps
   "Specifies that a list of dependencies have been satisfied. Uses an

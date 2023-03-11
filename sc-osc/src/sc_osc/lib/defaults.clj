@@ -1,7 +1,5 @@
 ;; Copied from the Overtone project overtone.sc.defaults
 
-
-
 (ns sc-osc.lib.defaults
   ;; (:use [overtone.helpers.file]
   ;;       [overtone.helpers.lib :only [windows-sc-path]])
