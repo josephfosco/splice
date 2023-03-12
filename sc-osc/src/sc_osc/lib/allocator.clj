@@ -7,7 +7,8 @@
    with allocation and deallocation.
    Author: Sam Aaron"
   (:use [sc-osc.lib.defaults])
-  (:require [sc-osc.lib.config get-config]
+  (:require [sc-osc.lib.config :refer [get-config]]
+            [sc-osc.lib.deps :refer [on-deps satisfy-deps]]
             [sc-osc.lib.log :as log]))
 
 ;; This file is used to track the use of buses (audio buses and control buses)
@@ -40,7 +41,6 @@
 ;; Overtone get values from supercollider in the file
 ;; overtone/src/overtone/sc/machinery/server/args.clj
 (defonce allocator-bits
-  (get CONFIG :sc-default-input-buses)
   {:audio-bus    (ref (mk-bitset (get-config :sc-max-audio-buses)))
    :control-bus  (ref (mk-bitset (get-config :sc-max-control-buses)))})
 
@@ -147,10 +147,9 @@
 
 (defn allocate-hw-audio-buses
   []
-  (get CONFIG :log-level)
   (let [n-buses (+ (get-config :sc-default-input-buses)
                    (get-config :sc-default-output-buses))]
-    (audio-bus n-buses "Reserved Audio Busses")
+    (alloc-id :audio-bus n-buses)
     (satisfy-deps :hw-audio-buses-reserved)))
 
 ;; overtone does this on-deps :synthdefs-loaded but there is no need to

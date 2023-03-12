@@ -1,7 +1,5 @@
 ;; copied from the Overtone project overtone.config.log
 
-
-
 (ns
   ^{:doc "Basic logging functionality."
      :author "Jeff Rose"}
