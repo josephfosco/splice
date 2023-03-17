@@ -121,14 +121,16 @@
   ;;            )
   ;;          )
 
-  (dorun (for [effect effects]
-           (sc-with-server-sync #(sc-send-msg
-                                  "/s_new"
-                                  (first effect)
-                                  head
-                                  (:effect-group-id @base-group-ids*))
-                                "whilst initializing the main bus effects"))
-)
+  (println "init-main-bus-effects")
+
+  ;; (dorun (for [effect effects]
+  ;;          (sc-with-server-sync #(sc-send-msg
+  ;;                                 "/s_new"
+  ;;                                 (first effect)
+  ;;                                 head
+  ;;                                 (:effect-group-id @base-group-ids*))
+  ;;                               "whilst initializing the main bus effects"))
+  ;;        )
   )
 
 (defn- send-load-msg

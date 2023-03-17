@@ -15,7 +15,7 @@
 
 (
 SynthDef("woosh", {
-	arg freq=73.416, vol=1, attack=3, release=3, gate=1.0;
+	arg freq=73.416, vol=1, attack=3, release=3, gate=1.0, out=0;
 
 	var noise, freq_env, lpf_env, hpf_env, vib_env;
 
@@ -27,12 +27,15 @@ SynthDef("woosh", {
 
 	noise = HPF.ar(LPF.ar(WhiteNoise.ar, lpf_env), ((freq_env * -5000) + 5000)) * 0.5;
 
-	OffsetOut.ar([0, 1], noise);
+	Out.ar(out, [noise, noise]);  // sends the sound to 2 consecutive buses starting with the
+                                  // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;
 
 a=Synth("woosh")
+
+// .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
 
 a.set("gate", 0)
 
@@ -43,3 +46,4 @@ a.set("done", Done.freeSelf)
 a.free
 
 plotTree(s)
+g

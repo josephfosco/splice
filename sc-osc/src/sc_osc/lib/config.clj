@@ -18,8 +18,8 @@
 (def CONFIG {:log-level               :debug
              :sc-default-input-buses  2
              :sc-default-output-buses 2
-             :sc-max-audio-buses      1024
-             :sc-max-control-buses    16384
+             :sc-max-audio-buses      1024      ;; default
+             :sc-max-control-buses    16384     ;; default
              }
   )
 

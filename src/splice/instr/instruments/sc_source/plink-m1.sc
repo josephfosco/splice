@@ -15,24 +15,28 @@
 
 (
 SynthDef("plink-m1", {
-	arg freq=440, vol=1, gate=1.0, done=2;
+	arg freq=440, vol=1, gate=1.0, done=2, out=0;
 
 	var sound, env;
 
 	env = EnvGen.kr(Env.perc(attackTime: 0.01, releaseTime: 0.3), gate: gate,
 		            levelScale: (vol * 0.4), doneAction: done);
 
-	sound = SinOsc.ar(freq: freq) +
+	sound = (SinOsc.ar(freq: freq) +
 		    SinOsc.ar(freq: (freq * 3)) * (1 / 3) +
 		    SinOsc.ar(freq: (freq * 5.1)) * (1 / 5) +
 	        SinOsc.ar(freq: (freq * 6.1)) * (1 / 6) +
 		    SinOsc.ar(freq: (freq * 7.1)) * (1 / 8) +
-		    SinOsc.ar(freq: (freq * 8)) * (1 / 8);
+		    SinOsc.ar(freq: (freq * 8)) * (1 / 8)) *
+	        env;
 
-		OffsetOut.ar([0, 1], sound * env);
+	Out.ar(out, [sound, sound]);  // sends the sound to 2 consecutive buses starting with the
+	                            // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;
+
+// .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
 
 a=Synth("plink-m1")
 

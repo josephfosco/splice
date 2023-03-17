@@ -15,7 +15,7 @@
 
 (
 SynthDef("gong", {
-	arg freq=73.416, vol=1, gate=1.0, done=2;
+	arg freq=73.416, vol=1, gate=1.0, done=2, out=0;
 
 	var fltr_noise, gong, gong_sound, env, freq_env, vib_env;
 
@@ -31,13 +31,15 @@ SynthDef("gong", {
 		                  SinOsc.ar(freq: freq)),
 	                   freq: 1400);
 
-	gong = (gong_sound + fltr_noise) * ((env + ((SinOsc.kr(freq: 3) * vib_env) * 0.15)));
+	gong = (gong_sound + fltr_noise) * (((env + ((SinOsc.kr(freq: 3) * vib_env) * 0.15))) * vol);
 
-	OffsetOut.ar([0, 1], (gong * vol));
+	Out.ar(out, [gong, gong]);  // sends the gong sound to 2 consecutive buses starting with the
+	                            // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;
 
+// .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
 
 a=Synth("gong")
 

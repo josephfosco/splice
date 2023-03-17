@@ -1,0 +1,28 @@
+Some SuperCollider commands to try out SendReply on a remote server
+
+sc3> o = ServerOptions.new;
+-> a ServerOptions
+sc3> o.protocol_(\udp);
+-> a ServerOptions
+sc3> t = Server.remote(\remote, NetAddr("127.0.0.1", 57711), o);
+remote : setting clientID to 0.
+-> remote
+sc3> Requested notification messages from server 'remote'
+remote: server process has maxLogins 8 - adjusting my options accordingly.
+remote: setting clientID to 2, as obtained from server process.
+remote : setting clientID to 2.
+
+sc3>  ({ SendReply.kr(Impulse.kr(3), '/the_answer', [40, 41, 42, 43] + MouseX.kr, 1905); }.play(t); )
+-> Synth('temp__0' : 134218728)
+sc3> u = OSCFunc({ |msg| msg.postln }, '/the_answer');
+-> OSCFunc(/the_answer, nil, nil, nil)
+sc3> [ /the_answer, 134218728, 1905, 40.250522613525, 41.250522613525, 42.250522613525, 43.250522613525 ]
+repeats.........
+
+
+---- To get the number of control bus channels from the server ----
+From a bash prompt, start sclang
+sc3> t = Server.remote(\remote, NetAddr("127.0.0.1", 57711), ServerOptions.new);
+sc3> ({ SendReply.kr(Impulse.kr(0.5), '/num_control_bus_channels', t.options.numControlBusChannels, 1905); }.play(t); );
+sc3> u = OSCFunc({ |msg| msg.postln }, '/num_control_bus_channels');
+Starts repeatedly printing a response. Last array element is number of control bus channels
