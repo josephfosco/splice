@@ -54,8 +54,9 @@
     This will return the id that was allocated or, if more than 1 buse is requested,
     it will return the first id of 'size' number of consecutive ids allocated."
   ([bus-type] (alloc-id bus-type 1 nil))
-  ([bus-type size]
-   (alloc-id bus-type size nil))
+  ([bus-type size] (alloc-id bus-type size nil))
+  ([bus-type size action-fn]
+   (alloc-id bus-type size action-fn))
   )
 
 (defn sc-with-server-sync
