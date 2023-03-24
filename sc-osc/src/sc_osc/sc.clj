@@ -26,8 +26,10 @@
             ))
 
 (defn sc-connect
-  []
-  (connect))
+  ([] (connect))
+  ([port] (connect port))
+  ([host port] (connect host port))
+  )
 
 (defn sc-send-msg
   [& args]

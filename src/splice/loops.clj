@@ -3,7 +3,7 @@
 
  :main-bus-effects
  ;; {:reverb (:wet-dry 0.9 :room-size 1.0)}
- {"FreeVerb2" ()}
+ {"reverb-2ch" ()}
 
  :loops
  [

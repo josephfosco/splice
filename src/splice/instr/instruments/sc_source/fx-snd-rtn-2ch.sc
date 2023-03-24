@@ -14,15 +14,9 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (
-SynthDef("reverb-2ch", {
-	arg in=0, mix=1, room=0.5, damp=0.5, out=0;
-
-	var verb;
-
-	verb = FreeVerb.ar(In.ar(in, 2), mix, room, damp);
-	Out.ar(out, verb) ;
-}
-)
-).add;
+SynthDef("fx-snd-rtn-2ch", {
+	arg in, out;
+	Out.ar(out, In.ar(in, 2));
+})).add;
 
 // .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");

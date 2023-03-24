@@ -16,7 +16,7 @@
 (ns splice.control
   (:require
    [clojure.core.async :refer [<! go timeout]]
-   [sc-osc.sc :refer [sc-allocate-bus-id sc-debug sc-send-msg sc-with-server-sync sc-now]]
+   [sc-osc.sc :refer [sc-allocate-bus-id sc-debug sc-send-msg sc-with-server-sync sc-next-id sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
@@ -25,7 +25,7 @@
    [splice.sc.groups :refer [setup-base-groups]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.sc.groups :refer [base-group-ids*]]
-   [splice.sc.sc-constants :refer [head]]
+   [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
    ;; [splice.util.print :refer [print-banner]]
    [splice.util.random :refer [random-int]]
@@ -34,8 +34,7 @@
   ))
 
 (def ^:private is-playing? (atom false))
-(def main-fx-bus-first-in-chan (atom nil))
-(def main-fx-bus-first-out-chan (atom nil))
+(def main-fx-bus-first-chan (atom nil))
 
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
@@ -115,19 +114,58 @@
                                ))
   )
 
+(defn- send-load-msg
+  [filename]
+  (sc-with-server-sync #(sc-send-msg "/d_load" filename))
+  )
+
 (defn init-main-bus-effects
   [effects]
-  ;;   (dorun (for [effect effects]
-  ;;            (cond (= (first effect) :reverb) (apply reverb (second effect))
-  ;;                  )
-  ;;            )
-  ;;          )
 
   (println "init-main-bus-effects")
   (if (nil? @main-fx-bus-first-chan)
-    (let [fx-bus-in-chan (sc-allocate-bus-id :audio-bus 2)]
-      (reset! main-fx-bus-first-in-chan fx-bus-in-chan)))
+    (let [fx-bus-chan (sc-allocate-bus-id :audio-bus 2)]
+      (reset! main-fx-bus-first-chan fx-bus-chan)))
 
+  (let [fx-path "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"
+        ]
+    (send-load-msg (str fx-path "fx-snd-rtn-2ch" ".scsyndef"))
+    ;; Create effects send from mains (ch 0 and 1)
+    (sc-with-server-sync #(sc-send-msg
+                           "/s_new"
+                           "fx-snd-rtn-2ch"
+                           (sc-next-id :node)
+                           head
+                           (:effect-group-id @base-group-ids*)
+                           "in" 0.0
+                           "out" (float @main-fx-bus-first-chan))
+                         "whilst setting up the main effect send")
+    (dorun (for [effect effects]
+             (cond (= (first effect) "reverb-2ch")
+                   (do
+                     (send-load-msg (str fx-path "reverb-2ch" ".scsyndef"))
+                     )
+                   ;; (apply reverb (second effect))
+                   )
+             )
+           )
+    ;; create effects return to mains
+    (sc-with-server-sync #(sc-send-msg
+                           "/s_new"
+                           "fx-snd-rtn-2ch"
+                           (sc-next-id :node)
+                           tail
+                           (:effect-group-id @base-group-ids*)
+                           "in" (float @main-fx-bus-first-chan)
+                           "out" 0.0)
+                         "whilst setting up the main effect return")
+    )
+
+    ;;     (str
+    ;;      fx-path
+    ;;      (name (:instrument-name loop))
+    ;;      ".scsyndef")
+    ;; )
   ;; (dorun (for [effect effects]
   ;;          (sc-with-server-sync #(sc-send-msg
   ;;                                 "/s_new"
@@ -136,11 +174,6 @@
   ;;                                 (:effect-group-id @base-group-ids*))
   ;;                               "whilst initializing the main bus effects"))
   ;;        )
-  )
-
-(defn- send-load-msg
-  [filename]
-  (sc-with-server-sync #(sc-send-msg "/d_load" filename))
   )
 
 (defn- load-sc-synthdefs
@@ -197,7 +230,8 @@
           ]
       (setup-base-groups)
       (load-sc-synthdefs (:loops player-settings))
-      (init-main-bus-effects (:main-bus-effects player-settings))
+      (if-let [effects (get player-settings :main-bus-effects)]
+        (init-main-bus-effects effects))
       (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
       (init-splice initial-players init-melodies init-msgs)
       (start-playing (or (:min-start-offset player-settings) 0)

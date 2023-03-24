@@ -106,6 +106,7 @@
 (defn play-note-new-instrument
   [melody-event]
   (let [synth-id (sc-next-id :node)]
+    ;; TODO do I need apply here? Can I just call sc-send-msg?
     (apply sc-send-msg
            "/s_new"
           (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))

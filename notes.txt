@@ -26,3 +26,121 @@ sc3> t = Server.remote(\remote, NetAddr("127.0.0.1", 57711), ServerOptions.new);
 sc3> ({ SendReply.kr(Impulse.kr(0.5), '/num_control_bus_channels', t.options.numControlBusChannels, 1905); }.play(t); );
 sc3> u = OSCFunc({ |msg| msg.postln }, '/num_control_bus_channels');
 Starts repeatedly printing a response. Last array element is number of control bus channels
+
+
+---- Work on sending a literal array when creating a synth ----
+user=> (use 'sc-osc.sc)
+user=> (sc-connect)
+user=> (sc-debug true)
+user=> (def synth-file "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/tst-string.scsyndef")
+user=> (use 'splice.sc.sc-constants)
+user=> (sc-with-server-sync #(sc-send-msg "/d_load" synth-file))
+
+
+user=> (sc-send-msg "/s_new" "tst-string" 1000 tail 0 )
+user=> (sc-send-msg "/s_new" "tst-string" 1000 tail 0 "out" "#[0 1]")
+user=> (sc-send-msg "/s_new" "tst-string" 1000 tail 0 "out" (byte-array [0 1]))
+
+Yes, you can also send the SuperCollider literal array as part of the "/s_new" OSC message itself, without the need for separate "/n_set" messages. To do this, you can include the array as a single argument using the OSC blob type.
+
+Here's an example OSC message that creates an instance of the "mySynth" synth and sets the myArray argument to [440, 660] using a blob:
+
+python
+
+// Create the synth with the "mySynth" name and ID 1000, and set the "myArray" argument to [440, 660]
+/s_new mySynth 1000 0 1 myArray #bundle[f, 440, f, 660]
+
+In this example, the myArray argument is set to a #bundle OSC blob that contains the two float values 440 and 660. The blob is created using the #bundle array notation, which specifies the type of data in the blob (f for float) followed by the actual values of the array.
+
+
+Add a synths output to another bus
+// Create two audio buses
+s.boot;
+(
+    {
+        var bus1 = Bus.audio(s, 1);
+        var bus2 = Bus.audio(s, 1);
+
+        // Create a synth that outputs to bus1 and adds its output to bus2
+        SynthDef(\example, {
+            arg out = 0;
+            var sig = SinOsc.ar(440, 0, 0.1);
+            OffsetOut.ar(out, sig, bus2);
+        }).add;
+
+        // Create a synth instance and set its output to bus1
+        var synth = Synth(\example, [\out, bus1]);
+
+        // Create a synth that plays bus1
+        SynthDef(\player, {
+            arg out = 0;
+            var sig = In.ar(bus1, 1);
+            Out.ar(out, sig);
+        }).add;
+
+        var player = Synth(\player, [\out, 0]);
+
+        // Create a synth that plays bus2
+        SynthDef(\monitor, {
+            arg out = 0;
+            var sig = In.ar(bus2, 1);
+            Out.ar(out, sig);
+        }).add;
+
+        var monitor = Synth(\monitor, [\out, 1]);
+
+        // Free the synths and buses after 2 seconds
+        2.wait;
+        synth.free;
+        player.free;
+        monitor.free;
+        bus1.free;
+        bus2.free;
+    }.fork;
+)
+
+
+Copy the synths output to another bus
+s.boot;
+
+// Define a SynthDef that outputs to bus 0
+(
+SynthDef(\example, {
+    var sig = SinOsc.ar(440, 0, 0.1);
+    Out.ar(0, sig);
+}).add;
+)
+
+// Create a Synth that uses the SynthDef defined above
+var synth = Synth(\example);
+
+// Create a new bus and assign the Synth to it
+var newBus = Bus.audio(s, 1);
+synth.set(\out, newBus);
+
+// Start the Synth
+synth.play;
+
+// Wait for 1 second
+1.wait;
+
+// Add an OffsetOut to send the Synth's output to bus 0 as well
+OffsetOut.ar(0, synth, 0.5);
+
+// Wait for 1 second
+1.wait;
+
+// Remove the OffsetOut to stop sending the Synth's output to bus 0
+OffsetOut.ar(0, synth, 0);
+
+// Free the Synth and the bus
+synth.free;
+newBus.free;
+
+
+
+o=ServerOptions.new;
+o.maxLogins = 8;
+n=NetAddr("127.0.0.1", 57711)
+s=Server.new("sc", n, o);
+s.boot
