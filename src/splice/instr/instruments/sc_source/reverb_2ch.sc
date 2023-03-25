@@ -15,12 +15,12 @@
 
 (
 SynthDef("reverb-2ch", {
-	arg in=0, mix=1, room=0.5, damp=0.5, out=0;
+	arg in=0, mix=1, room=0.5, damp=0.5, vol=1, out=0;
 
 	var verb;
 
 	verb = FreeVerb.ar(In.ar(in, 2), mix, room, damp);
-	Out.ar(out, verb) ;
+	Out.ar((out * vol), verb) ;
 }
 )
 ).add;

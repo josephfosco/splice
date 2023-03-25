@@ -25,6 +25,9 @@
 (def empty-base-group-ids {:splice-group-id        nil
                            :instrument-group-id    nil
                            :effect-group-id        nil
+                           :pre-fx-group-id        nil
+                           :main-fx-group-id       nil
+                           :post-fx-group-id       nil
                            })
 
 (defonce base-group-ids* (atom empty-base-group-ids))
@@ -34,6 +37,9 @@
   (let [splice-group-id (sc-next-id :node)
         instrument-group-id (sc-next-id :node)
         effect-group-id (sc-next-id :node)
+        pre-fx-group-id (sc-next-id :node)
+        main-fx-group-id (sc-next-id :node)
+        post-fx-group-id (sc-next-id :node)
         ]
     (sc-with-server-sync #(sc-send-msg "/g_new" splice-group-id head _root-group_)
       "whilst creating the main Splice group")
@@ -41,10 +47,19 @@
       "whilst creating the Splice instrument group")
     (sc-with-server-sync #(sc-send-msg "/g_new" effect-group-id after instrument-group-id)
       "whilst creating the Splice effect group")
+    (sc-with-server-sync #(sc-send-msg "/g_new" pre-fx-group-id head effect-group-id)
+      "whilst creating the pre fx group")
+    (sc-with-server-sync #(sc-send-msg "/g_new" main-fx-group-id after pre-fx-group-id)
+      "whilst creating the main fx group")
+    (sc-with-server-sync #(sc-send-msg "/g_new" post-fx-group-id after main-fx-group-id)
+      "whilst creating the main post group")
      (swap! base-group-ids* assoc
            :splice-group-id         splice-group-id
            :instrument-group-id     instrument-group-id
            :effect-group-id         effect-group-id
+           :pre-fx-group-id         pre-fx-group-id
+           :main-fx-group-id        main-fx-group-id
+           :post-fx-group-id        post-fx-group-id
            )
      )
   ;; (satisfy-deps :base-groups-created)

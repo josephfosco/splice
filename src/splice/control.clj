@@ -34,7 +34,8 @@
   ))
 
 (def ^:private is-playing? (atom false))
-(def main-fx-bus-first-chan (atom nil))
+(def main-fx-bus-first-in-chan (atom nil))
+(def main-fx-bus-first-out-chan (atom nil))
 
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
@@ -123,9 +124,10 @@
   [effects]
 
   (println "init-main-bus-effects")
-  (if (nil? @main-fx-bus-first-chan)
-    (let [fx-bus-chan (sc-allocate-bus-id :audio-bus 2)]
-      (reset! main-fx-bus-first-chan fx-bus-chan)))
+  (if (nil? @main-fx-bus-first-in-chan)
+    (reset! main-fx-bus-first-in-chan (sc-allocate-bus-id :audio-bus 2)))
+  (if (nil? @main-fx-bus-first-out-chan)
+    (reset! main-fx-bus-first-out-chan (sc-allocate-bus-id :audio-bus 2)))
 
   (let [fx-path "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"
         ]
@@ -136,15 +138,29 @@
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
                            head
-                           (:effect-group-id @base-group-ids*)
+                           (:pre-fx-group-id @base-group-ids*)
                            "in" 0.0
-                           "out" (float @main-fx-bus-first-chan))
-                         "whilst setting up the main effect send")
+                           "out" (float @main-fx-bus-first-in-chan))
+                         "while starting up the main effect send")
     (dorun (for [effect effects]
              (cond (= (first effect) "reverb-2ch")
                    (do
+                     ;; TODO will eventually need to keep track of which effects are loaded so
+                     ;; an effect is not "double loaded"
                      (send-load-msg (str fx-path "reverb-2ch" ".scsyndef"))
-                     )
+                     (sc-with-server-sync #(sc-send-msg "/s_new"
+                                                        "reverb-2ch"
+                                                        (sc-next-id :node)
+                                                        tail
+                                                        (:main-fx-group-id @base-group-ids*)
+                                                        "in" (float @main-fx-bus-first-in-chan)
+                                                        "out" (float @main-fx-bus-first-out-chan)
+                                                        "vol" 10.0
+                                                        "mix" 0.0
+                                                        "room" 1.0
+                                                        )
+                                          "while starting the main reverb-2ch effect"))
+
                    ;; (apply reverb (second effect))
                    )
              )
@@ -154,11 +170,11 @@
                            "/s_new"
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
-                           tail
-                           (:effect-group-id @base-group-ids*)
-                           "in" (float @main-fx-bus-first-chan)
+                           head
+                           (:post-fx-group-id @base-group-ids*)
+                           "in" (float @main-fx-bus-first-out-chan)
                            "out" 0.0)
-                         "whilst setting up the main effect return")
+                         "while starting up the main effect return")
     )
 
     ;;     (str
