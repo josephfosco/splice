@@ -139,8 +139,11 @@ newBus.free;
 
 
 
-o=ServerOptions.new;
+---------- Connecting to a running supercollider server from scide
+
+Server.default.addr.port = 57711;
+o = ServerOptions.new;
 o.maxLogins = 8;
-n=NetAddr("127.0.0.1", 57711)
-s=Server.new("sc", n, o);
-s.boot
+r = Server.remote(\myserver, NetAddr("127.0.0.1", 57711), o);
+Server.default = r;
+r.plotTree

@@ -14,15 +14,31 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (
-SynthDef("reverb-2ch", {
-	arg in=0, mix=1, room=0.5, damp=0.5, vol=1, out=0;
+SynthDef("tst-sin", {
+	arg freq=220, vol=1, gate=1.0, done=2, out=0;
 
-	var verb;
+	var sound, env;
 
-	verb = FreeVerb.ar(In.ar(in, 2), mix, room, damp);
-	OffsetOut.ar((out * vol), verb) ;
+	env = EnvGen.kr(Env.perc(attackTime: 0.5, releaseTime: 10.3), gate: gate,
+		            levelScale: (vol * 0.8), doneAction: done);
+
+	sound = SinOsc.ar(freq: freq) *
+	        env;
+
+	Out.ar(out, [sound, sound]);  // sends the sound to 2 consecutive buses starting with the
+	                            // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;
 
 // .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
+
+a=Synth("tst-sin")
+
+a.set("gate", 0)
+
+a.set("gate", 1)
+
+a.set("done", Done.freeSelf)
+
+a.free

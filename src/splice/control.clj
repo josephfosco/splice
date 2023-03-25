@@ -129,8 +129,7 @@
   (if (nil? @main-fx-bus-first-out-chan)
     (reset! main-fx-bus-first-out-chan (sc-allocate-bus-id :audio-bus 2)))
 
-  (let [fx-path "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"
-        ]
+  (let [fx-path "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"]
     (send-load-msg (str fx-path "fx-snd-rtn-2ch" ".scsyndef"))
     ;; Create effects send from mains (ch 0 and 1)
     (sc-with-server-sync #(sc-send-msg
@@ -142,6 +141,16 @@
                            "in" 0.0
                            "out" (float @main-fx-bus-first-in-chan))
                          "while starting up the main effect send")
+    ;; create effects return to mains
+    (sc-with-server-sync #(sc-send-msg
+                           "/s_new"
+                           "fx-snd-rtn-2ch"
+                           (sc-next-id :node)
+                           head
+                           (:post-fx-group-id @base-group-ids*)
+                           "in" (float @main-fx-bus-first-out-chan)
+                           "out" 0.0)
+                         "while starting up the main effect return")
     (dorun (for [effect effects]
              (cond (= (first effect) "reverb-2ch")
                    (do
@@ -153,10 +162,11 @@
                                                         (sc-next-id :node)
                                                         tail
                                                         (:main-fx-group-id @base-group-ids*)
-                                                        "in" (float @main-fx-bus-first-in-chan)
+                                                        ;; "in" (float @main-fx-bus-first-in-chan)
+                                                        "in" 0.0
                                                         "out" (float @main-fx-bus-first-out-chan)
                                                         "vol" 10.0
-                                                        "mix" 0.0
+                                                        "mix" 1.0
                                                         "room" 1.0
                                                         )
                                           "while starting the main reverb-2ch effect"))
@@ -165,16 +175,17 @@
                    )
              )
            )
-    ;; create effects return to mains
-    (sc-with-server-sync #(sc-send-msg
-                           "/s_new"
-                           "fx-snd-rtn-2ch"
-                           (sc-next-id :node)
-                           head
-                           (:post-fx-group-id @base-group-ids*)
-                           "in" (float @main-fx-bus-first-out-chan)
-                           "out" 0.0)
-                         "while starting up the main effect return")
+
+    ;; (send-load-msg (str fx-path "tst-sin" ".scsyndef"))
+    ;; (sc-with-server-sync #(sc-send-msg "/s_new"
+    ;;                                    "tst-sin"
+    ;;                                    (sc-next-id :node)
+    ;;                                    tail
+    ;;                                    (:main-fx-group-id @base-group-ids*)
+    ;;                                    "out" (float @main-fx-bus-first-out-chan)
+    ;;                                    )
+    ;;                      "while starting the main reverb-2ch effect")
+
     )
 
     ;;     (str

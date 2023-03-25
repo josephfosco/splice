@@ -16,7 +16,7 @@
 (
 SynthDef("fx-snd-rtn-2ch", {
 	arg in, out;
-	Out.ar(out, In.ar(in, 2));
+	OffsetOut.ar(out, In.ar(in, 2));
 })).add;
 
 // .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
