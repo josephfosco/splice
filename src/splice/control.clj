@@ -163,9 +163,9 @@
                                                         tail
                                                         (:main-fx-group-id @base-group-ids*)
                                                         ;; "in" (float @main-fx-bus-first-in-chan)
-                                                        "in" 0.0
+                                                        "in" (float @main-fx-bus-first-in-chan)
                                                         "out" (float @main-fx-bus-first-out-chan)
-                                                        "vol" 10.0
+                                                        "vol" 0.9
                                                         "mix" 1.0
                                                         "room" 1.0
                                                         )
