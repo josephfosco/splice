@@ -20,12 +20,17 @@ SynthDef("woosh", {
 	var noise, freq_env, lpf_env, hpf_env, vib_env;
 
 	freq_env = EnvGen.kr(Env.perc(attackTime: attack, releaseTime: release, curve: [1, -2]),
-		                 gate: gate, doneAction: 2);
-	vib_env = EnvGen.kr(Env.perc(attackTime: 3, releaseTime: 2, curve: [1 -2]), gate: gate);
+		                 gate: gate, doneAction: 0);
+	vib_env = EnvGen.kr(Env.perc(attackTime: 5, releaseTime: 2, curve: [1, -2]), gate: gate,
+	                    levelScale: 0.5, levelBias: 0.5);
 	// add 1 to freq_env to avoid click at start and end of envelope
-	lpf_env = (freq_env * 5000 + 1) + (((SinOsc.kr(2.5) + 1) * 150) * vib_env);
+	lpf_env = EnvGen.kr(Env.perc(attackTime: 3, releaseTime: 5, curve: [1, -2]),
+		                gate: gate, levelScale: 5000, levelBias: 1, doneAction: 2) +
+	          (((SinOsc.kr(1.5) + 1) * 150) * vib_env);
+	hpf_env = EnvGen.kr(Env.perc(attackTime: 3, releaseTime: 5, curve: [1, -2]),
+		                gate: gate, levelScale: -5000, levelBias: 5000, doneAction: 0);
 
-	noise = HPF.ar(LPF.ar(WhiteNoise.ar, lpf_env), ((freq_env * -5000) + 5000)) * 0.5;
+	noise = HPF.ar(LPF.ar(WhiteNoise.ar, lpf_env), hpf_env) * vol;
 
 	Out.ar(out, [noise, noise]);  // sends the sound to 2 consecutive buses starting with the
                                   // the value of 'out'. In this case the sound will go out buses 0 and 1
@@ -46,4 +51,3 @@ a.set("done", Done.freeSelf)
 a.free
 
 plotTree(s)
-g

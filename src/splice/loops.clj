@@ -94,7 +94,7 @@
      :dur {:type :fixed
            :dur-millis 10000}
      :volume {:type :fixed
-              :level 0.5}
+              :level 0.2}
      }
     {:pitch {:type :rest}
      :dur {:type :fixed

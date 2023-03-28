@@ -28,7 +28,7 @@ SynthDef("plink-m1", {
 		SinOsc.ar(freq: (freq * 6.1), mul: 0.166) +   // 1/6
 		SinOsc.ar(freq: (freq * 7.1), mul: 0.143) +   // 1/7
 		SinOsc.ar(freq: (freq * 8), mul: 0.125) *     // 1/8
-	        env);
+	        (env * vol));
 
 	Out.ar(out, [sound, sound]);  // sends the sound to 2 consecutive buses starting with the
 	                              // the value of 'out'. In this case the sound will go out buses 0 and 1
