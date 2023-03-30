@@ -157,50 +157,20 @@
                      ;; TODO will eventually need to keep track of which effects are loaded so
                      ;; an effect is not "double loaded"
                      (send-load-msg (str fx-path "reverb-2ch" ".scsyndef"))
-                     (sc-with-server-sync #(sc-send-msg "/s_new"
-                                                        "reverb-2ch"
-                                                        (sc-next-id :node)
-                                                        tail
-                                                        (:main-fx-group-id @base-group-ids*)
-                                                        ;; "in" (float @main-fx-bus-first-in-chan)
-                                                        "in" (float @main-fx-bus-first-in-chan)
-                                                        "out" (float @main-fx-bus-first-out-chan)
-                                                        "vol" 0.9
-                                                        "mix" 1.0
-                                                        "room" 1.0
-                                                        )
+                     (sc-with-server-sync #(apply sc-send-msg "/s_new"
+                                                  "reverb-2ch"
+                                                  (sc-next-id :node)
+                                                  tail
+                                                  (:main-fx-group-id @base-group-ids*)
+                                                  "in" (float @main-fx-bus-first-in-chan)
+                                                  "out" (float @main-fx-bus-first-out-chan)
+                                                  (second effect))
                                           "while starting the main reverb-2ch effect"))
 
-                   ;; (apply reverb (second effect))
                    )
              )
            )
-
-    ;; (send-load-msg (str fx-path "tst-sin" ".scsyndef"))
-    ;; (sc-with-server-sync #(sc-send-msg "/s_new"
-    ;;                                    "tst-sin"
-    ;;                                    (sc-next-id :node)
-    ;;                                    tail
-    ;;                                    (:main-fx-group-id @base-group-ids*)
-    ;;                                    "out" (float @main-fx-bus-first-out-chan)
-    ;;                                    )
-    ;;                      "while starting the main reverb-2ch effect")
-
     )
-
-    ;;     (str
-    ;;      fx-path
-    ;;      (name (:instrument-name loop))
-    ;;      ".scsyndef")
-    ;; )
-  ;; (dorun (for [effect effects]
-  ;;          (sc-with-server-sync #(sc-send-msg
-  ;;                                 "/s_new"
-  ;;                                 (first effect)
-  ;;                                 head
-  ;;                                 (:effect-group-id @base-group-ids*))
-  ;;                               "whilst initializing the main bus effects"))
-  ;;        )
   )
 
 (defn- load-sc-synthdefs

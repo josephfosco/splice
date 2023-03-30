@@ -19,8 +19,8 @@ SynthDef("reverb-2ch", {
 
 	var verb;
 
-	verb = FreeVerb.ar(In.ar(in, 2), mix, room, damp);
-	OffsetOut.ar((out * vol), verb) ;
+	verb = FreeVerb.ar(In.ar(in, 2), mix, room, damp) * vol;
+	OffsetOut.ar(out, verb) ;
 }
 )
 ).add;
