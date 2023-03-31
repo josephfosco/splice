@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument]]
+   [splice.instr.instrumentinfo :refer [get-note-off-from-instrument-info]]
    )
   )
 
@@ -143,7 +144,9 @@
          :event-time event-time
          :play-time play-time
          :sc-instrument-id sc-instrument-id
-         :note-off (if sc-instrument-id
+         :note-off (if (and sc-instrument-id
+                            (get-note-off-from-instrument-info
+                             (get-instrument-info-from-melody-event melody-event)))
                        (> (get-dur-millis-from-melody-event melody-event)
                           (get-release-millis-from-instrument sc-instrument-id)
                           ))

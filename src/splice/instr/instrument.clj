@@ -1,4 +1,4 @@
-;    Copyright (C) 2013-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
                                          get-envelope-type-from-instrument-info
                                          get-range-hi-from-instrument-info
                                          get-range-lo-from-instrument-info
+                                         get-note-off-from-instrument-info
                                          ]]
    ;; [splice.instr.instruments.elec-instruments :refer :all]
    ;; [splice.instr.instruments.loop-synths :refer :all]
@@ -41,87 +42,93 @@
 ;; Note: when defining instruments :freq should always be the first param and
 ;;       :vol should always be the second param
 ;;       :release should be the param name for :envelope release time in secs
-(def all-instruments {:bass-m1
-                      {:instrument "bass-m1"
-                       :envelope-type "NE"
-                       :range-lo 25
-                       :range-hi 60}
-                      :bassoon
-                      {:instrument "bassoon"
-                       :envelope-type "ASR"
-                       :range-lo 25
-                       :range-hi 84}
-                      :clarinet
-                      {:instrument "clarinet"
-                       :envelope-type "ASR"
-                       :range-lo 20
-                       :range-hi 100}
-                      :drum-m1
-                      {:instrument "drum-m1"
-                       :envelope-type "AD"
-                       :range-lo 50
-                       :range-hi 90}
-                      :flute
-                      {:instrument "flute"
-                       :envelope-type "ASR"
-                       :range-lo 59
-                       :range-hi 96}
-                      :gong
+(def all-instruments {:gong
                       {:instrument "gong"
                        :envelope-type "AR"
                        :range-lo 20
-                       :range-hi 40}
-                      :organ-m1
-                      {:instrument "organ-m1"
-                       :envelope-type "ADSR"
-                       :range-lo 40
-                       :range-hi (last MIDI-RANGE)}
+                       :range-hi 40
+                       :note-off false}
                       :plink-m1
                       {:instrument "plink-m1"
                        :envelope-type "AD"
                        :range-lo 33
-                       :range-hi (last MIDI-RANGE)}
-                      :pluck-string
-                      {:instrument "pluck-string"
-                       :envelope-type "NE"
-                       :range-lo 37
-                       :range-hi 89}
-                      :reedy-organ
-                      {:instrument "reedy-organ"
-                       :envelope-type "ASR"
-                       :range-lo 20
-                       :range-hi (last MIDI-RANGE)}
-                      :saw-wave-sus
-                      {:instrument "saw-wave-sus"
-                       :envelope-type "ASR"
-                       :range-lo 25
-                       :range-hi (last MIDI-RANGE)}
-                      :sine-wave-sus
-                      {:instrument "sine-wave-sus"
-                       :envelope-type "ASR"
-                       :range-lo (first MIDI-RANGE)
-                       :range-hi (last MIDI-RANGE)}
-                      :steel-drum
-                      {:instrument "steel-drum"
-                       :envelope-type "AD"
-                       :range-lo 45
-                       :range-hi (last MIDI-RANGE)}
+                       :range-hi (last MIDI-RANGE)
+                       :note-off false}
                       :string-sect
                       {:instrument "string-sect"
                        :envelope-type "ASR"
                        :range-lo 40
-                       :range-hi 96}
-                      :tri-wave-sus
-                      {:instrument "tri-wave-sus"
-                       :envelope-type "ASR"
-                       :range-lo 15
-                       :range-hi (last MIDI-RANGE)}
+                       :range-hi 96
+                       :note-off true}
                       :woosh
                       {:instrument "woosh"
                        :envelope-type "AR"
                        :range-lo 15
-                       :range-hi 40}
-                        })
+                       :range-hi 40
+                       :note-off false}
+                      })
+;; TODO When added these instruments need :note-off keys
+;; (def all-instruments {:bass-m1
+;;                       {:instrument "bass-m1"
+;;                        :envelope-type "NE"
+;;                        :range-lo 25
+;;                        :range-hi 60}
+;;                       :bassoon
+;;                       {:instrument "bassoon"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 25
+;;                        :range-hi 84}
+;;                       :clarinet
+;;                       {:instrument "clarinet"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 20
+;;                        :range-hi 100}
+;;                       :drum-m1
+;;                       {:instrument "drum-m1"
+;;                        :envelope-type "AD"
+;;                        :range-lo 50
+;;                        :range-hi 90}
+;;                       :flute
+;;                       {:instrument "flute"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 59
+;;                        :range-hi 96}
+;;                       :organ-m1
+;;                       {:instrument "organ-m1"
+;;                        :envelope-type "ADSR"
+;;                        :range-lo 40
+;;                        :range-hi (last MIDI-RANGE)}
+;;                       :pluck-string
+;;                       {:instrument "pluck-string"
+;;                        :envelope-type "NE"
+;;                        :range-lo 37
+;;                        :range-hi 89}
+;;                       :reedy-organ
+;;                       {:instrument "reedy-organ"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 20
+;;                        :range-hi (last MIDI-RANGE)}
+;;                       :saw-wave-sus
+;;                       {:instrument "saw-wave-sus"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 25
+;;                        :range-hi (last MIDI-RANGE)}
+;;                       :sine-wave-sus
+;;                       {:instrument "sine-wave-sus"
+;;                        :envelope-type "ASR"
+;;                        :range-lo (first MIDI-RANGE)
+;;                        :range-hi (last MIDI-RANGE)}
+;;                       :steel-drum
+;;                       {:instrument "steel-drum"
+;;                        :envelope-type "AD"
+;;                        :range-lo 45
+;;                        :range-hi (last MIDI-RANGE)}
+;;                       :tri-wave-sus
+;;                       {:instrument "tri-wave-sus"
+;;                        :envelope-type "ASR"
+;;                        :range-lo 15
+;;                        :range-hi (last MIDI-RANGE)}
+;;                         })
 
 (defn non-perc-instruments
   [instrument-list]
@@ -144,6 +151,7 @@
      :envelope-type (:envelope-type inst-info)
      :range-hi (:range-hi inst-info)
      :range-lo (:range-lo inst-info)
+     :note-off (:note-off inst-info)
      )
     )
  )
@@ -165,7 +173,8 @@
      :instrument (get-instrument-from-instrument-info inst-info)
      :envelope-type (get-envelope-type-from-instrument-info inst-info)
      :range-hi (get-range-hi-from-instrument-info inst-info)
-     :range-lo (get-range-lo-from-instrument-info inst-info))
+     :range-lo (get-range-lo-from-instrument-info inst-info)
+     :note-off (get-note-off-from-instrument-info inst-info))
     ))
 
 (defn select-instrument
@@ -197,6 +206,7 @@
 ;;      :envelope-type (get-envelope-type-for-inst-info inst-info)
 ;;      :range-hi (get-range-hi-for-inst-info inst-info)
 ;;      :range-lo (get-range-lo-for-inst-info inst-info)
+;;      :note-off (get-note-off-for-inst-info inst-info)
 ;;      )
 ;;     )
 ;;   )
