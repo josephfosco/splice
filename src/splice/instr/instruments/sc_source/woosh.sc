@@ -19,16 +19,14 @@ SynthDef("woosh", {
 
 	var noise, freq_env, lpf_env, hpf_env, vib_env;
 
-	freq_env = EnvGen.kr(Env.perc(attackTime: attack, releaseTime: release, curve: [1, -2]),
-		                 gate: gate, doneAction: 0);
 	vib_env = EnvGen.kr(Env.perc(attackTime: 5, releaseTime: 2, curve: [1, -2]), gate: gate,
 	                    levelScale: 0.5, levelBias: 0.5);
-	// add 1 to freq_env to avoid click at start and end of envelope
-	lpf_env = EnvGen.kr(Env.perc(attackTime: 3, releaseTime: 5, curve: [1, -2]),
-		                gate: gate, levelScale: 5000, levelBias: 1, doneAction: 2) +
-	          (((SinOsc.kr(1.5) + 1) * 150) * vib_env);
-	hpf_env = EnvGen.kr(Env.perc(attackTime: 3, releaseTime: 5, curve: [1, -2]),
-		                gate: gate, levelScale: -5000, levelBias: 5000, doneAction: 0);
+	// add 1 to lpf_env to avoid click at start and end of envelope
+	lpf_env = EnvGen.kr(Env.perc(attackTime: (3 + Rand(-2, 1.0)), releaseTime: (5.75 + Rand(-3, 1.0)), curve: [1, -2]),
+		gate: gate, levelScale: 5000, levelBias: 2, doneAction: 1);
+	// (((SinOsc.kr(freq: 0.5, phase: Rand(lo:-8.0, hi: 8.0)) + 1) * 150) * vib_env);
+	hpf_env = EnvGen.kr(Env.perc(attackTime: (3 + Rand(-1.0, 0.6)), releaseTime: (5.75 + Rand(-1.5, 1.0)), curve: [1, -2]),
+		gate: gate, levelScale: -5000, levelBias: 6000, doneAction: 0);
 
 	noise = HPF.ar(LPF.ar(WhiteNoise.ar, lpf_env), hpf_env) * vol;
 

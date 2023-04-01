@@ -24,3 +24,12 @@ Why do we send 2 "release" msgs for most note-offs
   [ "/n_set", 42, "gate", 0 ]
 Fix "wobble" at end of reverb
 Check in how volume is adjusted. It seems there is some distortion on some notes
+Make woosh less predictable
+
+
+
+-------- LONG TERM --------
+
+Do not make a new synth for every note keep 1 synth and retrigger it
+Move sc-osc to a seperate repo and use submodules
+Convert to use groups to be able to set execution time
