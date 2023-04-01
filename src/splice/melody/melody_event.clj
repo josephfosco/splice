@@ -139,7 +139,7 @@
   )
 
 (defn set-play-info
-  [melody-event sc-instrument-id event-time play-time]
+  [melody-event sc-instrument-id sc-instrument-release-millis event-time play-time]
   (assoc melody-event
          :event-time event-time
          :play-time play-time
@@ -148,9 +148,8 @@
                             (get-note-off-from-instrument-info
                              (get-instrument-info-from-melody-event melody-event)))
                        (> (get-dur-millis-from-melody-event melody-event)
-                          (get-release-millis-from-instrument sc-instrument-id)
+                          sc-instrument-release-millis
                           ))
-
          ))
 
 (defn print-melody-event

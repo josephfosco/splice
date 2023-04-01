@@ -13,19 +13,14 @@ check if I want to use blocking or unblocking channels in ensemble_status.clj
 currently I use blocking channels if I want to switch to unblocking channels, change
 (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 
-Why do we send 2 "release" msgs for most note-offs
-  [ "/s_new", "string-sect", 41, 1, 2, "freq", 587.33, "vol", 0.137436, "attack", 2.5, "release", 3 ]
-  [ "/s_get", 41, "release" ]
-  [ "/s_get", 41, "release" ]
-  [ "/s_new", "string-sect", 42, 1, 2, "freq", 659.255, "vol", 0.326907, "attack", 5.5, "release", 4.7 ]
-  [ "/s_get", 42, "release" ]
-  [ "/s_new", "woosh", 43, 1, 2, "freq", 73.4162, "vol", 0.2 ]
-  [ "/n_set", 41, "gate", 0 ]
-  [ "/n_set", 42, "gate", 0 ]
 Fix "wobble" at end of reverb
 Check in how volume is adjusted. It seems there is some distortion on some notes
 Make woosh less predictable
 
+If an instrument has a variable release, like woosh, it needs to be taken into account when scheduling
+note-off events or even just when calling get-release-millis-from-instrument
+
+It seems there is a lot of time between the event time and the note play time (not for rests)
 
 
 -------- LONG TERM --------

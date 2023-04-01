@@ -18,7 +18,8 @@
    [clojure.core.async :refer [>!! <! go timeout]]
    [sc-osc.sc :refer [sc-next-id sc-send-msg]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
-   [splice.instr.sc-instrument :refer [stop-instrument]]
+   [splice.instr.sc-instrument :refer [get-release-millis-from-instrument
+                                       stop-instrument]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
                                      get-melody
@@ -143,8 +144,13 @@
               :else
               (play-note-prior-instrument prior-melody-event melody-event)
               )
+        cur-inst-release-millis
+        (if cur-inst-id
+          (get-release-millis-from-instrument cur-inst-id)
+          nil)
         full-melody-event (set-play-info melody-event
                                          cur-inst-id
+                                         cur-inst-release-millis
                                          event-time
                                          (if cur-inst-id
                                            (System/currentTimeMillis)
@@ -154,9 +160,9 @@
     ;; schedule note-off for melody-event
     (when (get-note-off-from-melody-event full-melody-event)
       (go (<! (timeout (- (get-dur-millis-from-dur-info
-                   (get-dur-info-from-melody-event melody-event))
-                  (get-release-millis-from-melody-event full-melody-event)
-                  )))
+                           (get-dur-info-from-melody-event melody-event))
+                          cur-inst-release-millis
+                          )))
           (stop-instrument (get-sc-instrument-id-from-melody-event full-melody-event)))
       )
     full-melody-event
