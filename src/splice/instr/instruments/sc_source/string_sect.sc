@@ -21,8 +21,8 @@ SynthDef("string-sect", {
 	var strings, env, sound;
 	env = Env.asr(attackTime: attack, sustainLevel: sustain, releaseTime: release,
 		          curve: [-3, 1, -2]);
-	sound = LPF.ar((Mix.new([Pulse.ar(freq: freq, width: ((SinOsc.kr(3) * 0.4) + 0.5)),
-		                     VarSaw.ar(freq: (freq * 1.01), width:0)]) * 0.3),
+	sound = LPF.ar((Pulse.ar(freq: freq, width: ((SinOsc.kr(3) * 0.4) + 0.5)) +
+		                     VarSaw.ar(freq: (freq * 1.01), width:0) * 0.3),
 	               freq: 2000);
 
 	strings = sound * EnvGen.kr(envelope: env, gate: gate, levelScale: vol, doneAction: done);

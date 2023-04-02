@@ -2,6 +2,7 @@ Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
 
 Implement core/splice_stop and control/stop_splice
+
 if the nessage system is used make certain ensemble/ensemble_status.clj catches the message
   and calls stop-ensemble-status to stop the ensemble-status message loop.
 
@@ -14,8 +15,6 @@ currently I use blocking channels if I want to switch to unblocking channels, ch
 (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 
 Fix "wobble" at end of reverb
-Check in how volume is adjusted. It seems there is some distortion on some notes
-Make woosh less predictable
 
 If an instrument has a variable release, like woosh, it needs to be taken into account when scheduling
 note-off events or even just when calling get-release-millis-from-instrument
