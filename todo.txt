@@ -20,10 +20,10 @@ If an instrument has a variable release, like woosh, it needs to be taken into a
 note-off events or even just when calling get-release-millis-from-instrument
 
 It seems there is a lot of time between the event time and the note play time (not for rests)
-
+Currently using bundles for playing notes to eliminate this. Need to look into using bundles for
+gate messages also. Do I need to keep track of play-time in the melody-event if I use bundles?
 
 -------- LONG TERM --------
 
 Do not make a new synth for every note keep 1 synth and retrigger it
 Move sc-osc to a seperate repo and use submodules
-Convert to use groups to be able to set execution time

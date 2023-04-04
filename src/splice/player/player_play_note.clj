@@ -16,7 +16,7 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! go timeout]]
-   [sc-osc.sc :refer [sc-next-id sc-send-msg]]
+   [sc-osc.sc :refer [sc-next-id sc-send-bundle sc-send-msg]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument
                                        stop-instrument]]
@@ -49,7 +49,7 @@
    )
   )
 
-(def NEXT-NOTE-PROCESS-MILLIS 5)
+(def NEXT-NOTE-PROCESS-MILLIS 200)
 
 (defn is-playing?
  "Returns:
@@ -90,8 +90,10 @@
   )
 
 (defn play-note-prior-instrument
-  [prior-melody-event melody-event]
+  [prior-melody-event melody-event event-time]
+  (println "*****************************************************************")
   (println "play_note_prior_instrument")
+  (println "*****************************************************************")
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     ;; apply not tested???
     ;; (apply ctl inst-id
@@ -105,18 +107,20 @@
   )
 
 (defn play-note-new-instrument
-  [melody-event]
+  [melody-event event-time]
   (let [synth-id (sc-next-id :node)]
-    ;; TODO do I need apply here? Can I just call sc-send-msg?
-    (apply sc-send-msg
-           "/s_new"
-          (get-instrument-from-instrument-info (get-instrument-info-from-melody-event melody-event))
-          synth-id
-          tail
-          (:instrument-group-id @base-group-ids*)
-          "freq" (get-freq-from-melody-event melody-event)
-          "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
-          (get-instrument-settings-from-melody-event melody-event))
+    ;; Need to use apply here to unpack the args from get-instrument-settings-from-melody-event
+    (sc-send-bundle event-time
+                    (apply sc-send-msg
+                           "/s_new"
+                           (get-instrument-from-instrument-info
+                            (get-instrument-info-from-melody-event melody-event))
+                           synth-id
+                           tail
+                           (:instrument-group-id @base-group-ids*)
+                           "freq" (get-freq-from-melody-event melody-event)
+                           "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+                           (get-instrument-settings-from-melody-event melody-event)))
     synth-id
     )
   )
@@ -125,9 +129,8 @@
 (defn sched-next-note
   [melody-event]
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
-    (let [next-time (- (+ (get-event-time-from-melody-event melody-event)
-                          (get-dur-millis-from-dur-info d-info)
-                          )
+    (let [next-time (+ (get-event-time-from-melody-event melody-event)
+                       (get-dur-millis-from-dur-info d-info)
                        NEXT-NOTE-PROCESS-MILLIS)]
       (go (<! (timeout (get-dur-millis-from-dur-info d-info)))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
@@ -140,9 +143,9 @@
               nil
               ;; Need to use (not (false? here because note-off can be false or nil
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
-              (play-note-new-instrument melody-event)
+              (play-note-new-instrument melody-event event-time)
               :else
-              (play-note-prior-instrument prior-melody-event melody-event)
+              (play-note-prior-instrument prior-melody-event melody-event event-time)
               )
         cur-inst-release-millis
         (if cur-inst-id
@@ -195,10 +198,10 @@
                "REST"))
     (check-prior-event-note-off (last melody) upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
-     (sched-next-note upd-melody-event)
-     (>!! (get-msg-channel) {:msg :melody-event
-                             :data upd-melody-event
-                             :time (System/currentTimeMillis)})
+    (sched-next-note upd-melody-event)
+    (>!! (get-msg-channel) {:msg :melody-event
+                            :data upd-melody-event
+                            :time (System/currentTimeMillis)})
     (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
     )
  )

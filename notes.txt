@@ -147,3 +147,11 @@ o.maxLogins = 8;
 r = Server.remote(\myserver, NetAddr("127.0.0.1", 57711), o);
 Server.default = r;
 r.plotTree
+
+
+---------- play next noteprocess - not done
+
+
+player_play_note/play-next-note
+
+  player_play_note/sched-next-note
