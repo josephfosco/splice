@@ -131,7 +131,7 @@
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
     (let [next-time (+ (get-event-time-from-melody-event melody-event)
                        (get-dur-millis-from-dur-info d-info)
-                       NEXT-NOTE-PROCESS-MILLIS)]
+                       )]
       (go (<! (timeout (get-dur-millis-from-dur-info d-info)))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
     )))
@@ -162,6 +162,23 @@
         ]
     ;; schedule note-off for melody-event
     (when (get-note-off-from-melody-event full-melody-event)
+
+      ;; (sc-send-bundle (+ event-time
+      ;;                    (get-dur-millis-from-dur-info
+      ;;                     (get-dur-info-from-melody-event melody-event))
+      ;;                    cur-inst-release-millis)
+      ;;               (apply sc-send-msg
+      ;;                      "/s_new"
+      ;;                      (get-instrument-from-instrument-info
+      ;;                       (get-instrument-info-from-melody-event melody-event))
+      ;;                      synth-id
+      ;;                      tail
+      ;;                      (:instrument-group-id @base-group-ids*)
+      ;;                      "freq" (get-freq-from-melody-event melody-event)
+      ;;                      "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+      ;;                      (get-instrument-settings-from-melody-event melody-event)))
+
+
       (go (<! (timeout (- (get-dur-millis-from-dur-info
                            (get-dur-info-from-melody-event melody-event))
                           cur-inst-release-millis

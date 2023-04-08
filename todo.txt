@@ -3,7 +3,7 @@ Add midi functions from overtone/src/overtone/midi.clj
 
 Implement core/splice_stop and control/stop_splice
 
-if the nessage system is used make certain ensemble/ensemble_status.clj catches the message
+if the message system is used, make certain ensemble/ensemble_status.clj catches the message
   and calls stop-ensemble-status to stop the ensemble-status message loop.
 
 Set log settings (dir and level for sc-osc
@@ -14,14 +14,18 @@ check if I want to use blocking or unblocking channels in ensemble_status.clj
 currently I use blocking channels if I want to switch to unblocking channels, change
 (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 
-Fix "wobble" at end of reverb
-
 If an instrument has a variable release, like woosh, it needs to be taken into account when scheduling
-note-off events or even just when calling get-release-millis-from-instrument
+note-off events or even just when calling get-release-millis-from-instrument. Perhaps remove
+variable release's and instead add a param so the release can be set by splice when the synth
+is played and not changed inside the synth. That way you can always retrieve the correct
+release time from the synth
 
 It seems there is a lot of time between the event time and the note play time (not for rests)
 Currently using bundles for playing notes to eliminate this. Need to look into using bundles for
 gate messages also. Do I need to keep track of play-time in the melody-event if I use bundles?
+
+Change synths to use OffsetOut
+
 
 -------- LONG TERM --------
 

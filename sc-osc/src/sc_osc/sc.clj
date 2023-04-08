@@ -35,9 +35,9 @@
   [& args]
   (apply server-snd args))
 
-(defn sc-send-bundle
+(defmacro sc-send-bundle
   [time & msgs]
-  (in-osc-bundle @server-osc-peer* time msgs))
+  `(overtone.osc/in-osc-bundle @server-osc-peer* ~time ~@msgs))
 
 (defn sc-now
   "Return the current time in milliseconds"

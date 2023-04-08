@@ -16,7 +16,12 @@
 (ns splice.control
   (:require
    [clojure.core.async :refer [<! go timeout]]
-   [sc-osc.sc :refer [sc-allocate-bus-id sc-debug sc-send-msg sc-with-server-sync sc-next-id sc-now]]
+   [sc-osc.sc :refer [sc-allocate-bus-id
+                      sc-debug
+                      sc-send-msg
+                      sc-with-server-sync
+                      sc-next-id
+                      sc-now]]
    ;; [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]

@@ -153,5 +153,52 @@ r.plotTree
 
 
 player_play_note/play-next-note
+  player-utils/get-next-melody-event
+    melody-fn from loop-structure
+      | returns dur-info in     |
+      | the melody-event that   |
+      | contains the note       |
+      | duration from the loop  |
+      | file (entire dur of     |
+      | note from start to end  |
+      | release)                |
+  play-melody-event
+    play-note-new-instrument       or    play_note_prior_instrument  or  get-note-off-from-melody-event
+     |plays note with new inst  |
+     |using time stamped bundle |
+   get-release-millis-from-instrument
+     |uses /s_get to get release|
+     | param value              |
+   set-play-info
+     |sets some keys in melody  |
+     | event that were not      |
+     | available yet incl       |
+     | play-time and note-off   |
+     | (is note-off required)   |
+   async schedules note off - instead of scheduling this, it can be
+                              sent as a timestamped bundle immediately
+ update-melody-with-event
+ check-prior-event-note-off
+     | this is carryover from   |
+     | when instruments could   |
+     | change. Makes sure if    |
+     | inst changed the prior   |
+     | inst is turned off       |
+ ensemble/update-player-and-melody
+     | updates player and melody|
+     | in ensemble              |
+ player_play_note/sched-next-note
+     |async schedules next note |
+     | based on event-time +    |
+     | dur-millis +             |
+     | process-millis           |
 
-  player_play_note/sched-next-note
+
+---------- working to get sc-send-bundle working
+
+user=> (use 'sc-osc.sc)
+user=> (ns sc-osc.sc)
+sc-osc.sc=> (sc-connect)
+sc-osc.sc=> (sc-debug true)
+sc-osc.sc=> (sc-with-server-sync #(sc-send-msg "/d_load" "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/gong.scsyndef"))
+sc-osc.sc=> (sc-send-bundle (+ (sc-now) 4000) (server-snd "/s_new" "gong" 1003 0 0))
