@@ -48,18 +48,6 @@
   [inst-info]
   (:note-off inst-info))
 
-(defn get-range-hi-for-instrument-info
-  [inst-info]
-  (:range-hi inst-info))
-
-(defn get-range-lo-for-instrument-info
-  [inst-info]
-  (:range-lo inst-info))
-
-(defn get-note-off-for-instrument-info
-  [inst-info]
-  (:range-lo inst-info))
-
 (defn get-all-instrument-info
   [inst-info]
   {:envelope-type (:envelope-type inst-info)

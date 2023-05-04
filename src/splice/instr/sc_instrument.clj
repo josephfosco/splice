@@ -15,12 +15,14 @@
 
 (ns splice.instr.sc-instrument
   (:require
-   [sc-osc.sc :refer [sc-deref! sc-on-sync-event sc-send-msg sc-uuid]]
+   [sc-osc.sc :refer [sc-deref! sc-on-sync-event sc-send-bundle sc-send-msg sc-uuid]]
    ))
 
-(defn stop-instrument
-  [sc-instrument-id]
-  (sc-send-msg "/n_set" sc-instrument-id "gate" 0.0)
+(defn sched-gate-off
+  ([sc-instrument-id] (sched-gate-off sc-instrument-id 0))
+  ([sc-instrument-id time]
+   (sc-send-bundle time
+                   (sc-send-msg "/n_set" sc-instrument-id "gate" 0.0)))
   )
 
 (defn get-release-millis-from-instrument

@@ -15,7 +15,7 @@
 
 (ns splice.ensemble.ensemble
   (:require
-   [splice.melody.melody-event :refer [print-melody-event]]
+   [splice.melody.melody-event :refer [print-melody-event set-melody-event-note-off]]
    [splice.player.player-utils :refer [print-player]]
    [splice.util.log :as log]
    )
@@ -30,9 +30,18 @@
   []
   @ensemble)
 
-(defn get-melody
+(defn get-melodies-from-ensemble
+  [ens]
+  (:melodies ens))
+
+(defn get-melody-for-player-id-from-ensemble
   [ensemble player-id]
   ((:melodies ensemble) player-id)
+  )
+
+(defn get-melody-for-player-id
+  [player-id]
+  (get-melody-for-player-id-from-ensemble (get-ensemble) player-id)
   )
 
 (defn get-player
@@ -51,6 +60,40 @@
 (defn update-player-and-melody
   [player melody player-id]
   (swap! ensemble player-and-melody-update player melody player-id)
+  )
+
+(defn replace-melody-event-note-off
+  [ens player-id melody-event-id note-off-val]
+  (println "%%%%%%%%%%%% replace-melody-event-note-off *****************")
+  (let [melody (get-melody-for-player-id player-id)
+        ;; melody-event-ndx (->> melody  ; gets the index of the melody-event we want to replace
+        ;;                       (map :melody-event-id)
+        ;;                       (map-indexed vector)
+        ;;                       (filter #(= (first %) melody-event-id))
+        ;;                       (map second)
+        ;;                       (first))2
+        melody-event-ndx (->> melody  ; gets the index of the melody-event we want to replace
+                              (map :melody-event-id)
+                              (map-indexed vector)
+                              (filter #(= (second %) melody-event-id))
+                              (map first)
+                              (first))
+        melody-event (nth melody melody-event-ndx)
+        melodies (get-melodies-from-ensemble ens)
+        upd-melody-event (set-melody-event-note-off melody-event note-off-val)
+        upd-player-melody (assoc (nth melodies player-id)
+                                 melody-event-ndx
+                                 upd-melody-event)
+        upd-melodies (assoc melodies player-id upd-player-melody)
+        ]
+    (assoc ens :melodies upd-melodies)
+    ))
+
+
+
+(defn update-melody-note-off-for-player-id
+  [player-id melody-event-id note-off-val]
+  (swap! ensemble replace-melody-event-note-off player-id melody-event-id note-off-val)
   )
 
 (defn reset-msgs-for-player-id

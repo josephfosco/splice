@@ -19,9 +19,7 @@
    [splice.melody.pitch :refer [select-random-pitch]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
-                                          get-base-loop-name]]
-   )
-  )
+                                          get-base-loop-name]]))
 
 ;; method return values
 (def OK 1)  ;; Method completed normally

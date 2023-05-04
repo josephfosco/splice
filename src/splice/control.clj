@@ -26,7 +26,7 @@
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
-   [splice.player.player-play-note :refer [play-next-note]]
+   [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
    [splice.sc.groups :refer [setup-base-groups]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.sc.groups :refer [base-group-ids*]]
@@ -58,6 +58,7 @@
   "
   [players melodies msgs]
   (start-msg-channel)
+  (init-player-play-note)
   (init-ensemble players melodies msgs)
   (start-ensemble-status)
   )
@@ -257,6 +258,7 @@
   ;;   (stop)
   ;; (close-msg-channel)
   ;; (reset! is-playing? false)
+  ;; TODO Need to remove handler for "n_go" set up in player-play-note/init-player-play-note
   (throw (Throwable. "COMMENTED OUT CODE in splice.control/quit-splice"))
   )
 

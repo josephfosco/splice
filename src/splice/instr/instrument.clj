@@ -151,7 +151,7 @@
      :envelope-type (:envelope-type inst-info)
      :range-hi (:range-hi inst-info)
      :range-lo (:range-lo inst-info)
-     :note-off (:note-off inst-info)
+     :note-off (get inst-info :note-off false)
      )
     )
  )

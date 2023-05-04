@@ -16,14 +16,17 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! go timeout]]
-   [sc-osc.sc :refer [sc-next-id sc-send-bundle sc-send-msg]]
-   [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
+   [sc-osc.sc :refer [sc-next-id sc-on-event sc-send-bundle sc-send-msg sc-uuid ]]
+   [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info
+                                        get-note-off-from-instrument-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument
-                                       stop-instrument]]
+                                       sched-gate-off]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
-                                     get-melody
+                                     get-melody-for-player-id-from-ensemble
+                                     get-melody-for-player-id
                                      get-player
+                                     update-melody-note-off-for-player-id
                                      update-player-and-melody]]
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info]]
    [splice.melody.melody-event :refer [get-dur-info-from-melody-event
@@ -32,9 +35,9 @@
                                        get-freq-from-melody-event
                                        get-instrument-info-from-melody-event
                                        get-instrument-settings-from-melody-event
+                                       get-melody-event-id-from-melody-event
                                        get-note-off-from-melody-event
                                        get-player-id-from-melody-event
-                                       get-release-millis-from-melody-event
                                        get-sc-instrument-id-from-melody-event
                                        get-volume-from-melody-event
                                        set-play-info]]
@@ -46,10 +49,19 @@
    [splice.sc.sc-constants :refer [tail]]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
-   )
-  )
+   ))
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
+(def synth-melody-map (atom {}))
+
+(declare sched-release)
+(defn init-player-play-note
+  []
+
+  (swap! synth-melody-map empty)
+  (sc-on-event "/n_go" sched-release (sc-uuid))
+
+  )
 
 (defn is-playing?
  "Returns:
@@ -85,7 +97,7 @@
                   )
                  )
              )
-    (stop-instrument (get-sc-instrument-id-from-melody-event prior-melody-event))
+    (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event))
     )
   )
 
@@ -134,7 +146,36 @@
                        )]
       (go (<! (timeout (get-dur-millis-from-dur-info d-info)))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
-    )))
+      )))
+
+(defn sched-release
+  [event]
+  (println "%%%%%%%%%%%%%%% sched-release " event)
+  (println @synth-melody-map)
+  (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
+      (let [sc-instrument-id (first (event :args))
+            melody-event (get @synth-melody-map sc-instrument-id)
+            ]
+        (when melody-event
+          (when (get-note-off-from-instrument-info
+                 (get-instrument-info-from-melody-event melody-event))
+            (let [player-id (get-player-id-from-melody-event melody-event)
+                  melody-event-id (get-melody-event-id-from-melody-event melody-event)
+                  release-millis (get-release-millis-from-instrument sc-instrument-id)
+                  note-off-val
+                  (> (get-dur-millis-from-melody-event melody-event) release-millis)
+                  ]
+              (when note-off-val
+                (sched-gate-off sc-instrument-id
+                                 (+ (get-event-time-from-melody-event melody-event)
+                                    (get-dur-millis-from-dur-info
+                                     (get-dur-info-from-melody-event melody-event))
+                                    release-millis)))
+              (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
+              ))
+          (swap! synth-melody-map dissoc sc-instrument-id))))
+  nil
+  )
 
 (defn play-melody-event
   [prior-melody-event melody-event event-time]
@@ -147,44 +188,17 @@
               :else
               (play-note-prior-instrument prior-melody-event melody-event event-time)
               )
-        cur-inst-release-millis
-        (if cur-inst-id
-          (get-release-millis-from-instrument cur-inst-id)
-          nil)
         full-melody-event (set-play-info melody-event
                                          cur-inst-id
-                                         cur-inst-release-millis
                                          event-time
                                          (if cur-inst-id
                                            (System/currentTimeMillis)
                                            event-time)
                                          )
         ]
-    ;; schedule note-off for melody-event
-    (when (get-note-off-from-melody-event full-melody-event)
+    (when cur-inst-id
+      (swap! synth-melody-map assoc cur-inst-id full-melody-event))
 
-      ;; (sc-send-bundle (+ event-time
-      ;;                    (get-dur-millis-from-dur-info
-      ;;                     (get-dur-info-from-melody-event melody-event))
-      ;;                    cur-inst-release-millis)
-      ;;               (apply sc-send-msg
-      ;;                      "/s_new"
-      ;;                      (get-instrument-from-instrument-info
-      ;;                       (get-instrument-info-from-melody-event melody-event))
-      ;;                      synth-id
-      ;;                      tail
-      ;;                      (:instrument-group-id @base-group-ids*)
-      ;;                      "freq" (get-freq-from-melody-event melody-event)
-      ;;                      "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
-      ;;                      (get-instrument-settings-from-melody-event melody-event)))
-
-
-      (go (<! (timeout (- (get-dur-millis-from-dur-info
-                           (get-dur-info-from-melody-event melody-event))
-                          cur-inst-release-millis
-                          )))
-          (stop-instrument (get-sc-instrument-id-from-melody-event full-melody-event)))
-      )
     full-melody-event
     )
   )
@@ -197,7 +211,7 @@
         ;; TODO document why we are clearing messages here
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
-        melody (get-melody ensemble player-id)
+        melody (get-melody-for-player-id-from-ensemble ensemble player-id)
         [upd-player next-melody-event] (get-next-melody-event
                                         ensemble
                                         player

@@ -18,7 +18,6 @@
    [splice.melody.dur-info :refer [get-dur-millis-from-dur-info
                                     get-dur-beats-from-dur-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument]]
-   [splice.instr.instrumentinfo :refer [get-note-off-from-instrument-info]]
    )
   )
 
@@ -73,6 +72,11 @@
                 )
   )
 
+(defn get-melody-event-id-from-melody-event
+  [melody-event]
+  (:melody-event-id melody-event)
+  )
+
 (defn get-dur-info-from-melody-event
   [melody-event]
   (:dur-info melody-event)
@@ -123,11 +127,6 @@
   (:player-id melody-event)
   )
 
-(defn get-release-millis-from-melody-event
-  [melody-event]
-  (get-release-millis-from-instrument (:sc-instrument-id melody-event))
-  )
-
 (defn get-sc-instrument-id-from-melody-event
   [melody-event]
   (:sc-instrument-id melody-event)
@@ -139,17 +138,17 @@
   )
 
 (defn set-play-info
-  [melody-event sc-instrument-id sc-instrument-release-millis event-time play-time]
+  [melody-event sc-instrument-id event-time play-time]
   (assoc melody-event
          :event-time event-time
          :play-time play-time
          :sc-instrument-id sc-instrument-id
-         :note-off (if (and sc-instrument-id
-                            (get-note-off-from-instrument-info
-                             (get-instrument-info-from-melody-event melody-event)))
-                       (> (get-dur-millis-from-melody-event melody-event)
-                          sc-instrument-release-millis
-                          ))
+         ))
+
+(defn set-melody-event-note-off
+  [melody-event val]
+  (assoc melody-event
+         :note-off val
          ))
 
 (defn print-melody-event

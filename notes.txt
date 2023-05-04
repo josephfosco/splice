@@ -202,3 +202,38 @@ sc-osc.sc=> (sc-connect)
 sc-osc.sc=> (sc-debug true)
 sc-osc.sc=> (sc-with-server-sync #(sc-send-msg "/d_load" "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/gong.scsyndef"))
 sc-osc.sc=> (sc-send-bundle (+ (sc-now) 4000) (server-snd "/s_new" "gong" 1003 0 0))
+
+---------- new get release info technique
+
+In clojure, if I send an osc bundle to a supercollider server to retreive the value of a synth param at some point in the future, how can I retreive the value when the supercollider server returns it, wthout blocking until supercollider returns the value
+
+In Clojure, you can use a similar approach as I mentioned earlier for handling the result of a function call that's executed in the future, using a callback function or message passing system.
+
+For example, you could send the OSC bundle to the SuperCollider server using a library like overtone.osc or scsynth.client, and then use a message passing system like core.async to handle the result when it becomes available.
+
+Here's an example using core.async:
+
+clojure
+
+(require '[clojure.core.async :as async]
+         '[overtone.osc :as osc])
+
+(defn send-osc-bundle [bundle channel]
+  (osc/send-bundle bundle)
+  (async/>!! channel :sent))
+
+(let [result-chan (async/chan)]
+  (send-osc-bundle my-bundle result-chan)
+  (println "Processing other stuff...")
+  (async/go (let [result (async/<!! result-chan)]
+              (println "Result: " result)))))
+
+In this example, the send-osc-bundle function takes two arguments: the OSC bundle to send and a channel. It sends the OSC bundle to the SuperCollider server using the osc/send-bundle function, and then sends a message indicating that the bundle has been sent to the channel.
+
+The send-osc-bundle function is called with an OSC bundle and a new channel. The message indicating that the bundle has been sent is sent to this channel.
+
+Meanwhile, the code proceeds to do other work, such as printing a message indicating that it's processing other stuff.
+
+A separate core.async thread is created using the async/go macro. This thread waits for a message to be available on the channel using the async/<!! function. When the message is received, it prints a message indicating that the result is available.
+
+To actually retrieve the value of the synth parameter, you would need to modify the send-osc-bundle function to include the appropriate OSC message to retrieve the value, and modify the callback function or message passing system to handle the response message and extract the value.
