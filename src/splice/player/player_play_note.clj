@@ -88,17 +88,35 @@
          this note has a different instrument than the prior note
      then
        turn off the prior note"
-  [prior-melody-event cur-melody-event]
-  (when (and (false? (get-note-off-from-melody-event prior-melody-event))
-             (or (not (nil? (get-freq-from-melody-event cur-melody-event)))
-                 (not=
-                  (get-sc-instrument-id-from-melody-event prior-melody-event)
-                  (get-sc-instrument-id-from-melody-event cur-melody-event)
-                  )
-                 )
-             )
-    (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event))
-    )
+  [cur-player-id melody-event]
+  (loop [player-id cur-player-id
+         prior-melody-event (nth (get-melody-for-player-id player-id)
+                                 (mod (- (get-melody-event-id-from-melody-event melody-event) 1)
+                                      SAVED-MELODY-LEN))
+         cur-melody-event melody-event
+         ]
+    (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
+             (get-sc-instrument-id-from-melody-event prior-melody-event))
+      (do
+        (Thread/sleep 100)
+        (println "%%%%%%%% ABOUT TO RECUR %%%%%%%%")
+        (recur player-id
+               (nth (get-melody-for-player-id player-id)
+                    (mod (-
+                          (get-melody-event-id-from-melody-event cur-melody-event)
+                          1)
+                         SAVED-MELODY-LEN))
+               cur-melody-event))
+      (if (and (false? (get-note-off-from-melody-event prior-melody-event))
+               (or (nil? (get-freq-from-melody-event cur-melody-event))
+                   (not=
+                    (get-sc-instrument-id-from-melody-event prior-melody-event)
+                    (get-sc-instrument-id-from-melody-event cur-melody-event)
+                    )
+                   )
+               )
+        (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event))
+        )))
   )
 
 (defn play-note-prior-instrument
@@ -150,8 +168,7 @@
 
 (defn sched-release
   [event]
-  (println "%%%%%%%%%%%%%%% sched-release " event)
-  (println @synth-melody-map)
+  (println "***** sched-release event: " event)
   (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
       (let [sc-instrument-id (first (event :args))
             melody-event (get @synth-melody-map sc-instrument-id)
@@ -165,13 +182,20 @@
                   note-off-val
                   (> (get-dur-millis-from-melody-event melody-event) release-millis)
                   ]
-              (when note-off-val
-                (sched-gate-off sc-instrument-id
-                                 (+ (get-event-time-from-melody-event melody-event)
-                                    (get-dur-millis-from-dur-info
-                                     (get-dur-info-from-melody-event melody-event))
-                                    release-millis)))
               (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
+              (if note-off-val
+                (sched-gate-off sc-instrument-id
+                                (- (+ (get-event-time-from-melody-event melody-event)
+                                      (get-dur-millis-from-dur-info
+                                       (get-dur-info-from-melody-event melody-event)))
+                                   release-millis))
+                (let [melody (get-melody-for-player-id player-id)]
+                  (if (not= melody-event-id
+                            (get-melody-event-id-from-melody-event (last melody)))
+                    (check-prior-event-note-off (nth melody (mod (- melody-event-id 1) SAVED-MELODY-LEN))
+                                                (nth melody (mod melody-event-id SAVED-MELODY-LEN)))
+                    ))
+                )
               ))
           (swap! synth-melody-map dissoc sc-instrument-id))))
   nil
@@ -191,9 +215,13 @@
         full-melody-event (set-play-info melody-event
                                          cur-inst-id
                                          event-time
-                                         (if cur-inst-id
-                                           (System/currentTimeMillis)
-                                           event-time)
+                                         ;; (if cur-inst-id
+                                         ;;   (System/currentTimeMillis)
+                                         ;;   event-time)
+
+                                         ;; set paly-time the same as event-time because
+                                         ;;   timed bundles are being used
+                                         event-time
                                          )
         ]
     (when cur-inst-id
@@ -227,12 +255,13 @@
              (if (get-freq-from-melody-event upd-melody-event)
                ""
                "REST"))
-    (check-prior-event-note-off (last melody) upd-melody-event)
+    (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (sched-next-note upd-melody-event)
     (>!! (get-msg-channel) {:msg :melody-event
                             :data upd-melody-event
                             :time (System/currentTimeMillis)})
     (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
+    (println "\n\n\n\n")
     )
  )
