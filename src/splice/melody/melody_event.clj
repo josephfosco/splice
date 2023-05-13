@@ -28,8 +28,8 @@
                         instrument-info
                         instrument-settings
                         player-id
-                        event-time
-                        play-time
+                        event-time  ; this is the time the event will start peocessing
+                        play-time   ; this is the time the note will start playing
                         sc-instrument-id
                         note-off
                         ])

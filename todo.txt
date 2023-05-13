@@ -20,12 +20,18 @@ variable release's and instead add a param so the release can be set by splice w
 is played and not changed inside the synth. That way you can always retrieve the correct
 release time from the synth
 
-It seems there is a lot of time between the event time and the note play time (not for rests)
-Currently using bundles for playing notes to eliminate this. Need to look into using bundles for
-gate messages also. Do I need to keep track of play-time in the melody-event if I use bundles?
-
 Change synths to use OffsetOut
 
+Take attack into account for note-length. Perhaps add atack into instrument.clj.
+If attack can be changed, have the program look it up like it does with release, but
+at first just set the attack: var in instrument.clj to :variable. If attack is variable
+in loops.clj :instrument-settings, it might be necessary to look up attack all the
+time.
+
+Should there be a limit to the number of times player_play_note/check_prior_event_note_off
+should be able to recur?
+
+Change println(s) to data2 level log statements
 
 -------- LONG TERM --------
 

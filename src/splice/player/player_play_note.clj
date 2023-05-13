@@ -76,9 +76,9 @@
   ;; Adds melody-event to the end of the melody vector
   ;; Does not allow melody-vector to have more than SAVED-MELODY-LEN
   ;; elements in it
-  (if (= (count melody) SAVED-MELODY-LEN)
+  (if (>= (get-melody-event-id-from-melody-event melody-event) SAVED-MELODY-LEN)
     (assoc (subvec melody 1) (dec SAVED-MELODY-LEN) melody-event)
-    (assoc melody (count melody) melody-event)
+    (assoc melody (get-melody-event-id-from-melody-event melody-event) melody-event)
     )
   )
 
@@ -87,36 +87,58 @@
        either this note is a rest or
          this note has a different instrument than the prior note
      then
-       turn off the prior note"
+       turn off the prior note
+
+     First this function checks if the prior-melody-event has
+     :note-off nil and sc-instrument-id <not-nil (some number)>
+     If this is the case it means that the prior event is an instrument that
+     is going to play, but supercollider has not yet started or notified this program
+     that the instrument has started to play. If tht is the case it is not yet possible
+     to send a message to supercollider to schedule the gate-off. So we delay and recur
+     until a value other than nill exists for note-off.
+
+     The delay is set to be NEXT-NOTE-PROCESS-MILLIS because this is likely what is
+     holding up the creation and notification of the instrument.
+
+     What is likely happening is that the time for the prior note has not yet arrived and the
+     next note is already being created due to this NEXT-NOTE-PROCESS-MILLIS. This function
+     need to wait till the prior instrument has been created before we can tell if it needs
+     to set a note off for its instrument.
+  "
   [cur-player-id melody-event]
   (loop [player-id cur-player-id
-         prior-melody-event (nth (get-melody-for-player-id player-id)
-                                 (mod (- (get-melody-event-id-from-melody-event melody-event) 1)
-                                      SAVED-MELODY-LEN))
+         prior-melody-event-id (if (>= (get-melody-event-id-from-melody-event melody-event)
+                                         SAVED-MELODY-LEN)
+                                   (- SAVED-MELODY-LEN 1)
+                                   (- (get-melody-event-id-from-melody-event melody-event) 1))
+         prior-melody-event (nth (get-melody-for-player-id player-id) prior-melody-event-id)
          cur-melody-event melody-event
          ]
     (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
              (get-sc-instrument-id-from-melody-event prior-melody-event))
       (do
-        (Thread/sleep 100)
+        (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
         (println "%%%%%%%% ABOUT TO RECUR %%%%%%%%")
         (recur player-id
-               (nth (get-melody-for-player-id player-id)
-                    (mod (-
-                          (get-melody-event-id-from-melody-event cur-melody-event)
-                          1)
-                         SAVED-MELODY-LEN))
+               prior-melody-event-id
+               (nth (get-melody-for-player-id player-id) prior-melody-event-id)
                cur-melody-event))
-      (if (and (false? (get-note-off-from-melody-event prior-melody-event))
-               (or (nil? (get-freq-from-melody-event cur-melody-event))
-                   (not=
-                    (get-sc-instrument-id-from-melody-event prior-melody-event)
-                    (get-sc-instrument-id-from-melody-event cur-melody-event)
+      ;; If the note-off for the prior-melody-event is true, then a gate-off event
+      ;; has already been scheduled for the prior-melody-event. If it is false, we need to
+      ;; check if the current event is a different instrument than the prior event
+      ;; (sc-instrument-id different in events) or if the current event is a rest (freq=nil).
+       (if (and (false? (get-note-off-from-melody-event prior-melody-event))
+                (or (nil? (get-freq-from-melody-event cur-melody-event))
+                    (not=
+                     (get-sc-instrument-id-from-melody-event prior-melody-event)
+                     (get-sc-instrument-id-from-melody-event cur-melody-event)
+                     )
                     )
-                   )
-               )
-        (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event))
-        )))
+                )
+         (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event)
+                         (+ (get-event-time-from-melody-event prior-melody-event)
+                            (get-dur-millis-from-melody-event prior-melody-event)))
+         )))
   )
 
 (defn play-note-prior-instrument
@@ -262,6 +284,6 @@
                             :data upd-melody-event
                             :time (System/currentTimeMillis)})
     (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
-    (println "\n\n\n\n")
+    (println "\n\n\n")
     )
  )
