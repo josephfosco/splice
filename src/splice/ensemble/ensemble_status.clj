@@ -89,10 +89,7 @@
       (swap! note-times
              add-event-to-note-times
              (list play-time
-                   (- (get-dur-millis-from-melody-event melody-event)
-                      (- play-time
-                         (get-event-time-from-melody-event melody-event))
-                      )
+                   play-time
                    )
              )
       ))

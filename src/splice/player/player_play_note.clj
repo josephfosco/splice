@@ -38,6 +38,7 @@
                                        get-melody-event-id-from-melody-event
                                        get-note-off-from-melody-event
                                        get-player-id-from-melody-event
+                                       get-play-time-from-melody-event
                                        get-sc-instrument-id-from-melody-event
                                        get-volume-from-melody-event
                                        set-play-info]]
@@ -118,7 +119,7 @@
              (get-sc-instrument-id-from-melody-event prior-melody-event))
       (do
         (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
-        (println "%%%%%%%% ABOUT TO RECUR %%%%%%%%")
+        (println "%%%%%%%% ABOUT TO RECUR " player-id " %%%%%%%%")
         (recur player-id
                prior-melody-event-id
                (nth (get-melody-for-player-id player-id) prior-melody-event-id)
@@ -136,13 +137,13 @@
                     )
                 )
          (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event)
-                         (+ (get-event-time-from-melody-event prior-melody-event)
+                         (+ (get-play-time-from-melody-event prior-melody-event)
                             (get-dur-millis-from-melody-event prior-melody-event)))
          )))
   )
 
 (defn play-note-prior-instrument
-  [prior-melody-event melody-event event-time]
+  [prior-melody-event melody-event play-time]
   (println "*****************************************************************")
   (println "play_note_prior_instrument")
   (println "*****************************************************************")
@@ -159,10 +160,10 @@
   )
 
 (defn play-note-new-instrument
-  [melody-event event-time]
+  [melody-event play-time]
   (let [synth-id (sc-next-id :node)]
     ;; Need to use apply here to unpack the args from get-instrument-settings-from-melody-event
-    (sc-send-bundle event-time
+    (sc-send-bundle play-time
                     (apply sc-send-msg
                            "/s_new"
                            (get-instrument-from-instrument-info
@@ -181,10 +182,10 @@
 (defn sched-next-note
   [melody-event]
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
-    (let [next-time (+ (get-event-time-from-melody-event melody-event)
-                       (get-dur-millis-from-dur-info d-info)
-                       )]
-      (go (<! (timeout (get-dur-millis-from-dur-info d-info)))
+    (let [event-time (get-event-time-from-melody-event melody-event)
+          next-time (+ event-time (get-dur-millis-from-dur-info d-info))
+          ]
+      (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
       )))
 
@@ -196,7 +197,7 @@
             melody-event (get @synth-melody-map sc-instrument-id)
             ]
         (when melody-event
-          (when (get-note-off-from-instrument-info
+          (if (get-note-off-from-instrument-info
                  (get-instrument-info-from-melody-event melody-event))
             (let [player-id (get-player-id-from-melody-event melody-event)
                   melody-event-id (get-melody-event-id-from-melody-event melody-event)
@@ -207,7 +208,7 @@
               (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
               (if note-off-val
                 (sched-gate-off sc-instrument-id
-                                (- (+ (get-event-time-from-melody-event melody-event)
+                                (- (+ (get-play-time-from-melody-event melody-event)
                                       (get-dur-millis-from-dur-info
                                        (get-dur-info-from-melody-event melody-event)))
                                    release-millis))
@@ -218,32 +219,33 @@
                                                 (nth melody (mod melody-event-id SAVED-MELODY-LEN)))
                     ))
                 )
-              ))
+              )
+            ;; if the instrument's note-off is false this means the instrument will automatically
+            ;; turn off an its' own (e.g. AR envelope). In that case set the event's note-off
+            ;; to true to indicate that the note-off has been handled for this event.
+            (let [player-id (get-player-id-from-melody-event melody-event)
+                  melody-event-id (get-melody-event-id-from-melody-event melody-event)
+                  ]
+              (update-melody-note-off-for-player-id player-id melody-event-id true))
+            )
           (swap! synth-melody-map dissoc sc-instrument-id))))
   nil
   )
 
 (defn play-melody-event
-  [prior-melody-event melody-event event-time]
+  [prior-melody-event melody-event play-time]
   (let [cur-inst-id
         (cond (nil? (get-freq-from-melody-event melody-event))
               nil
               ;; Need to use (not (false? here because note-off can be false or nil
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
-              (play-note-new-instrument melody-event event-time)
+              (play-note-new-instrument melody-event play-time)
               :else
-              (play-note-prior-instrument prior-melody-event melody-event event-time)
+              (play-note-prior-instrument prior-melody-event melody-event play-time)
               )
         full-melody-event (set-play-info melody-event
                                          cur-inst-id
-                                         event-time
-                                         ;; (if cur-inst-id
-                                         ;;   (System/currentTimeMillis)
-                                         ;;   event-time)
-
-                                         ;; set paly-time the same as event-time because
-                                         ;;   timed bundles are being used
-                                         event-time
+                                         play-time
                                          )
         ]
     (when cur-inst-id
@@ -257,7 +259,8 @@
   [player-id sched-time]
   (println "-")
   (println "start -" player-id)
-  (let [event-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
+  (let [event-time sched-time
+        play-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
         ;; TODO document why we are clearing messages here
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
@@ -266,10 +269,11 @@
                                         ensemble
                                         player
                                         melody
-                                        player-id)
+                                        player-id
+                                        event-time)
         upd-melody-event (play-melody-event (last melody)
                                             next-melody-event
-                                            event-time)
+                                            play-time)
         upd-melody (update-melody-with-event melody upd-melody-event)
         ]
     (println player-id
@@ -283,7 +287,7 @@
     (>!! (get-msg-channel) {:msg :melody-event
                             :data upd-melody-event
                             :time (System/currentTimeMillis)})
-    (println "end:   " player-id " time: " (- (System/currentTimeMillis) event-time) "melody-event: " (:melody-event-id upd-melody-event))
+    (println "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event))
     (println "\n\n\n")
     )
  )

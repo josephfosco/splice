@@ -37,8 +37,8 @@
 ;; MelodyEvent fields
 ;;  id   - id sequence of melody event - 0 is initial blank event
 ;;  freq - pitch frequency of event - nil for rest
-;;  event-time - time (in millis) event was supposed to be played
-;;  play-time  - time (in millis) event was actually played
+;;  event-time - time (in millis) event was ssheduled
+;;  play-time  - time (in millis) event was scheduled to be actually played
 ;;  note-off - true if a note-off was scheduled for this event note
 ;;             false if note-off event was not scheduled for this note
 ;;             nil if this event is a rest (freq = nil)
@@ -138,9 +138,8 @@
   )
 
 (defn set-play-info
-  [melody-event sc-instrument-id event-time play-time]
+  [melody-event sc-instrument-id play-time]
   (assoc melody-event
-         :event-time event-time
          :play-time play-time
          :sc-instrument-id sc-instrument-id
          ))

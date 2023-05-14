@@ -43,30 +43,6 @@
   [player]
   (get-base-loop-name (:loop-structr player)))
 
-(defn create-random-rest-melody-event
-  [player-id event-id]
-  (create-melody-event :melody-event-id event-id
-                       :freq nil
-                       :dur-info (select-random-dur-info)
-                       :volume nil
-                       :instrument-info nil
-                       :player-id player-id
-                       :event-time nil
-                       )
-  )
-
-(defn create-nodur-rest-melody-event
-  [player-id event-id]
-  (create-melody-event :melody-event-id event-id
-                       :freq nil
-                       :dur-info nil
-                       :volume nil
-                       :instrument-info nil
-                       :player-id player-id
-                       :event-time nil
-                       )
-  )
-
 (defn select-random-pitch-for-player
   ([player]
    (select-random-pitch (:range-lo (:instrument-info player))
@@ -82,7 +58,7 @@
 
 (defn get-next-melody-event
   "Returns an updated player and a melody-event"
-  [ensemble player melody player-id]
+  [ensemble player melody player-id event-time]
 
   (println player-id " PLAYER: " player " MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
@@ -90,7 +66,8 @@
         ((get-melody-fn loop-structr) player
                                       melody
                                       loop-structr
-                                      (inc (:melody-event-id (last melody))))
+                                      (inc (:melody-event-id (last melody)))
+                                      event-time)
         ]
     [
      (assoc player :loop-structr upd-loop-structr)

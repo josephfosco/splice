@@ -69,7 +69,7 @@
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event"
-  [player melody loop-structr next-id]
+  [player melody loop-structr next-id event-time]
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
@@ -81,7 +81,7 @@
                       :instrument-info (get-player-instrument-info player)
                       :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)
-                      :event-time nil
+                      :event-time event-time
                       )
         ]
     [
