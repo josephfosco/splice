@@ -33,6 +33,8 @@ should be able to recur?
 
 Change println(s) to data2 level log statements
 
+Fix randomized start. I think things start right away now.
+
 -------- LONG TERM --------
 
 Do not make a new synth for every note keep 1 synth and retrigger it

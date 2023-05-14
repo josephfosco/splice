@@ -48,6 +48,7 @@
                                        NEXT-METHOD]]
    [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [tail]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
    ))
@@ -226,6 +227,8 @@
             (let [player-id (get-player-id-from-melody-event melody-event)
                   melody-event-id (get-melody-event-id-from-melody-event melody-event)
                   ]
+              (println "sched-release synth-melody-map: "@synth-melody-map)
+              (println "sched-release event: " melody-event)
               (update-melody-note-off-for-player-id player-id melody-event-id true))
             )
           (swap! synth-melody-map dissoc sc-instrument-id))))

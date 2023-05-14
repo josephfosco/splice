@@ -21,10 +21,10 @@
                                      INCREASING
                                      STEADY]]
    [splice.melody.melody-event :refer [get-freq-from-melody-event
-                                        get-dur-millis-from-melody-event
-                                        get-event-time-from-melody-event
-                                        get-play-time-from-melody-event
-                                        ]]
+                                       get-dur-millis-from-melody-event
+                                       get-event-time-from-melody-event
+                                       get-play-time-from-melody-event
+                                       ]]
    [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel get-msg-pub]]
@@ -89,7 +89,7 @@
       (swap! note-times
              add-event-to-note-times
              (list play-time
-                   play-time
+                   (get-dur-millis-from-melody-event melody-event)
                    )
              )
       ))
