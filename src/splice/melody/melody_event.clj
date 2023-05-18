@@ -54,6 +54,7 @@
              event-time
              play-time
              sc-instrument-id
+             note-off
              ]
       :or {instrument-settings nil
            play-time nil
@@ -68,7 +69,7 @@
                 event-time
                 play-time
                 sc-instrument-id
-                nil ;; note-off is nil if this is a rest or we don't know yet
+                note-off
                 )
   )
 

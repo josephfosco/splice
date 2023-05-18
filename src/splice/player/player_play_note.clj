@@ -221,15 +221,6 @@
                     ))
                 )
               )
-            ;; if the instrument's note-off is false this means the instrument will automatically
-            ;; turn off an its' own (e.g. AR envelope). In that case set the event's note-off
-            ;; to true to indicate that the note-off has been handled for this event.
-            (let [player-id (get-player-id-from-melody-event melody-event)
-                  melody-event-id (get-melody-event-id-from-melody-event melody-event)
-                  ]
-              (println "sched-release synth-melody-map: "@synth-melody-map)
-              (println "sched-release event: " melody-event)
-              (update-melody-note-off-for-player-id player-id melody-event-id true))
             )
           (swap! synth-melody-map dissoc sc-instrument-id))))
   nil

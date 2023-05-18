@@ -15,6 +15,7 @@
 
 (ns splice.player.loops.loop
   (:require
+   [splice.instr.instrumentinfo :refer [get-note-off-from-instrument-info]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.player.loops.base-loop :refer [create-base-loop
                                           get-loop-dur-info
@@ -73,15 +74,23 @@
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
+        xxxx (println "^^^ melody-ino: " melody-info "^^^2")
+        instrument-info (get-player-instrument-info player)
+        event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
+                        true
+                        nil)
         melody-event (create-melody-event
                       :melody-event-id next-id
                       :freq (get-loop-pitch (:pitch melody-info))
                       :dur-info (get-loop-dur-info (:dur melody-info))
                       :volume (get-loop-volume (:volume melody-info))
-                      :instrument-info (get-player-instrument-info player)
+                      :instrument-info instrument-info
                       :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)
                       :event-time event-time
+                      :note-off (if (= :rest (:type (:pitch melody-info)))
+                                  nil
+                                  event-note-off)
                       )
         ]
     [

@@ -15,7 +15,6 @@
 
 (ns splice.player.player-utils
   (:require
-   [splice.melody.melody-event :refer [create-melody-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn

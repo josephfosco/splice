@@ -31,7 +31,7 @@
 :pitch
 [
   {
-    :type - :fixed | :variable
+    :type - :fixed | :variable | :rest
     :pitch-midi-note - This or :pitch-freq are required if :type == :fixed
     :pitch-freq - This or :pitch-midi-note are required if :type == :fixed
     :pitch-type - Required if type == :variable.
@@ -42,7 +42,7 @@
   :pitch-freq - The frequency (Hz) of the note to play
   :pitch-type - :midi-note | :freq
   :pitches - An array of integers representing midi-notes if :pitch-type == :midi-note or
-             frequencies (Hz.) if :pitch-type ==:freq. To include a rest in the array use nil.
+             frequencies (Hz.) if :pitch-type ==:freq.
 ]
 
 :dur

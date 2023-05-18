@@ -39,3 +39,5 @@ Fix randomized start. I think things start right away now.
 
 Do not make a new synth for every note keep 1 synth and retrigger it
 Move sc-osc to a seperate repo and use submodules
+Might want to change melody-info to a record and have accessor methods for the attributes
+  instead of passing around a map
