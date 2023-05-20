@@ -269,6 +269,7 @@
 ;;   ;; Need to stop all players and whatever here. Possibly with (event :reset)
 ;;   ;; Clear buses, reset groups?
 ;;   ;; Can use "/clearSched" to stop events scheduled for the future in Supercollider
+;;   ;; but need to consider that some future supercollider events could be gate-off
 ;;   (close-msg-channel)
 ;;   (reset! is-playing? false)
 ;;   )

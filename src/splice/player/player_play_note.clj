@@ -95,7 +95,7 @@
      :note-off nil and sc-instrument-id <not-nil (some number)>
      If this is the case it means that the prior event is an instrument that
      is going to play, but supercollider has not yet started or notified this program
-     that the instrument has started to play. If tht is the case it is not yet possible
+     that the instrument has started to play. If that is the case it is not yet possible
      to send a message to supercollider to schedule the gate-off. So we delay and recur
      until a value other than nill exists for note-off.
 
@@ -104,16 +104,16 @@
 
      What is likely happening is that the time for the prior note has not yet arrived and the
      next note is already being created due to this NEXT-NOTE-PROCESS-MILLIS. This function
-     need to wait till the prior instrument has been created before we can tell if it needs
+     needs to wait till the prior instrument has been created before we can tell if it needs
      to set a note off for its instrument.
   "
   [cur-player-id melody-event]
   (loop [player-id cur-player-id
-         prior-melody-event-id (if (>= (get-melody-event-id-from-melody-event melody-event)
-                                         SAVED-MELODY-LEN)
-                                   (- SAVED-MELODY-LEN 1)
-                                   (- (get-melody-event-id-from-melody-event melody-event) 1))
-         prior-melody-event (nth (get-melody-for-player-id player-id) prior-melody-event-id)
+         prior-melody-event-ndx (if (>= (get-melody-event-id-from-melody-event melody-event)
+                                        SAVED-MELODY-LEN)
+                                  (- SAVED-MELODY-LEN 1)
+                                  (- (get-melody-event-id-from-melody-event melody-event) 1))
+         prior-melody-event (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
          cur-melody-event melody-event
          ]
     (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
@@ -122,8 +122,8 @@
         (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
         (println "%%%%%%%% ABOUT TO RECUR " player-id " %%%%%%%%")
         (recur player-id
-               prior-melody-event-id
-               (nth (get-melody-for-player-id player-id) prior-melody-event-id)
+               prior-melody-event-ndx
+               (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
                cur-melody-event))
       ;; If the note-off for the prior-melody-event is true, then a gate-off event
       ;; has already been scheduled for the prior-melody-event. If it is false, we need to
@@ -148,6 +148,14 @@
   (println "*****************************************************************")
   (println "play_note_prior_instrument")
   (println "*****************************************************************")
+  ;; TODO
+  ;; Might not need to do this, but check it out when this is implemented!
+  ;; since this instrument is already started we will not get a /n_go msg from
+  ;; supercollider. It might be possible to schedule the gate off here, except
+  ;; it could be a problem if the next note will also play with this same
+  ;; supercollider instrument (in that case the gate-off will be scheduled, and
+  ;; when the program tries to retrigger the supercollider instrument for the
+  ;; next note, the instrument will be gone).
   (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
     ;; apply not tested???
     ;; (apply ctl inst-id
@@ -213,12 +221,12 @@
                                       (get-dur-millis-from-dur-info
                                        (get-dur-info-from-melody-event melody-event)))
                                    release-millis))
-                (let [melody (get-melody-for-player-id player-id)]
-                  (if (not= melody-event-id
-                            (get-melody-event-id-from-melody-event (last melody)))
-                    (check-prior-event-note-off (nth melody (mod (- melody-event-id 1) SAVED-MELODY-LEN))
-                                                (nth melody (mod melody-event-id SAVED-MELODY-LEN)))
-                    ))
+                ;; (let [melody (get-melody-for-player-id player-id)]
+                ;;   (if (not= melody-event-id
+                ;;             (get-melody-event-id-from-melody-event (last melody)))
+                ;;     (check-prior-event-note-off (nth melody (mod (- melody-event-id 1) SAVED-MELODY-LEN))
+                ;;                                 (nth melody (mod melody-event-id SAVED-MELODY-LEN)))
+                ;;     ))
                 )
               )
             )

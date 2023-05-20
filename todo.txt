@@ -31,9 +31,7 @@ time.
 Should there be a limit to the number of times player_play_note/check_prior_event_note_off
 should be able to recur?
 
-Change println(s) to data2 level log statements
-
-Fix randomized start. I think things start right away now.
+Change println(s) to data2 level log statements - need to make sure details print -not just Object IDs
 
 -------- LONG TERM --------
 

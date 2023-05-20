@@ -74,7 +74,6 @@
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
-        xxxx (println "^^^ melody-ino: " melody-info "^^^2")
         instrument-info (get-player-instrument-info player)
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
                         true

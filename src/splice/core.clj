@@ -94,7 +94,7 @@
    Functions to run splice
 
      (splice-start)        Start playing
-                             optional key :osc-debug
+                             optional key :osc-debug ( true | [false] )
      (splice-pause)        Pause after playing current notes
 
      (splice-help)         Print this message
