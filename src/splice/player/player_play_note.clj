@@ -237,9 +237,12 @@
 (defn play-melody-event
   [prior-melody-event melody-event play-time]
   (let [cur-inst-id
-        (cond (nil? (get-freq-from-melody-event melody-event))
+        (cond (nil? (get-freq-from-melody-event melody-event))  ;; This is a rest (no note-off)
               nil
-              ;; Need to use (not (false? here because note-off can be false or nil
+              ;; Need to use (not (false? here because note-off can be true or nil
+              ;; if true at this point, it means the prior event has handled the note-off.
+              ;; If nil at this point, the prior instrument will not have a note-off
+              ;; scheduled, and this note should be scheduled with the prior instrument.
               (not (false? (get-note-off-from-melody-event prior-melody-event)))
               (play-note-new-instrument melody-event play-time)
               :else
