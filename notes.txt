@@ -28,7 +28,20 @@ sc3> u = OSCFunc({ |msg| msg.postln }, '/num_control_bus_channels');
 Starts repeatedly printing a response. Last array element is number of control bus channels
 
 
----- Work on sending a literal array when creating a synth ----
+---------- Connecting to a running supercollider server from scide ----------
+
+Server.default.addr.port = 57711;
+o = ServerOptions.new;
+o.maxLogins = 8;
+r = Server.remote(\myserver, NetAddr("127.0.0.1", 57711), o);
+Server.default = r;
+r.plotTree
+
+
+---------- Work on sending a literal array when creating a synth ----------
+
+*** This is not working yet and is does not seem to be supported by sc-osc ***
+
 user=> (use 'sc-osc.sc)
 user=> (sc-connect)
 user=> (sc-debug true)
@@ -139,17 +152,7 @@ newBus.free;
 
 
 
----------- Connecting to a running supercollider server from scide
-
-Server.default.addr.port = 57711;
-o = ServerOptions.new;
-o.maxLogins = 8;
-r = Server.remote(\myserver, NetAddr("127.0.0.1", 57711), o);
-Server.default = r;
-r.plotTree
-
-
----------- play next noteprocess - not done
+---------- play next noteprocess - not done and likely needs to be updated
 
 
 player_play_note/play-next-note

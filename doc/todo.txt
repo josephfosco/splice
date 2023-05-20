@@ -22,9 +22,7 @@ of a different loop. Perhaps this is part of polyphonic loops
 
 Be able to specify the loops.clj file in the settings
 
-Have a loop change notes, but only a certain number of notes each time it plays,
-and also restrict the notes it can choose,
-with an option to allow octave equivalence within the instruments range
+Have a loop have an option to allow octave equivalence within the instruments range
 
 Be able to load or reload loops while playing
 
@@ -40,3 +38,6 @@ Recompute density taking into account instruments release
 Be able to attach effects on the main output bus
 
 Load additional setting filenames (in control.clj) from command line
+
+Have a loop change notes, but only a certain number of notes each time it plays,
+and also restrict the notes it can choose,

@@ -1,12 +1,14 @@
 Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
 
+Get play-note-prior-instrument working in player/player-play-note
+
 Implement core/splice_stop and control/stop_splice
 
-if the message system is used, make certain ensemble/ensemble_status.clj catches the message
-  and calls stop-ensemble-status to stop the ensemble-status message loop.
+if the message system is used, make certain ensemble/ensemble_status.clj catches
+  the message and calls stop-ensemble-status to stop the ensemble-status message loop.
 
-Set log settings (dir and level for sc-osc
+Set log settings (dir and level) for sc-osc
 
 need to fix clj-osc location in sc-osc/deps.edn
 
@@ -14,11 +16,11 @@ check if I want to use blocking or unblocking channels in ensemble_status.clj
 currently I use blocking channels if I want to switch to unblocking channels, change
 (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 
-If an instrument has a variable release, like woosh, it needs to be taken into account when scheduling
-note-off events or even just when calling get-release-millis-from-instrument. Perhaps remove
-variable release's and instead add a param so the release can be set by splice when the synth
-is played and not changed inside the synth. That way you can always retrieve the correct
-release time from the synth
+If an instrument has a variable release, like woosh, it needs to be taken into account
+when scheduling note-off events or even just when calling get-release-millis-from-instrument.
+Perhaps remove variable release's and instead add a param so the release can be set by
+splice when the synth is played and not changed inside the synth. That way you can always
+retrieve the correct release time from the synth
 
 Change synths to use OffsetOut
 
@@ -31,11 +33,26 @@ time.
 Should there be a limit to the number of times player_play_note/check_prior_event_note_off
 should be able to recur?
 
-Change println(s) to data2 level log statements - need to make sure details print -not just Object IDs
+Change println(s) to data2 level log statements - need to make sure
+details print - not just Object IDs
+
+-------- STOPPING SPLICE --------
+- Stop scheduling new events. Create a var sched-events and check it before scheduling new notes
+- Create a fade-out function that brings the value of volume-adjust down to 0 over a short
+  amount of time
+- Should Supercollider be stopped?
+- Can a splice-pause be created that will pick up where it left off? How will the times
+  (event-time, play-time) be effected. Also, since all notes should be stopped, checking
+  for prior-note-off should not be done.
 
 -------- LONG TERM --------
 
-Do not make a new synth for every note keep 1 synth and retrigger it
-Move sc-osc to a seperate repo and use submodules
-Might want to change melody-info to a record and have accessor methods for the attributes
+- Connect mediapipe to supercollider automatically
+- Start up supercollider automatically.
+- Do not make a new synth for every note keep 1 synth and retrigger it
+- Move sc-osc to a seperate repo and use submodules
+- Might want to change melody-info to a record and have accessor methods for the attributes
   instead of passing around a map
+- Do I want to move all vars from individual files to a common file so that if I reload the
+  file I will not loose the value of the vars? Could this be fixwd using defonce and/or
+  have functions for clearing vars?
