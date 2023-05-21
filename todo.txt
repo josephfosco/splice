@@ -1,7 +1,10 @@
+Get play-note-prior-instrument working in player/player-play-note
+
+Need to change all sc synthdefs to use the vol parameter like string_sect.sc does now
+do not use the levelScale parameter of an envelope
+
 Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-
-Get play-note-prior-instrument working in player/player-play-note
 
 Implement core/splice_stop and control/stop_splice
 
@@ -23,12 +26,6 @@ splice when the synth is played and not changed inside the synth. That way you c
 retrieve the correct release time from the synth
 
 Change synths to use OffsetOut
-
-Take attack into account for note-length. Perhaps add atack into instrument.clj.
-If attack can be changed, have the program look it up like it does with release, but
-at first just set the attack: var in instrument.clj to :variable. If attack is variable
-in loops.clj :instrument-settings, it might be necessary to look up attack all the
-time.
 
 Should there be a limit to the number of times player_play_note/check_prior_event_note_off
 should be able to recur?

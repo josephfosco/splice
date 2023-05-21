@@ -20,6 +20,7 @@
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info
                                         get-note-off-from-instrument-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument
+                                       sched-control-val
                                        sched-gate-off]]
    [splice.config.constants :refer [SAVED-MELODY-LEN]]
    [splice.ensemble.ensemble :refer [get-ensemble-clear-msg-for-player-id
@@ -143,6 +144,41 @@
          )))
   )
 
+(defn send-gate-off
+  [sc-instrument-id melody-event]
+  (if (get-note-off-from-instrument-info
+       (get-instrument-info-from-melody-event melody-event))
+    (let [player-id (get-player-id-from-melody-event melody-event)
+          melody-event-id (get-melody-event-id-from-melody-event melody-event)
+          release-millis (get-release-millis-from-instrument sc-instrument-id)
+          note-off-val
+          (> (get-dur-millis-from-melody-event melody-event) release-millis)
+          ]
+      (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
+      (if note-off-val
+        (sched-gate-off sc-instrument-id
+                        (- (+ (get-play-time-from-melody-event melody-event)
+                              (get-dur-millis-from-dur-info
+                               (get-dur-info-from-melody-event melody-event)))
+                           release-millis))
+        )
+      )
+    )
+  )
+
+(defn sched-release
+  [event]
+  (println "***** sched-release event: " event)
+  (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
+      (let [sc-instrument-id (first (event :args))
+            melody-event (get @synth-melody-map sc-instrument-id)
+            ]
+        (when melody-event
+          (send-gate-off sc-instrument-id melody-event)
+          (swap! synth-melody-map dissoc sc-instrument-id))))
+  nil
+  )
+
 (defn play-note-prior-instrument
   [prior-melody-event melody-event play-time]
   (println "*****************************************************************")
@@ -156,7 +192,13 @@
   ;; supercollider instrument (in that case the gate-off will be scheduled, and
   ;; when the program tries to retrigger the supercollider instrument for the
   ;; next note, the instrument will be gone).
-  (let [inst-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
+  (let [sc-instrument-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
+    (sched-control-val sc-instrument-id
+                       play-time
+                       "freq" (get-freq-from-melody-event melody-event)
+                       "vol" (get-volume-from-melody-event melody-event)
+                       )
+    (send-gate-off sc-instrument-id melody-event)
     ;; apply not tested???
     ;; (apply ctl inst-id
     ;;      :freq (get-freq-from-melody-event melody-event)
@@ -164,7 +206,7 @@
     ;;              (get-setting :volume-adjust))
     ;;      (get-instrument-settings-from-melody-event melody-event)
     ;;      )
-    inst-id
+    sc-instrument-id
     )
   )
 
@@ -197,42 +239,6 @@
       (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
       )))
-
-(defn sched-release
-  [event]
-  (println "***** sched-release event: " event)
-  (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
-      (let [sc-instrument-id (first (event :args))
-            melody-event (get @synth-melody-map sc-instrument-id)
-            ]
-        (when melody-event
-          (if (get-note-off-from-instrument-info
-                 (get-instrument-info-from-melody-event melody-event))
-            (let [player-id (get-player-id-from-melody-event melody-event)
-                  melody-event-id (get-melody-event-id-from-melody-event melody-event)
-                  release-millis (get-release-millis-from-instrument sc-instrument-id)
-                  note-off-val
-                  (> (get-dur-millis-from-melody-event melody-event) release-millis)
-                  ]
-              (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
-              (if note-off-val
-                (sched-gate-off sc-instrument-id
-                                (- (+ (get-play-time-from-melody-event melody-event)
-                                      (get-dur-millis-from-dur-info
-                                       (get-dur-info-from-melody-event melody-event)))
-                                   release-millis))
-                ;; (let [melody (get-melody-for-player-id player-id)]
-                ;;   (if (not= melody-event-id
-                ;;             (get-melody-event-id-from-melody-event (last melody)))
-                ;;     (check-prior-event-note-off (nth melody (mod (- melody-event-id 1) SAVED-MELODY-LEN))
-                ;;                                 (nth melody (mod melody-event-id SAVED-MELODY-LEN)))
-                ;;     ))
-                )
-              )
-            )
-          (swap! synth-melody-map dissoc sc-instrument-id))))
-  nil
-  )
 
 (defn play-melody-event
   [prior-melody-event melody-event play-time]

@@ -17,7 +17,7 @@
      :instrument-settings ("attack" 0.10 "release" 3.0)
      }
     {:pitch {:type :fixed
-             :pitch-midi-note 69}
+             :pitch-midi-note 76}
      :dur {:type :fixed
            :dur-millis 1000
            }

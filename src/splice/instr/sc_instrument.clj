@@ -25,6 +25,13 @@
                    (sc-send-msg "/n_set" sc-instrument-id "gate" 0.0)))
   )
 
+(defn sched-control-val
+  ([sc-instrument-id time & ctl-vals]
+   (println sc-instrument-id time ctl-vals)
+   (sc-send-bundle time
+                   (apply sc-send-msg "/n_set" sc-instrument-id ctl-vals)))
+  )
+
 (defn get-release-millis-from-instrument
   ""
   ;; (*  (node-get-control sc-instrument-id :release) 1000)
