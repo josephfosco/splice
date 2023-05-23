@@ -53,3 +53,5 @@ details print - not just Object IDs
 - Do I want to move all vars from individual files to a common file so that if I reload the
   file I will not loose the value of the vars? Could this be fixwd using defonce and/or
   have functions for clearing vars?
+- Have the ability to load new loop file while playing
+- Ability to control loop file from an external controller (grid controller)

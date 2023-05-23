@@ -139,11 +139,18 @@
   )
 
 (defn set-play-info
-  [melody-event sc-instrument-id play-time]
-  (assoc melody-event
-         :play-time play-time
-         :sc-instrument-id sc-instrument-id
-         ))
+  [melody-event sc-instrument-id play-time note-off-val]
+  (if (= note-off-val :none)
+    (assoc melody-event
+           :play-time play-time
+           :sc-instrument-id sc-instrument-id
+           )
+    (assoc melody-event
+           :play-time play-time
+           :sc-instrument-id sc-instrument-id
+           :note-off note-off-val
+           )
+    ))
 
 (defn set-melody-event-note-off
   [melody-event val]
