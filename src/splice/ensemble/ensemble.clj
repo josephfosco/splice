@@ -65,6 +65,8 @@
 (defn replace-melody-event-note-off
   [ens player-id melody-event-id note-off-val]
   (let [melody (get-melody-for-player-id player-id)
+        xxxxx (println "xxxxxxxxxxxxxxx player-id: " player-id "melody-event-id: " melody-event-id)
+        XXXXX (println "xxxxxxxxxxxxxxx melody: " melody)
         melody-event-ndx (->> melody  ; gets the index of the melody-event we want to replace
                               (map :melody-event-id)
                               (map-indexed vector)

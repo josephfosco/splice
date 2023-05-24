@@ -144,8 +144,8 @@
          )))
   )
 
-(defn send-gate-off-prior-instrument
-  [sc-instrument-id melody-event]
+(defn send-gate-off
+  [sc-instrument-id melody-event play-time]
   (if (get-note-off-from-instrument-info
        (get-instrument-info-from-melody-event melody-event))
     (let [player-id (get-player-id-from-melody-event melody-event)
@@ -153,35 +153,13 @@
           release-millis (get-release-millis-from-instrument sc-instrument-id)
           note-off-val (> (get-dur-millis-from-melody-event melody-event) release-millis)
           ]
-      (when-let [note-off note-off-val]
+      (if note-off-val
         (sched-gate-off sc-instrument-id
-                        (- (+ (get-play-time-from-melody-event melody-event)
-                              (get-dur-millis-from-dur-info
-                               (get-dur-info-from-melody-event melody-event)))
+                        (- (+ play-time (get-dur-millis-from-dur-info
+                                         (get-dur-info-from-melody-event melody-event)))
                            release-millis))
         )
       note-off-val
-      )
-    )
-  )
-
-(defn send-gate-off
-  [sc-instrument-id melody-event]
-  (if (get-note-off-from-instrument-info
-       (get-instrument-info-from-melody-event melody-event))
-    (let [player-id (get-player-id-from-melody-event melody-event)
-          melody-event-id (get-melody-event-id-from-melody-event melody-event)
-          release-millis (get-release-millis-from-instrument sc-instrument-id)
-          note-off-val (> (get-dur-millis-from-melody-event melody-event) release-millis)
-          ]
-      (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
-      (if note-off-val
-        (sched-gate-off sc-instrument-id
-                        (- (+ (get-play-time-from-melody-event melody-event)
-                              (get-dur-millis-from-dur-info
-                               (get-dur-info-from-melody-event melody-event)))
-                           release-millis))
-        )
       )
     )
   )
@@ -194,38 +172,25 @@
             melody-event (get @synth-melody-map sc-instrument-id)
             ]
         (when melody-event
-          (send-gate-off sc-instrument-id melody-event)
-          (swap! synth-melody-map dissoc sc-instrument-id))))
+          (let [player-id (get-player-id-from-melody-event melody-event)
+                melody-event-id (get-melody-event-id-from-melody-event melody-event)
+                play-time (get-play-time-from-melody-event melody-event)
+                note-off-val (send-gate-off sc-instrument-id melody-event play-time)]
+            (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
+            (swap! synth-melody-map dissoc sc-instrument-id)))))
   nil
   )
 
 (defn play-note-prior-instrument
   [prior-melody-event melody-event play-time]
-  (println "*****************************************************************")
-  (println "play_note_prior_instrument")
-  (println "*****************************************************************")
-  ;; TODO
-  ;; Might not need to do this, but check it out when this is implemented!
-  ;; since this instrument is already started we will not get a /n_go msg from
-  ;; supercollider. It might be possible to schedule the gate off here, except
-  ;; it could be a problem if the next note will also play with this same
-  ;; supercollider instrument (in that case the gate-off will be scheduled, and
-  ;; when the program tries to retrigger the supercollider instrument for the
-  ;; next note, the instrument will be gone).
   (let [sc-instrument-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
-    (sched-control-val sc-instrument-id
-                       play-time
-                       "freq" (get-freq-from-melody-event melody-event)
-                       "vol" (get-volume-from-melody-event melody-event)
-                       )
-    (let [note-off-val (send-gate-off-prior-instrument sc-instrument-id melody-event)]
-      ;; apply not tested???
-      ;; (apply ctl inst-id
-      ;;      :freq (get-freq-from-melody-event melody-event)
-      ;;      :vol (* (get-volume-from-melody-event melody-event)
-      ;;              (get-setting :volume-adjust))
-      ;;      (get-instrument-settings-from-melody-event melody-event)
-      ;;      )
+    (apply sched-control-val sc-instrument-id
+           play-time
+           "freq" (get-freq-from-melody-event melody-event)
+           "vol" (get-volume-from-melody-event melody-event)
+           (get-instrument-settings-from-melody-event melody-event)
+           )
+    (let [note-off-val (send-gate-off sc-instrument-id melody-event play-time)]
       [sc-instrument-id note-off-val])
     )
   )
@@ -248,17 +213,6 @@
     sc-instrument-id
     )
   )
-
-(declare play-next-note)
-(defn sched-next-note
-  [melody-event]
-  (when-let [d-info (get-dur-info-from-melody-event melody-event)]
-    (let [event-time (get-event-time-from-melody-event melody-event)
-          next-time (+ event-time (get-dur-millis-from-dur-info d-info))
-          ]
-      (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
-          (play-next-note (get-player-id-from-melody-event melody-event) next-time))
-      )))
 
 ;; (defn play-melody-event
 ;;   [prior-melody-event melody-event play-time]
@@ -314,6 +268,7 @@
       )
     ))
 
+(declare sched-next-note)
 (defn play-next-note
   [player-id sched-time]
   (println "-")
@@ -350,3 +305,13 @@
     (println "\n\n\n")
     )
   )
+
+(defn sched-next-note
+  [melody-event]
+  (when-let [d-info (get-dur-info-from-melody-event melody-event)]
+    (let [event-time (get-event-time-from-melody-event melody-event)
+          next-time (+ event-time (get-dur-millis-from-dur-info d-info))
+          ]
+      (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
+          (play-next-note (get-player-id-from-melody-event melody-event) next-time))
+      )))
