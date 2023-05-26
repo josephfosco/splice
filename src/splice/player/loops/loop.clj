@@ -75,19 +75,23 @@
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
         instrument-info (get-player-instrument-info player)
+        ;; frequency can be nil when pitch-type is variable and one or more entries in
+        ;; the pitch vector is nil, and the nil value is chosen
+        frequency (get-loop-pitch (:pitch melody-info))
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
                         true
                         nil)
         melody-event (create-melody-event
                       :melody-event-id next-id
-                      :freq (get-loop-pitch (:pitch melody-info))
+                      :freq frequency
                       :dur-info (get-loop-dur-info (:dur melody-info))
                       :volume (get-loop-volume (:volume melody-info))
                       :instrument-info instrument-info
                       :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)
                       :event-time event-time
-                      :note-off (if (= :rest (:type (:pitch melody-info)))
+                      :note-off (if (or (= :rest (:type (:pitch melody-info)))
+                                        (nil? frequency))
                                   nil
                                   event-note-off)
                       )

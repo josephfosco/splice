@@ -30,7 +30,7 @@
                         player-id
                         event-time  ; this is the time the event will start peocessing
                         play-time   ; this is the time the note will start playing
-                        sc-instrument-id
+                        sc-synth-id
                         note-off
                         ])
 
@@ -39,9 +39,10 @@
 ;;  freq - pitch frequency of event - nil for rest
 ;;  event-time - time (in millis) event was ssheduled
 ;;  play-time  - time (in millis) event was scheduled to be actually played
-;;  note-off - true if a note-off was scheduled for this event note
-;;             false if note-off event was not scheduled for this note
-;;             nil if this event is a rest (freq = nil)
+;;  note-off - true if a note-off was scheduled for this event note or not needed
+;;               (instrument-info note-off is false)
+;;             false if note-off event was not scheduled for this note and is needed
+;;             nil if this event is a rest (freq = nil) or it is not known if note-off is needed
 
 (defn create-melody-event
   [& {:keys [melody-event-id
@@ -53,12 +54,12 @@
              player-id
              event-time
              play-time
-             sc-instrument-id
+             sc-synth-id
              note-off
              ]
       :or {instrument-settings nil
            play-time nil
-           sc-instrument-id nil}}]
+           sc-synth-id nil}}]
   (MelodyEvent. melody-event-id
                 freq
                 dur-info
@@ -68,7 +69,7 @@
                 player-id
                 event-time
                 play-time
-                sc-instrument-id
+                sc-synth-id
                 note-off
                 )
   )
@@ -128,9 +129,9 @@
   (:player-id melody-event)
   )
 
-(defn get-sc-instrument-id-from-melody-event
+(defn get-sc-synth-id-from-melody-event
   [melody-event]
-  (:sc-instrument-id melody-event)
+  (:sc-synth-id melody-event)
   )
 
 (defn get-volume-from-melody-event
@@ -139,18 +140,14 @@
   )
 
 (defn set-play-info
-  [melody-event sc-instrument-id play-time note-off-val]
-  (if (= note-off-val :none)
-    (assoc melody-event
-           :play-time play-time
-           :sc-instrument-id sc-instrument-id
-           )
-    (assoc melody-event
-           :play-time play-time
-           :sc-instrument-id sc-instrument-id
-           :note-off note-off-val
-           )
-    ))
+  [melody-event sc-synth-id play-time note-off-val]
+  (apply assoc melody-event
+               :play-time play-time
+               :sc-synth-id sc-synth-id
+               (when (not (= note-off-val :none))
+               {:note-off note-off-val}
+               ))
+    )
 
 (defn set-melody-event-note-off
   [melody-event val]

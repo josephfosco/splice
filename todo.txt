@@ -12,7 +12,7 @@ Change synths to use OffsetOut
 
 Fix density computetion - It is way off with tst-loop.clj
 
--------- This release --------
+-------- This release end --------
 
 Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)

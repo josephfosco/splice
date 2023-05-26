@@ -63,17 +63,8 @@
   )
 
 (defn replace-melody-event-note-off
-  [ens player-id melody-event-id note-off-val]
-  (let [melody (get-melody-for-player-id player-id)
-        xxxxx (println "xxxxxxxxxxxxxxx player-id: " player-id "melody-event-id: " melody-event-id)
-        XXXXX (println "xxxxxxxxxxxxxxx melody: " melody)
-        melody-event-ndx (->> melody  ; gets the index of the melody-event we want to replace
-                              (map :melody-event-id)
-                              (map-indexed vector)
-                              (filter #(= (second %) melody-event-id))
-                              (map first)
-                              (first))
-        melody-event (nth melody melody-event-ndx)
+  [ens player-id melody-event melody-event-id melody-event-ndx note-off-val]
+  (let [
         melodies (get-melodies-from-ensemble ens)
         upd-melody-event (set-melody-event-note-off melody-event note-off-val)
         upd-player-melody (assoc (nth melodies player-id)
@@ -88,8 +79,33 @@
 
 (defn update-melody-note-off-for-player-id
   [player-id melody-event-id note-off-val]
-  (swap! ensemble replace-melody-event-note-off player-id melody-event-id note-off-val)
-  )
+  (let [melody (get-melody-for-player-id player-id)
+        ; get the index of and melody-event-id of the event to be to replaced
+        ndx-and-id (->> melody
+                        (map :melody-event-id)
+                        (map-indexed vector)
+                        (filter #(= (second %) melody-event-id))
+                        (map first))
+        ]
+    (if (= [] ndx-and-id)
+      ;; This will occur if for some reason the synth has started before the event
+      ;; has been added to the players melody. In that case wait a bit for the melody
+      ;; to be updated.
+      (do
+        (Thread/sleep 100)
+        (log/warn "%%%%%%%% ABOUT TO RECUR update-melody-note-off-for-player-id player-id: " player-id " %%%%%%%%")
+        (recur player-id melody-event-id note-off-val))
+      (do
+        (let [melody-event-ndx (first ndx-and-id)
+              melody-event (nth melody melody-event-ndx)
+              ]
+          (swap! ensemble replace-melody-event-note-off player-id
+                                                        melody-event
+                                                        melody-event-id
+                                                        melody-event-ndx
+                                                        note-off-val)
+        )))
+  ))
 
 (defn reset-msgs-for-player-id
   [msgs player-id]

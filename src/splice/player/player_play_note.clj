@@ -40,7 +40,7 @@
                                        get-note-off-from-melody-event
                                        get-player-id-from-melody-event
                                        get-play-time-from-melody-event
-                                       get-sc-instrument-id-from-melody-event
+                                       get-sc-synth-id-from-melody-event
                                        get-volume-from-melody-event
                                        set-play-info]]
    [splice.music.music :refer [midi->hz]]
@@ -93,7 +93,7 @@
        turn off the prior note
 
      First this function checks if the prior-melody-event has
-     :note-off nil and sc-instrument-id <not-nil (some number)>
+     :note-off nil and sc-synth-id <not-nil (some number)>
      If this is the case it means that the prior event is an instrument that
      is going to play, but supercollider has not yet started or notified this program
      that the instrument has started to play. If that is the case it is not yet possible
@@ -118,10 +118,10 @@
          cur-melody-event melody-event
          ]
     (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
-             (get-sc-instrument-id-from-melody-event prior-melody-event))
+             (get-sc-synth-id-from-melody-event prior-melody-event))
       (do
         (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
-        (println "%%%%%%%% ABOUT TO RECUR " player-id " %%%%%%%%")
+        (println "%%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: " player-id " %%%%%%%%")
         (recur player-id
                prior-melody-event-ndx
                (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
@@ -129,32 +129,32 @@
       ;; If the note-off for the prior-melody-event is true, then a gate-off event
       ;; has already been scheduled for the prior-melody-event. If it is false, we need to
       ;; check if the current event is a different instrument than the prior event
-      ;; (sc-instrument-id different in events) or if the current event is a rest (freq=nil).
+      ;; (sc-synth-id different in events) or if the current event is a rest (freq=nil).
        (if (and (false? (get-note-off-from-melody-event prior-melody-event))
                 (or (nil? (get-freq-from-melody-event cur-melody-event))
                     (not=
-                     (get-sc-instrument-id-from-melody-event prior-melody-event)
-                     (get-sc-instrument-id-from-melody-event cur-melody-event)
+                     (get-sc-synth-id-from-melody-event prior-melody-event)
+                     (get-sc-synth-id-from-melody-event cur-melody-event)
                      )
                     )
                 )
-         (sched-gate-off (get-sc-instrument-id-from-melody-event prior-melody-event)
+         (sched-gate-off (get-sc-synth-id-from-melody-event prior-melody-event)
                          (+ (get-play-time-from-melody-event prior-melody-event)
                             (get-dur-millis-from-melody-event prior-melody-event)))
          )))
   )
 
 (defn send-gate-off
-  [sc-instrument-id melody-event play-time]
+  [sc-synth-id melody-event play-time]
   (if (get-note-off-from-instrument-info
        (get-instrument-info-from-melody-event melody-event))
     (let [player-id (get-player-id-from-melody-event melody-event)
           melody-event-id (get-melody-event-id-from-melody-event melody-event)
-          release-millis (get-release-millis-from-instrument sc-instrument-id)
+          release-millis (get-release-millis-from-instrument sc-synth-id)
           note-off-val (> (get-dur-millis-from-melody-event melody-event) release-millis)
           ]
       (if note-off-val
-        (sched-gate-off sc-instrument-id
+        (sched-gate-off sc-synth-id
                         (- (+ play-time (get-dur-millis-from-dur-info
                                          (get-dur-info-from-melody-event melody-event)))
                            release-millis))
@@ -165,80 +165,62 @@
   )
 
 (defn sched-release
+  " This method is called whe supercollider sends a /n_go message indicating that
+  a new supercollider synth has been started. This call is set up at the at the top
+  of this file in init_player_play_note. If the melody event for this synth indicates
+  that a gate-off does not need to be scheduled in supercollider
+  (melody-event :note-off=true) than nothing is done. Otherwise, a gate-off event
+  is sheduled if appropriate and the melody event is updated with note-off=true.
+  "
   [event]
   (println "***** sched-release event: " event)
   (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
-      (let [sc-instrument-id (first (event :args))
-            melody-event (get @synth-melody-map sc-instrument-id)
+      (let [sc-synth-id (first (event :args))
+            melody-event (get @synth-melody-map sc-synth-id)
             ]
-        (when melody-event
+        (when (and melody-event
+                   (not (true? (get-note-off-from-melody-event melody-event))))
           (let [player-id (get-player-id-from-melody-event melody-event)
                 melody-event-id (get-melody-event-id-from-melody-event melody-event)
                 play-time (get-play-time-from-melody-event melody-event)
-                note-off-val (send-gate-off sc-instrument-id melody-event play-time)]
+                note-off-val (send-gate-off sc-synth-id melody-event play-time)]
             (update-melody-note-off-for-player-id player-id melody-event-id note-off-val)
-            (swap! synth-melody-map dissoc sc-instrument-id)))))
+            (swap! synth-melody-map dissoc sc-synth-id)))))
   nil
   )
 
 (defn play-note-prior-instrument
   [prior-melody-event melody-event play-time]
-  (let [sc-instrument-id (get-sc-instrument-id-from-melody-event prior-melody-event)]
-    (apply sched-control-val sc-instrument-id
+  (let [sc-synth-id (get-sc-synth-id-from-melody-event prior-melody-event)]
+    (apply sched-control-val sc-synth-id
            play-time
            "freq" (get-freq-from-melody-event melody-event)
            "vol" (get-volume-from-melody-event melody-event)
            (get-instrument-settings-from-melody-event melody-event)
            )
-    (let [note-off-val (send-gate-off sc-instrument-id melody-event play-time)]
-      [sc-instrument-id note-off-val])
+    (let [note-off-val (send-gate-off sc-synth-id melody-event play-time)]
+      [sc-synth-id note-off-val])
     )
   )
 
 (defn play-note-new-instrument
   [melody-event play-time]
-  (let [sc-instrument-id (sc-next-id :node)]
+  (let [sc-synth-id (sc-next-id :node)]
     ;; Need to use apply here to unpack the args from get-instrument-settings-from-melody-event
     (sc-send-bundle play-time
                     (apply sc-send-msg
                            "/s_new"
                            (get-instrument-from-instrument-info
                             (get-instrument-info-from-melody-event melody-event))
-                           sc-instrument-id
+                           sc-synth-id
                            tail
                            (:instrument-group-id @base-group-ids*)
                            "freq" (get-freq-from-melody-event melody-event)
                            "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
                            (get-instrument-settings-from-melody-event melody-event)))
-    sc-instrument-id
+    sc-synth-id
     )
   )
-
-;; (defn play-melody-event
-;;   [prior-melody-event melody-event play-time]
-;;   (let [cur-inst-id
-;;         (cond (nil? (get-freq-from-melody-event melody-event))  ;; This is a rest (no note-off)
-;;               nil
-;;               ;; Need to use (not (false? here because note-off can be true or nil
-;;               ;; if true at this point, it means the prior event has handled the note-off.
-;;               ;; If nil at this point, the prior instrument will not have a note-off
-;;               ;; scheduled, and this note should be scheduled with the prior instrument.
-;;               (not (false? (get-note-off-from-melody-event prior-melody-event)))
-;;               (play-note-new-instrument melody-event play-time)
-;;               :else
-;;               (play-note-prior-instrument prior-melody-event melody-event play-time)
-;;               )
-;;         full-melody-event (set-play-info melody-event
-;;                                          cur-inst-id
-;;                                          play-time
-;;                                          )
-;;         ]
-;;     (when cur-inst-id
-;;       (swap! synth-melody-map assoc cur-inst-id full-melody-event))
-
-;;     full-melody-event
-;;     )
-;;   )
 
 (defn play-melody-event
   [prior-melody-event melody-event play-time]
@@ -251,19 +233,20 @@
               (not (false? (get-note-off-from-melody-event prior-melody-event))) :new
               :else :prior
               )]
-    (let [[cur-inst-id note-off-val]
+    (let [[sc-synth-id note-off-val]
           (cond (nil? synth-type) [nil :none]
                 (= synth-type :new) [(play-note-new-instrument melody-event play-time) :none]
                 :else (play-note-prior-instrument prior-melody-event melody-event play-time)
                 )
           full-melody-event (set-play-info melody-event
-                                           cur-inst-id
+                                           sc-synth-id
                                            play-time
                                            note-off-val)
           ]
-      (when cur-inst-id
-        (swap! synth-melody-map assoc cur-inst-id full-melody-event))
+      (when (= :new synth-type)  ;; Do not add :prior to synth-map
+        (swap! synth-melody-map assoc sc-synth-id full-melody-event))
 
+      (println "play-melody-event: " full-melody-event)
       full-melody-event
       )
     ))
