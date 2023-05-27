@@ -1,9 +1,4 @@
 -------- This release --------
-Need to change all sc synthdefs to use the vol parameter like string_sect.sc does now
-do not use the levelScale parameter of an envelope
-
-Change synths to use OffsetOut
-
 Implement some basic version of core/splice_stop/pause and control/stop_splice
 
 need to fix clj-osc location in sc-osc/deps.edn

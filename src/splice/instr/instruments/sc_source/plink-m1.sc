@@ -20,7 +20,7 @@ SynthDef("plink-m1", {
 	var sound, env;
 
 	env = EnvGen.kr(Env.perc(attackTime: 0.01, releaseTime: 0.3), gate: gate,
-		            levelScale: (vol * 0.3), doneAction: done);
+		            doneAction: done) * (vol * 0.3);
 
 	sound = (SinOsc.ar(freq: freq) +
 		SinOsc.ar(freq: (freq * 3), mul: 0.33) +      // 1/3
@@ -30,8 +30,8 @@ SynthDef("plink-m1", {
 		SinOsc.ar(freq: (freq * 8), mul: 0.125) *     // 1/8
 	        (env * vol));
 
-	Out.ar(out, [sound, sound]);  // sends the sound to 2 consecutive buses starting with the
-	                              // the value of 'out'. In this case the sound will go out buses 0 and 1
+	OffsetOut.ar(out, [sound, sound]);  // sends the sound to 2 consecutive buses starting with the
+                                        // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;

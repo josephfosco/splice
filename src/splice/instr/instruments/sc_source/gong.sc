@@ -33,8 +33,8 @@ SynthDef("gong", {
 
 	gong = (gong_sound + fltr_noise) * (((env + ((SinOsc.kr(freq: 3) * vib_env) * 0.15))) * vol);
 
-	Out.ar(out, [gong, gong]);  // sends the gong sound to 2 consecutive buses starting with the
-	                            // the value of 'out'. In this case the sound will go out buses 0 and 1
+	OffsetOut.ar(out, [gong, gong]);  // sends the gong sound to 2 consecutive buses starting with the
+                                      // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;

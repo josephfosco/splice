@@ -30,15 +30,15 @@ SynthDef("woosh", {
 
 	noise = HPF.ar(LPF.ar(WhiteNoise.ar, lpf_env), hpf_env) * vol;
 
-	Out.ar(out, [noise, noise]);  // sends the sound to 2 consecutive buses starting with the
-                                  // the value of 'out'. In this case the sound will go out buses 0 and 1
+	OffsetOut.ar(out, [noise, noise]);  // sends the sound to 2 consecutive buses starting with the
+                                        // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;
 
-a=Synth("woosh")
-
 // .writeDefFile("/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/");
+
+a=Synth("woosh")
 
 a.set("gate", 0)
 
