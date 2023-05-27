@@ -25,9 +25,9 @@ SynthDef("string-sect", {
 		                     VarSaw.ar(freq: (freq * 1.01), width:0) * 0.3),
 	               freq: 2000);
 
-	strings = sound * EnvGen.kr(envelope: env, gate: gate, levelScale: vol, doneAction: done);
-	Out.ar(out, [strings, strings]);  // sends the sound to 2 consecutive buses starting with the
-                                      // the value of 'out'. In this case the sound will go out buses 0 and 1
+	strings = sound * (EnvGen.kr(envelope: env, gate: gate, doneAction: done) * vol);
+	OffsetOut.ar(out, [strings, strings]);  // sends the sound to 2 consecutive buses starting with the
+	                                        // the value of 'out'. In this case the sound will go out buses 0 and 1
 }
 )
 ).add;

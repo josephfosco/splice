@@ -26,9 +26,9 @@
   )
 
 (defn sched-control-val
-  ([sc-synth-id time & ctl-vals]
-   (sc-send-bundle time
-                   (apply sc-send-msg "/n_set" sc-synth-id ctl-vals)))
+  [sc-synth-id time & ctl-vals]
+  (sc-send-bundle time
+                  (apply sc-send-msg "/n_set" sc-synth-id ctl-vals))
   )
 
 (defn get-release-millis-from-instrument

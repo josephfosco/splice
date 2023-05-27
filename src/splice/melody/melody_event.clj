@@ -141,12 +141,13 @@
 
 (defn set-play-info
   [melody-event sc-synth-id play-time note-off-val]
-  (apply assoc melody-event
-               :play-time play-time
-               :sc-synth-id sc-synth-id
-               (when (not (= note-off-val :none))
-               {:note-off note-off-val}
-               ))
+  (let [constant-params {:play-time play-time :sc-synth-id sc-synth-id}
+        update-params (if (= note-off-val :none)
+                        constant-params
+                        (assoc constant-params :note-off note-off-val)
+                        )
+        ]
+    (merge melody-event update-params))
     )
 
 (defn set-melody-event-note-off
