@@ -16,7 +16,6 @@
 (ns splice.core
   (:gen-class)
   (:require
-   ;; [overtone.live :as overtone]
    [sc-osc.sc :refer [sc-connect sc-connection-status sc-debug]]
    ;; [splice.control :refer [clear-splice pause-splice quit-splice
    ;;                         start-splice ]]

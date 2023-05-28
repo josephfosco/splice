@@ -3,8 +3,6 @@ Implement some basic version of core/splice_stop/pause and control/stop_splice
 
 need to fix clj-osc location in sc-osc/deps.edn
 
-Fix density computetion - It is way off with tst-loop.clj
-
 -------- This release end --------
 
 Add midi functions from overtone/src/overtone/midi.clj

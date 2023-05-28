@@ -22,7 +22,6 @@
                       sc-with-server-sync
                       sc-next-id
                       sc-now]]
-   ;; [splice.effects.effects :refer [reverb]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
@@ -32,7 +31,6 @@
    [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
-   ;; [splice.util.print :refer [print-banner]]
    [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel start-msg-channel]]

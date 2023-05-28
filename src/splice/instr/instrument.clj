@@ -15,8 +15,6 @@
 
 (ns splice.instr.instrument
   (:require
-   ;; [overtone.live :refer :all]
-   ;; [splice.constants :refer :all]
    [splice.instr.instrumentinfo :refer [create-instrument-info
                                          get-instrument-from-instrument-info
                                          get-envelope-type-from-instrument-info
@@ -24,12 +22,6 @@
                                          get-range-lo-from-instrument-info
                                          get-note-off-from-instrument-info
                                          ]]
-   ;; [splice.instr.instruments.elec-instruments :refer :all]
-   ;; [splice.instr.instruments.loop-synths :refer :all]
-   ;; [splice.instr.instruments.misc-instruments :refer :all]
-   ;; [splice.instr.instruments.osc-instruments :refer :all]
-   ;; [splice.instr.instruments.pitched-perc-instruments :refer :all]
-   ;; [splice.instr.instruments.trad-instruments :refer :all]
    [splice.music.music :refer [midi->hz MIDI-RANGE]]
    [splice.util.log :as log]
    [splice.util.print :refer [print-msg]]
