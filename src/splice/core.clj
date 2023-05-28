@@ -105,10 +105,4 @@
   (println "")
   )
 
-(defn splice-stop
-  []
-  ;; (stop-splice)
-  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-stop"))
-  )
-
 (splice-help)

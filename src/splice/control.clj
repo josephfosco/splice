@@ -18,10 +18,11 @@
    [clojure.core.async :refer [<! go timeout]]
    [sc-osc.sc :refer [sc-allocate-bus-id
                       sc-debug
+                      sc-event
                       sc-send-msg
-                      sc-with-server-sync
                       sc-next-id
-                      sc-now]]
+                      sc-now
+                      sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
    [splice.player.player :refer [create-player]]
@@ -254,11 +255,13 @@
 
 (defn quit-splice
   []
+  (sc-event :reset)
+
   ;;   (stop)
   ;; (close-msg-channel)
   ;; (reset! is-playing? false)
   ;; TODO Need to remove handler for "n_go" set up in player-play-note/init-player-play-note
-  (throw (Throwable. "COMMENTED OUT CODE in splice.control/quit-splice"))
+  ;; (throw (Throwable. "COMMENTED OUT CODE in splice.control/quit-splice"))
   )
 
 ;; (defn stop-splice
