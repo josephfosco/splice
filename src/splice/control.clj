@@ -28,7 +28,7 @@
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
    [splice.sc.groups :refer [setup-base-groups]]
-   [splice.melody.melody-event :refer [create-melody-event]]
+   [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
@@ -109,16 +109,7 @@
 
 (defn init-melody
   [player-id]
-
-  (vector (create-melody-event :melody-event-id 0
-                               :freq nil
-                               :dur-info nil
-                               :volume nil
-                               :instrument-info nil
-                               :player-id player-id
-                               :event-time 0
-                               :note-off nil
-                               ))
+  (vector (create-rest-event player-id 0 0))
   )
 
 (defn- send-load-msg

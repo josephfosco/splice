@@ -74,6 +74,36 @@
                 )
   )
 
+(defn create-rest-event
+  [player-id event-id event-time]
+  (create-melody-event :melody-event-id event-id
+                         :freq nil
+                         :dur-info nil
+                         :volume nil
+                         :instrument-info nil
+                         :player-id player-id
+                         :event-time event-time
+                         :note-off nil
+                         )
+  )
+
+(defn set-play-info
+  [melody-event sc-synth-id play-time note-off-val]
+  (let [constant-params {:play-time play-time :sc-synth-id sc-synth-id}
+        update-params (if (= note-off-val :none)
+                        constant-params
+                        (assoc constant-params :note-off note-off-val)
+                        )
+        ]
+    (merge melody-event update-params))
+    )
+
+(defn set-melody-event-note-off
+  [melody-event val]
+  (assoc melody-event
+         :note-off val
+         ))
+
 (defn get-melody-event-id-from-melody-event
   [melody-event]
   (:melody-event-id melody-event)
@@ -138,23 +168,6 @@
   [melody-event]
   (:volume melody-event)
   )
-
-(defn set-play-info
-  [melody-event sc-synth-id play-time note-off-val]
-  (let [constant-params {:play-time play-time :sc-synth-id sc-synth-id}
-        update-params (if (= note-off-val :none)
-                        constant-params
-                        (assoc constant-params :note-off note-off-val)
-                        )
-        ]
-    (merge melody-event update-params))
-    )
-
-(defn set-melody-event-note-off
-  [melody-event val]
-  (assoc melody-event
-         :note-off val
-         ))
 
 (defn print-melody-event
   [melody-event]

@@ -15,6 +15,8 @@
 
 (ns splice.player.player-utils
   (:require
+   [splice.ensemble.melody :refer [get-next-melody-event-id]]
+   [splice.melody.melody-event :refer [create-rest-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
@@ -65,7 +67,7 @@
         ((get-melody-fn loop-structr) player
                                       melody
                                       loop-structr
-                                      (inc (:melody-event-id (last melody)))
+                                      (get-next-melody-event-id melody)
                                       event-time)
         ]
     [
@@ -73,6 +75,12 @@
      melody-event
      ]
     )
+  )
+
+(defn get-final-rest-event
+  [player melody player-id event-time]
+  (println "GETTING FINAL REST EVENT FOR player-id: " player-id)
+  [player (create-rest-event player-id (get-next-melody-event-id melody) event-time)]
   )
 
 (defn print-player

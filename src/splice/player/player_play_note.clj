@@ -16,7 +16,12 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! go timeout]]
-   [sc-osc.sc :refer [sc-next-id sc-on-event sc-send-bundle sc-send-msg sc-uuid ]]
+   [sc-osc.sc :refer [sc-next-id
+                      sc-on-event
+                      sc-on-sync-event
+                      sc-send-bundle
+                      sc-send-msg
+                      sc-uuid ]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info
                                         get-note-off-from-instrument-info]]
    [splice.instr.sc-instrument :refer [get-release-millis-from-instrument
@@ -44,7 +49,8 @@
                                        get-volume-from-melody-event
                                        set-play-info]]
    [splice.music.music :refer [midi->hz]]
-   [splice.player.player-utils :refer [get-loop-name
+   [splice.player.player-utils :refer [get-final-rest-event
+                                       get-loop-name
                                        get-next-melody-event
                                        NEXT-METHOD]]
    [splice.sc.groups :refer [base-group-ids*]]
@@ -54,16 +60,24 @@
    [splice.util.util :refer [get-msg-channel]]
    ))
 
+(def ^:private is-scheduling? (atom true))
+
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
 
 (declare sched-release)
+(declare stop-scheduling)
 (defn init-player-play-note
   []
-
   (swap! synth-melody-map empty)
   (sc-on-event "/n_go" sched-release (sc-uuid))
+  (sc-on-sync-event :reset stop-scheduling (sc-uuid))
+  )
 
+(defn stop-scheduling
+  " sets a flag to stop sched-next-note scheduling notes"
+  [event]
+  (reset! is-scheduling? false)
   )
 
 (defn is-playing?
@@ -82,8 +96,7 @@
   (if (>= (get-melody-event-id-from-melody-event melody-event) SAVED-MELODY-LEN)
     (assoc (subvec melody 1) (dec SAVED-MELODY-LEN) melody-event)
     (assoc melody (get-melody-event-id-from-melody-event melody-event) melody-event)
-    )
-  )
+    ))
 
 (defn check-prior-event-note-off
    " if the prior note was not turned off and
@@ -254,20 +267,23 @@
 (declare sched-next-note)
 (defn play-next-note
   [player-id sched-time]
-  (println "-")
-  (println "start -" player-id)
+  (println "--- start player-id: " player-id "---")
   (let [event-time sched-time
         play-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
         ;; TODO document why we are clearing messages here
         [ensemble player-msgs] (get-ensemble-clear-msg-for-player-id player-id)
         player (get-player ensemble player-id)
         melody (get-melody-for-player-id-from-ensemble ensemble player-id)
-        [upd-player next-melody-event] (get-next-melody-event
-                                        ensemble
-                                        player
-                                        melody
-                                        player-id
-                                        event-time)
+        [upd-player next-melody-event] (if @is-scheduling?
+                                         (get-next-melody-event ensemble
+                                                                player
+                                                                melody
+                                                                player-id
+                                                                event-time)
+                                         (get-final-rest-event player
+                                                               melody
+                                                               player-id
+                                                               event-time))
         upd-melody-event (play-melody-event (last melody)
                                             next-melody-event
                                             play-time)
@@ -280,7 +296,9 @@
                "REST"))
     (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
-    (sched-next-note upd-melody-event)
+    (if @is-scheduling?
+      (sched-next-note upd-melody-event)
+      (println "Stopping player-id: " player-id))
     (>!! (get-msg-channel) {:msg :melody-event
                             :data upd-melody-event
                             :time (System/currentTimeMillis)})
