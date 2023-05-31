@@ -22,6 +22,8 @@
                       sc-send-msg
                       sc-next-id
                       sc-now
+                      sc-on-sync-event
+                      sc-uuid
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
@@ -46,6 +48,19 @@
                             :melody-info
                             :name
                             )))
+
+(defn reset-control
+  [event]
+  (println "******************** RESETTING CONTROL ************************")
+  ;; should wait to reset is-playing till we know all other components have stopped
+  ;; ESPECIALLY all players have stopped in player/player-play-note
+  (reset! is-playing? false)
+  )
+
+(defn init-control
+  []
+  (sc-on-sync-event :reset reset-control (sc-uuid))
+  )
 
 (defn init-splice
   "Initialize splice to play.
@@ -213,8 +228,9 @@
 (defn start-splice
   [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
   (println "about to start with args: " args)
-  (if (false? is-playing?)
+  (when (false? @is-playing?)
     (println "STARTING")
+    (init-control)
     (let [player-settings (load-settings loops)
           number-of-players (set-setting! :num-players
                                           (count (:loops player-settings)))
