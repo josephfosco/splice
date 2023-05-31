@@ -30,10 +30,14 @@ Change println(s) to data2 level log statements - need to make sure
 details print - not just Object IDs
 
 -------- STOPPING SPLICE --------
-- Stop scheduling new events. Create a var sched-events and check it before scheduling new notes
 - Create a fade-out function that brings the value of volume-adjust down to 0 over a short
   amount of time
 - Should Supercollider be stopped?
+- perhaps instead of scheduling a final rest event to stop all notes, it might be
+  possible to stop scheduling and then check the last melody event for each player, and
+  if there is an sc-instrument-id and note-off is not true then schedule a note off for
+  that sc-instrument-id for right now. This will still not stop the last notes that were
+  scheduled calling play-next-note (while is-scheduling? is false).
 - Can a splice-pause be created that will pick up where it left off? How will the times
   (event-time, play-time) be effected. Also, since all notes should be stopped, checking
   for prior-note-off should not be done.

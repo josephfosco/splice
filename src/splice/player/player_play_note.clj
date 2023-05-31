@@ -61,6 +61,7 @@
    ))
 
 (def ^:private is-scheduling? (atom true))
+(def ^:private num-players-stopped (atom 0))
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
@@ -264,6 +265,21 @@
       )
     ))
 
+(defn track-stopped-players
+  "Tracks the number of players stopped (not being scheduled). When all players have
+  been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
+  to allow scheduling to start again.
+  "
+  [player-id]
+  (println "Stopping player-id: " player-id)
+  (swap! num-players-stopped inc)
+  (if (= @num-players-stopped (get-setting :num-players))
+    (do
+      (reset! is-scheduling? true)
+      (reset! num-players-stopped 0)
+      (println "\n\n\n------ ALL PLAYERS STOPPED!")))
+  )
+
 (declare sched-next-note)
 (defn play-next-note
   [player-id sched-time]
@@ -280,6 +296,9 @@
                                                                 melody
                                                                 player-id
                                                                 event-time)
+                                         ;; if notscheduling (shutting down) schedule
+                                         ;; one final rest event to make certain the player
+                                         ;; does not keep playing the last note.
                                          (get-final-rest-event player
                                                                melody
                                                                player-id
@@ -297,13 +316,14 @@
     (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (if @is-scheduling?
-      (sched-next-note upd-melody-event)
-      (println "Stopping player-id: " player-id))
-    (>!! (get-msg-channel) {:msg :melody-event
-                            :data upd-melody-event
-                            :time (System/currentTimeMillis)})
-    (println "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event))
-    (println "\n\n\n")
+      (do
+        (sched-next-note upd-melody-event)
+        (>!! (get-msg-channel) {:msg :melody-event
+                                :data upd-melody-event
+                                :time (System/currentTimeMillis)})
+        (println "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event))
+        (println "\n\n\n"))
+      (track-stopped-players player-id))
     )
   )
 
