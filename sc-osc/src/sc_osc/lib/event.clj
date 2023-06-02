@@ -164,14 +164,14 @@
   (log-event "Registering async self-removing event handler:: " event-type " with key: " key)
   (handlers/add-one-shot-handler! handler-pool event-type key handler))
 
-;; (defn oneshot-sync-event
-;;   "Add a synchronous one-shot handler which will be removed when
-;;    called. This handler is guaranteed to be called only once.
+(defn oneshot-sync-event
+  "Add a synchronous one-shot handler which will be removed when
+   called. This handler is guaranteed to be called only once.
 
-;;   (oneshot-sync-event \"/foo\" (fn [v] (println v)) ::debug)"
-;;   [event-type handler key]
-;;   (log-event "Registering sync self-removing event handler:: " event-type " with key: " key)
-;;   (handlers/add-one-shot-sync-handler! handler-pool event-type key handler))
+  (oneshot-sync-event \"/foo\" (fn [v] (println v)) ::debug)"
+  [event-type handler key]
+  (log-event "Registering sync self-removing event handler:: " event-type " with key: " key)
+  (handlers/add-one-shot-sync-handler! handler-pool event-type key handler))
 
 (defn remove-event-handler
   "Remove an event handler previously registered with specified

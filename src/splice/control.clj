@@ -23,10 +23,11 @@
                       sc-next-id
                       sc-now
                       sc-on-sync-event
+                      sc-oneshot-sync-event
                       sc-uuid
                       sc-with-server-sync]]
-   [splice.ensemble.ensemble :refer [init-ensemble]]
-   [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
+   [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
+   [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
    [splice.sc.groups :refer [setup-base-groups]]
@@ -52,6 +53,16 @@
 (defn reset-control
   [event]
   (println "******************** RESETTING CONTROL ************************")
+  ;; TODO
+  ;; - Delete Groups?
+  ;; - remove busses?
+  ;; - Remove main bus effects?
+  ;; - Should we remove all sync messages from osc msp system
+
+  (close-msg-channel)
+  ;; perhaps these next 2 should be done in the ensemble files?????
+  (clear-ensemble)
+  (stop-ensemble-status)
   ;; should wait to reset is-playing till we know all other components have stopped
   ;; ESPECIALLY all players have stopped in player/player-play-note
   (reset! is-playing? false)
@@ -260,9 +271,15 @@
   (println "*** pause-splice not implemented ***")
   )
 
+(defn reset-splice
+  [event]
+  (sc-event :reset))
+
 (defn quit-splice
   []
-  (sc-event :reset)
+  ;; Wait for player scheduling to stop before resetting the rest of the app
+  (sc-oneshot-sync-event :player-scheduling-stopped reset-splice (sc-uuid))
+  (sc-event :stop-player-scheduling)
 
   ;;   (stop)
   ;; (close-msg-channel)

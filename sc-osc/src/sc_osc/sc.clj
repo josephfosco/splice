@@ -20,7 +20,7 @@
             [sc-osc.lib.allocator :refer [alloc-id]]
             [sc-osc.lib.connection :refer [connect connection-status*]]
             [sc-osc.lib.counters :refer [next-id]]
-            [sc-osc.lib.event :refer [event on-event on-sync-event]]
+            [sc-osc.lib.event :refer [event on-event on-sync-event oneshot-sync-event]]
             [sc-osc.lib.lib :refer [deref! uuid]]
             [sc-osc.lib.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
             ))
@@ -76,6 +76,10 @@
 (defn sc-on-sync-event
   [& args]
   (apply on-sync-event args))
+
+(defn sc-oneshot-sync-event
+  [& args]
+  (apply oneshot-sync-event args))
 
 (defn sc-deref!
   [& args]

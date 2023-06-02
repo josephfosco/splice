@@ -142,13 +142,15 @@
   (let [new-ens-density (compute-ensemble-density)
         ens-status (create-ensemble-status :density new-ens-density
                                            :density-trend STEADY)
+        ch (get-msg-channel)
         ]
     (println "****************** new-density: " new-ens-density " ************************")
     (reset! ensemble-density new-ens-density)
-    (>!! (get-msg-channel)
-         {:msg :ensemble-status
-          :status ens-status
-          :time (System/currentTimeMillis)})
+    (if ch
+      (>!! ch
+           {:msg :ensemble-status
+            :status ens-status
+            :time (System/currentTimeMillis)}))
     )
   )
 

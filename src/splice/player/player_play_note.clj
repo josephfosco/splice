@@ -16,7 +16,8 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! go timeout]]
-   [sc-osc.sc :refer [sc-next-id
+   [sc-osc.sc :refer [sc-event
+                      sc-next-id
                       sc-on-event
                       sc-on-sync-event
                       sc-send-bundle
@@ -72,7 +73,7 @@
   []
   (swap! synth-melody-map empty)
   (sc-on-event "/n_go" sched-release (sc-uuid))
-  (sc-on-sync-event :reset stop-scheduling (sc-uuid))
+  (sc-on-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
 (defn stop-scheduling
@@ -275,6 +276,7 @@
   (swap! num-players-stopped inc)
   (if (= @num-players-stopped (get-setting :num-players))
     (do
+      (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
       (reset! num-players-stopped 0)
       (println "\n\n\n------ ALL PLAYERS STOPPED!")))

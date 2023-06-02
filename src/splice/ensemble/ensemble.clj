@@ -152,6 +152,10 @@
   @ensemble
   )
 
+(defn clear-ensemble
+  []
+  (reset! ensemble nil))
+
 (defn print-ensemble
   ([] (print-ensemble @ensemble))
   ([ensemble]
