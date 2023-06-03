@@ -15,8 +15,14 @@
 
 (ns splice.sc.groups
   (:require
-   [sc-osc.sc :refer [sc-next-id sc-send-msg sc-with-server-sync]]
+   [sc-osc.sc :refer [sc-next-id
+                      sc-oneshot-sync-event
+                      sc-reset-counter!
+                      sc-send-msg
+                      sc-with-server-sync
+                      sc-uuid]]
    [splice.sc.sc-constants :refer [head after]]
+   [splice.util.log :as log]
    ))
 
 ;; The root group is allocated by supercollider
@@ -32,38 +38,55 @@
 
 (defonce base-group-ids* (atom empty-base-group-ids))
 
+(defn remove-base-groups
+  [event]
+  (log/info "removing all supercollider groups")
+  (sc-with-server-sync #(sc-send-msg
+                         "/g_freeAll"
+                         _root-group_)
+                       "while freeing groups")
+  (map #(-> % (sc-reset-counter!)) (vals @base-group-ids*))
+  )
+
 (defn setup-base-groups
   " Sets up supercollider groups for instruments and effects"
   []
   ;; Groups look like this:
-  ;; |----------------------------------------|
-  ;; |                                        |
-  ;; |    splice-group                        |
-  ;; |                                        |
-  ;; |  |----------------------------------|  |
-  ;; |  |  instrument-group                |  |
-  ;; |  |----------------------------------|  |
-  ;; |                                        |
-  ;; |  |----------------------------------|  |
-  ;; |  |                                  |  |
-  ;; |  |  effect-group                    |  |
-  ;; |  |                                  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |  |  pre-fx-group              |  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |                                  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |  |  main-fx-group             |  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |                                  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |  |  post-fx-group             |  |  |
-  ;; |  |  |----------------------------|  |  |
-  ;; |  |                                  |  |
-  ;; |  |----------------------------------|  |
-  ;; |                                        |
-  ;; |----------------------------------------|
+  ;; |----------------------------------------------|
+  ;; |                                              |
+  ;; |    _root-group_ (defined by supercollider    |
+  ;; |                                              |
+  ;; |  |----------------------------------------|  |
+  ;; |  |                                        |  |
+  ;; |  |    splice-group                        |  |
+  ;; |  |                                        |  |
+  ;; |  |  |----------------------------------|  |  |
+  ;; |  |  |  instrument-group                |  |  |
+  ;; |  |  |----------------------------------|  \  |
+  ;; |  |                                        |  |
+  ;; |  |  |----------------------------------|  |  |
+  ;; |  |  |                                  |  |  |
+  ;; |  |  |  effect-group                    |  |  |
+  ;; |  |  |                                  |  |  |
+  ;; |  |  |  |----------------------------|  |  |  |
+  ;; |  |  |  |  pre-fx-group              |  |  \  |
+  ;; |  |  |  |----------------------------|  |  |  |
+  ;; |  |  |                                  |  |  |
+  ;; |  |  |  |----------------------------|  |  \  |
+  ;; |  |  |  |  main-fx-group             |  |  |  |
+  ;; |  |  |  |----------------------------|  |  |  |
+  ;; |  |  |                                  |  |  |
+  ;; |  |  |  |----------------------------|  |  |  |
+  ;; |  |  |  |  post-fx-group             |  |  |  |
+  ;; |  |  |  |----------------------------|  |  |  |
+  ;; |  |  |                                  |  |  |
+  ;; |  |  |----------------------------------|  |  |
+  ;; |  |                                        |  |
+  ;; |  |----------------------------------------|  |
+  ;; |                                              |
+  ;; |----------------------------------------------|
 
+  (sc-oneshot-sync-event :reset remove-base-groups (sc-uuid))
   (let [splice-group-id (sc-next-id :node)
         instrument-group-id (sc-next-id :node)
         effect-group-id (sc-next-id :node)

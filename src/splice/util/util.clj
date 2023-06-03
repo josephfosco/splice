@@ -17,6 +17,7 @@
   (:require
    [clojure.core.async :refer [<! chan close! go-loop pub]]
    [sc-osc.sc :refer [sc-oneshot-sync-event sc-uuid]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    )
   )
@@ -55,6 +56,7 @@
 
 (defn close-msg-channel
   [event]
+  (log/info "closing msg-channel")
   (close! @msgs-in-channel)
   (drain-chan @msgs-in-channel)
   (reset! msgs-in-channel nil)

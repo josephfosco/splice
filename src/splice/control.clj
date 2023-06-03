@@ -19,6 +19,7 @@
    [sc-osc.sc :refer [sc-allocate-bus-id
                       sc-debug
                       sc-event
+                      sc-free-id
                       sc-send-msg
                       sc-next-id
                       sc-now
@@ -29,9 +30,8 @@
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
-   [splice.sc.groups :refer [setup-base-groups]]
+   [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
    [splice.melody.melody-event :refer [create-rest-event]]
-   [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
    [splice.util.random :refer [random-int]]
@@ -49,14 +49,25 @@
                             :name
                             )))
 
+(defn remove-synths-effects-busses
+  "Removes and frees all synths, effects, and main effect busses"
+  []
+  (log/info "freeing all synths, effects, and main effect busses")
+  (sc-with-server-sync #(sc-send-msg
+                         "/g_deepFree"
+                         (:splice-group-id @base-group-ids*))
+                       "while freeing all synthes and effects")
+  (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
+  (sc-free-id :audio-bus @main-fx-bus-first-out-chan 2)
+  (reset! main-fx-bus-first-in-chan nil)
+  (reset! main-fx-bus-first-out-chan nil)
+  )
+
 (defn reset-control
   [event]
   (println "******************** RESETTING CONTROL ************************")
-  ;; TODO
-  ;; - Delete Groups?
-  ;; - remove busses?
-  ;; - Remove main bus effects?
-  ;; - Should we remove all sync messages from osc msp system
+
+  (remove-synths-effects-busses)
 
   ;; should wait to reset is-playing till we know all other components have stopped
   ;; ESPECIALLY all players have stopped in player/player-play-note
@@ -185,11 +196,8 @@
                                                   (second effect))
                                           "while starting the main reverb-2ch effect"))
 
-                   )
-             )
-           )
-    )
-  )
+                   )))
+    ))
 
 (defn- load-sc-synthdefs
   [loops]

@@ -20,6 +20,7 @@
                       sc-next-id
                       sc-on-event
                       sc-oneshot-sync-event
+                      sc-remove-event-handler
                       sc-send-bundle
                       sc-send-msg
                       sc-uuid ]]
@@ -72,13 +73,15 @@
 (defn init-player-play-note
   []
   (swap! synth-melody-map empty)
-  (sc-on-event "/n_go" sched-release (sc-uuid))
+  (sc-on-event "/n_go" sched-release ::go-key)
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
+  (log/info "stopping player scheduling")
+  (sc-remove-event-handler ::go-key)
   (reset! is-scheduling? false)
   )
 
@@ -276,10 +279,10 @@
   (swap! num-players-stopped inc)
   (if (= @num-players-stopped (get-setting :num-players))
     (do
+      (println "\n\n\n------ ALL PLAYERS STOPPED!")
       (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
-      (reset! num-players-stopped 0)
-      (println "\n\n\n------ ALL PLAYERS STOPPED!")))
+      (reset! num-players-stopped 0)))
   )
 
 (declare sched-next-note)

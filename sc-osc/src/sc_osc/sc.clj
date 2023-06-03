@@ -17,10 +17,13 @@
   " This is the public interface to the sc-osc library. If access to additional functions
     from the lib directory is required, new functions should be added here."
   (:require [overtone.osc :refer [in-osc-bundle]]  ;; osc-clj lib
-            [sc-osc.lib.allocator :refer [alloc-id]]
+            [sc-osc.lib.allocator :refer [alloc-id free-id]]
             [sc-osc.lib.connection :refer [connect connection-status*]]
-            [sc-osc.lib.counters :refer [next-id]]
-            [sc-osc.lib.event :refer [event on-event on-sync-event oneshot-sync-event]]
+            [sc-osc.lib.counters :refer [next-id reset-counter!]]
+            [sc-osc.lib.event :refer [event on-event
+                                      on-sync-event
+                                      oneshot-sync-event
+                                      remove-event-handler]]
             [sc-osc.lib.lib :refer [deref! uuid]]
             [sc-osc.lib.server-comms :refer [server-osc-peer* server-snd with-server-sync]]
             ))
@@ -61,6 +64,10 @@
    (alloc-id bus-type size action-fn))
   )
 
+(defn sc-free-id
+  [& args]
+  (apply free-id args))
+
 (defn sc-with-server-sync
   [& args]
   (apply with-server-sync args))
@@ -81,6 +88,10 @@
   [& args]
   (apply oneshot-sync-event args))
 
+(defn sc-remove-event-handler
+  [& args]
+  (apply remove-event-handler args))
+
 (defn sc-deref!
   [& args]
   (apply deref! args)
@@ -89,6 +100,10 @@
 (defn sc-next-id
   [& args]
   (apply next-id args))
+
+(defn sc-reset-counter!
+  [& args]
+  (apply reset-counter! args))
 
 (defn sc-uuid
   []

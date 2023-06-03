@@ -1,15 +1,22 @@
 -------- This release --------
+splice-stop recurs if it is invoked after start-stop-start
+
 Implement some basic version of core/splice_stop/pause and control/stop_splice
 
 need to fix clj-osc location in sc-osc/deps.edn
 
 -------- This release end --------
 
+Make all directory paths relative. Set a base path in settings and concatenate anything
+additional on to this base.
+
+Move settings.clj outside of the src/splice directory
+
+Only print new-density message when density changes. Perhaps have an option to have it
+printed every time it is computed or only when it changes
+
 Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-
-if the message system is used, make certain ensemble/ensemble_status.clj catches
-  the message and calls stop-ensemble-status to stop the ensemble-status message loop.
 
 Set log settings (dir and level) for sc-osc
 
@@ -47,6 +54,7 @@ details print - not just Object IDs
 - Connect mediapipe to supercollider automatically
 - Start up supercollider automatically.
 - Do not make a new synth for every note keep 1 synth and retrigger it
+- Learn how to use buffers for samples
 - Move sc-osc to a seperate repo and use submodules
 - Might want to change melody-info to a record and have accessor methods for the attributes
   instead of passing around a map
