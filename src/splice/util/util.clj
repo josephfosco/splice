@@ -16,6 +16,7 @@
 (ns splice.util.util
   (:require
    [clojure.core.async :refer [<! chan close! go-loop pub]]
+   [sc-osc.sc :refer [sc-oneshot-sync-event sc-uuid]]
    [splice.util.settings :refer [get-setting]]
    )
   )
@@ -52,15 +53,16 @@
       )
   )
 
-(defn start-msg-channel
-  []
-  (reset! msgs-in-channel (chan (* 2 (get-setting :num-players))))
-  (reset! msgs-pub (pub @msgs-in-channel :msg))
-  )
-
 (defn close-msg-channel
-  []
+  [event]
   (close! @msgs-in-channel)
   (drain-chan @msgs-in-channel)
   (reset! msgs-in-channel nil)
+  )
+
+(defn start-msg-channel
+  []
+  (sc-oneshot-sync-event :reset close-msg-channel (sc-uuid))
+  (reset! msgs-in-channel (chan (* 2 (get-setting :num-players))))
+  (reset! msgs-pub (pub @msgs-in-channel :msg))
   )

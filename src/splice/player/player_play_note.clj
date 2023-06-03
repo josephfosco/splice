@@ -19,7 +19,7 @@
    [sc-osc.sc :refer [sc-event
                       sc-next-id
                       sc-on-event
-                      sc-on-sync-event
+                      sc-oneshot-sync-event
                       sc-send-bundle
                       sc-send-msg
                       sc-uuid ]]
@@ -73,7 +73,7 @@
   []
   (swap! synth-melody-map empty)
   (sc-on-event "/n_go" sched-release (sc-uuid))
-  (sc-on-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
+  (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
 (defn stop-scheduling

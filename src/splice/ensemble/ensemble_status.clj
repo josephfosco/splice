@@ -16,6 +16,7 @@
 (ns splice.ensemble.ensemble-status
   (:require
    [clojure.core.async :refer [<! >!! chan go-loop sub timeout]]
+   [sc-osc.sc :refer [sc-oneshot-sync-event sc-uuid]]
    [splice.config.constants :refer [STATUS-UPDATE-MILLIS
                                      DECREASING
                                      INCREASING
@@ -162,12 +163,13 @@
   )
 
 (defn stop-ensemble-status
-  []
+  [event]
   (reset! stop-processing-status-mgs true)
   )
 
 (defn start-ensemble-status
   []
+  (sc-oneshot-sync-event :reset stop-ensemble-status (sc-uuid))
   (reset-ensemble-status)
 
   ;; call update-ensemble-status event STATUS-UPDATE-MILLIS

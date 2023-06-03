@@ -15,6 +15,7 @@
 
 (ns splice.ensemble.ensemble
   (:require
+   [sc-osc.sc :refer [sc-oneshot-sync-event sc-uuid]]
    [splice.melody.melody-event :refer [print-melody-event set-melody-event-note-off]]
    [splice.player.player-utils :refer [print-player]]
    [splice.util.log :as log]
@@ -138,8 +139,13 @@
     )
   )
 
+(defn clear-ensemble
+  [event]
+  (reset! ensemble nil))
+
 (defn init-ensemble
   [init-players init-melodies init-msgs]
+  (sc-oneshot-sync-event :reset clear-ensemble (sc-uuid))
   (reset!
    ensemble
    {:players
@@ -151,10 +157,6 @@
   (reset! player-msgs (into [] init-msgs))
   @ensemble
   )
-
-(defn clear-ensemble
-  []
-  (reset! ensemble nil))
 
 (defn print-ensemble
   ([] (print-ensemble @ensemble))

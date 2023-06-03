@@ -22,7 +22,6 @@
                       sc-send-msg
                       sc-next-id
                       sc-now
-                      sc-on-sync-event
                       sc-oneshot-sync-event
                       sc-uuid
                       sc-with-server-sync]]
@@ -59,10 +58,6 @@
   ;; - Remove main bus effects?
   ;; - Should we remove all sync messages from osc msp system
 
-  (close-msg-channel)
-  ;; perhaps these next 2 should be done in the ensemble files?????
-  (clear-ensemble)
-  (stop-ensemble-status)
   ;; should wait to reset is-playing till we know all other components have stopped
   ;; ESPECIALLY all players have stopped in player/player-play-note
   (reset! is-playing? false)
@@ -70,7 +65,7 @@
 
 (defn init-control
   []
-  (sc-on-sync-event :reset reset-control (sc-uuid))
+  (sc-oneshot-sync-event :reset reset-control (sc-uuid))
   )
 
 (defn init-splice
