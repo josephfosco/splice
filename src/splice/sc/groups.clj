@@ -17,16 +17,13 @@
   (:require
    [sc-osc.sc :refer [sc-next-id
                       sc-oneshot-sync-event
-                      sc-reset-counter!
                       sc-send-msg
                       sc-with-server-sync
                       sc-uuid]]
    [splice.sc.sc-constants :refer [head after]]
+   [splice.util.settings :refer [get-setting]]
    [splice.util.log :as log]
    ))
-
-;; The root group is allocated by supercollider
-(defonce ^:private _root-group_ (sc-next-id :node))
 
 (def empty-base-group-ids {:splice-group-id        nil
                            :instrument-group-id    nil
@@ -43,9 +40,8 @@
   (log/info "removing all supercollider groups")
   (sc-with-server-sync #(sc-send-msg
                          "/g_freeAll"
-                         _root-group_)
+                         (get-setting :root-group_))
                        "while freeing groups")
-  (map #(-> % (sc-reset-counter!)) (vals @base-group-ids*))
   )
 
 (defn setup-base-groups
@@ -54,7 +50,7 @@
   ;; Groups look like this:
   ;; |----------------------------------------------|
   ;; |                                              |
-  ;; |    _root-group_ (defined by supercollider    |
+  ;; |    root-group_ (defined by supercollider     |
   ;; |                                              |
   ;; |  |----------------------------------------|  |
   ;; |  |                                        |  |
@@ -94,7 +90,7 @@
         main-fx-group-id (sc-next-id :node)
         post-fx-group-id (sc-next-id :node)
         ]
-    (sc-with-server-sync #(sc-send-msg "/g_new" splice-group-id head _root-group_)
+    (sc-with-server-sync #(sc-send-msg "/g_new" splice-group-id head (get-setting :root-group_))
       "whilst creating the main Splice group")
     (sc-with-server-sync #(sc-send-msg "/g_new" instrument-group-id head splice-group-id)
       "whilst creating the Splice instrument group")

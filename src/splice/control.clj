@@ -24,6 +24,7 @@
                       sc-next-id
                       sc-now
                       sc-oneshot-sync-event
+                      sc-reset-counter!
                       sc-uuid
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
@@ -39,7 +40,7 @@
    [splice.util.util :refer [close-msg-channel start-msg-channel]]
   ))
 
-(def ^:private is-playing? (atom false))
+(def ^:private splice-status (atom ::stopped))
 (def main-fx-bus-first-in-chan (atom nil))
 (def main-fx-bus-first-out-chan (atom nil))
 
@@ -65,13 +66,12 @@
 
 (defn reset-control
   [event]
-  (println "******************** RESETTING CONTROL ************************")
+  (log/info "******************** RESETTING CONTROL ************************")
 
   (remove-synths-effects-busses)
-
-  ;; should wait to reset is-playing till we know all other components have stopped
-  ;; ESPECIALLY all players have stopped in player/player-play-note
-  (reset! is-playing? false)
+  ;; delete :node counters so when starting again it will start at 0 for root_goup_
+  (sc-reset-counter! :node)
+  (reset! splice-status ::stopped)
   )
 
 (defn init-control
@@ -239,11 +239,31 @@
     (play-first-note id min-start-offset max-start-offset))
   )
 
+(defn- reserve-root-node-val
+  []
+  (set-setting! :root-group_ (sc-next-id :node))
+  (log/error (get-setting :root-group_))
+  (when (not= (get-setting :root-group_) 0)
+    (throw (Throwable.
+            (str "root-group_ NOT 0\n"
+                 "root-group_ must be 0 in the :node table because supercollider\n"
+                 "sets the root node to zero and this cannot be changed\n"
+                 "Somehow sc-next-id or sc_osc.counters/next-id was called before"
+                 ":root-group_ was assigned an id in control/reserve-root-node-val"
+                 )
+            )))
+  )
+
 (defn start-splice
   [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
   (println "about to start with args: " args)
-  (when (false? @is-playing?)
-    (println "STARTING")
+  (when (= @splice-status ::stopped)
+    (reset! splice-status ::starting)
+    (log/info "STARTING")
+    ;; Set _root-group_ right away to make certain it is set to o in the :node counter
+    ;; It MUST be zero because in supercollider the root_node is always 0 and
+    ;; cannot be changed
+    (reserve-root-node-val)
     (init-control)
     (let [player-settings (load-settings loops)
           number-of-players (set-setting! :num-players
@@ -260,18 +280,18 @@
       (init-splice initial-players init-melodies init-msgs)
       (start-playing (or (:min-start-offset player-settings) 0)
                      (or (:max-start-offset player-settings) 0))
-      (reset! is-playing? true)
+      (reset! splice-status ::playing)
       ))
   )
 
 (defn clear-splice
   []
-  (println "*** clear-splice not implemented ***")
+  (log/warn "*** clear-splice not implemented ***")
   )
 
 (defn pause-splice
   []
-  (println "*** pause-splice not implemented ***")
+  (log/warn "*** pause-splice not implemented ***")
   )
 
 (defn reset-splice
@@ -281,6 +301,7 @@
 (defn quit-splice
   []
   ;; Wait for player scheduling to stop before resetting the rest of the app
+  (reset! splice-status ::stopping)
   (sc-oneshot-sync-event :player-scheduling-stopped reset-splice (sc-uuid))
   (sc-event :stop-player-scheduling)
 

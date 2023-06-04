@@ -102,8 +102,8 @@
   (apply next-id args))
 
 (defn sc-reset-counter!
-  [& args]
-  (apply reset-counter! args))
+  [key]
+  (reset-counter! key))
 
 (defn sc-uuid
   []
