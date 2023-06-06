@@ -56,7 +56,7 @@
 
 (defn close-msg-channel
   [event]
-  (log/info "closing msg-channel")
+  (log/info "closing msg-channel....")
   (close! @msgs-in-channel)
   (drain-chan @msgs-in-channel)
   (reset! msgs-in-channel nil)

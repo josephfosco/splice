@@ -53,20 +53,23 @@
 (defn remove-synths-effects-busses
   "Removes and frees all synths, effects, and main effect busses"
   []
-  (log/info "freeing all synths, effects, and main effect busses")
+  (log/info "freeing all synths, effects, and main effect busses....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_deepFree"
                          (:splice-group-id @base-group-ids*))
                        "while freeing all synthes and effects")
-  (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
-  (sc-free-id :audio-bus @main-fx-bus-first-out-chan 2)
-  (reset! main-fx-bus-first-in-chan nil)
-  (reset! main-fx-bus-first-out-chan nil)
+  (when @main-fx-bus-first-in-chan
+    (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
+    (reset! main-fx-bus-first-in-chan nil)
+    )
+  (when @main-fx-bus-first-out-chan
+    (sc-free-id :audio-bus @main-fx-bus-first-out-chan 2)
+    (reset! main-fx-bus-first-out-chan nil))
   )
 
 (defn reset-control
   [event]
-  (log/info "******************** RESETTING CONTROL ************************")
+  (log/info "resetting control....")
 
   (remove-synths-effects-busses)
   ;; delete :node counters so when starting again it will start at 0 for root_goup_
@@ -257,32 +260,34 @@
 (defn start-splice
   [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
   (println "about to start with args: " args)
-  (when (= @splice-status ::stopped)
-    (reset! splice-status ::starting)
-    (log/info "STARTING")
-    ;; Set _root-group_ right away to make certain it is set to o in the :node counter
-    ;; It MUST be zero because in supercollider the root_node is always 0 and
-    ;; cannot be changed
-    (reserve-root-node-val)
-    (init-control)
-    (let [player-settings (load-settings loops)
-          number-of-players (set-setting! :num-players
-                                          (count (:loops player-settings)))
-          initial-players (init-players player-settings)
-          init-melodies (map init-melody (range number-of-players))
-          init-msgs (for [x (range number-of-players)] [])
-          ]
-      (setup-base-groups)
-      (load-sc-synthdefs (:loops player-settings))
-      (if-let [effects (get player-settings :main-bus-effects)]
-        (init-main-bus-effects effects))
-      (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
-      (init-splice initial-players init-melodies init-msgs)
-      (start-playing (or (:min-start-offset player-settings) 0)
-                     (or (:max-start-offset player-settings) 0))
-      (reset! splice-status ::playing)
-      ))
-  )
+  (if (= @splice-status ::stopped)
+    (do
+      (reset! splice-status ::starting)
+      (log/info "STARTING")
+      ;; Set _root-group_ right away to make certain it is set to o in the :node counter
+      ;; It MUST be zero because in supercollider the root_node is always 0 and
+      ;; cannot be changed
+      (reserve-root-node-val)
+      (init-control)
+      (let [player-settings (load-settings loops)
+            number-of-players (set-setting! :num-players
+                                            (count (:loops player-settings)))
+            initial-players (init-players player-settings)
+            init-melodies (map init-melody (range number-of-players))
+            init-msgs (for [x (range number-of-players)] [])
+            ]
+        (setup-base-groups)
+        (load-sc-synthdefs (:loops player-settings))
+        (if-let [effects (get player-settings :main-bus-effects)]
+          (init-main-bus-effects effects))
+        (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+        (init-splice initial-players init-melodies init-msgs)
+        (start-playing (or (:min-start-offset player-settings) 0)
+                       (or (:max-start-offset player-settings) 0))
+        (reset! splice-status ::playing)
+        ))
+    (log/warn "******* CAN NOT START - SPLICE IS NOT STOPPED *******")
+    ))
 
 (defn clear-splice
   []
@@ -304,21 +309,4 @@
   (reset! splice-status ::stopping)
   (sc-oneshot-sync-event :player-scheduling-stopped reset-splice (sc-uuid))
   (sc-event :stop-player-scheduling)
-
-  ;;   (stop)
-  ;; (close-msg-channel)
-  ;; (reset! is-playing? false)
-  ;; TODO Need to remove handler for "n_go" set up in player-play-note/init-player-play-note
-  ;; (throw (Throwable. "COMMENTED OUT CODE in splice.control/quit-splice"))
   )
-
-;; (defn stop-splice
-;;   []
-;;   ;; TODO
-;;   ;; Need to stop all players and whatever here. Possibly with (event :reset)
-;;   ;; Clear buses, reset groups?
-;;   ;; Can use "/clearSched" to stop events scheduled for the future in Supercollider
-;;   ;; but need to consider that some future supercollider events could be gate-off
-;;   (close-msg-channel)
-;;   (reset! is-playing? false)
-;;   )

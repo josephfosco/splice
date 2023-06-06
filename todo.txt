@@ -1,7 +1,4 @@
 -------- This release --------
-splice-stop recurs if it is invoked after start-stop-start
-
-Implement some basic version of core/splice_stop/pause and control/stop_splice
 
 need to fix clj-osc location in sc-osc/deps.edn
 

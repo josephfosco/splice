@@ -141,7 +141,7 @@
 
 (defn clear-ensemble
   [event]
-  (log/info "clearing ensemble")
+  (log/info "clearing ensemble....")
   (reset! ensemble nil))
 
 (defn init-ensemble

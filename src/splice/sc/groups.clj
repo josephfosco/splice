@@ -37,7 +37,7 @@
 
 (defn remove-base-groups
   [event]
-  (log/info "removing all supercollider groups")
+  (log/info "removing all supercollider groups....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_freeAll"
                          (get-setting :root-group_))

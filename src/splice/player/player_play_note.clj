@@ -80,7 +80,7 @@
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
-  (log/info "stopping player scheduling")
+  (log/info "stopping player scheduling....")
   (sc-remove-event-handler ::go-key)
   (reset! is-scheduling? false)
   )
@@ -328,7 +328,14 @@
                                 :time (System/currentTimeMillis)})
         (println "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event))
         (println "\n\n\n"))
-      (track-stopped-players player-id))
+      (do
+        (when (> play-time (System/currentTimeMillis))
+          ;; This means the last note played might not have started playing, or might
+          ;; have scheduled a gate-off in supercollider. In that case, wait
+          ;; until the synth has stopped and been removed in supercollider before
+          ;; marking the player as stopped.
+          (Thread/sleep (- play-time (System/currentTimeMillis))))
+        (track-stopped-players player-id)))
     )
   )
 
