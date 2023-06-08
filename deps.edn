@@ -2,7 +2,7 @@
  :deps
  {org.clojure/clojure {:mvn/version "1.10.3"}
   org.clojure/core.async {:mvn/version "1.3.618"}
-  sc-osc/sc-osc {:local/root "/home/joseph/src/clj/splice/sc-osc"}
+  sc-osc/sc-osc {:local/root "./sc-osc"}
   }
  :aliases
   {:repl-server

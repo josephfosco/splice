@@ -2,8 +2,11 @@ start:
 	pw-jack clj -m core
 	# pw-jack clj -M src/splice/core.clj
 
+sc:
+	./scsynth-start.sh
+
 repl:
-	pw-jack clj
+	clj
 
 cider:
 	pw-jack clj -Sdeps '{:deps {cider/cider-nrepl {:mvn/version "0.25.2"}}}' -m nrepl.cmdline --interactive --middleware "[cider.nrepl/cider-middleware]"

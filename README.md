@@ -4,19 +4,27 @@ FIXME: description
 
 ## Installation
 
+When cloning this repo, if you use git clone --recurse-submodules <repository> git will populate the submodule(s) for you
+
+### Submodules
+- To make using the submodule(s) easier, you might want to set the following git config options
+    - `git config status.submodulesummary 1`
+    - `git config push.recurseSubmodules check`
+
 
 ## Usage
 
 ### To start playing in a terminal
 - Open qjackctl in a window and go to the "Graph" page
-- in a new Terminal window type `make repl`
+- in a new Terminal window in the splice directory type `make sc`
 - Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
   the input 1 and 2 of the computer speakers
-- In the clojure terminal at the user=> prompt type`(ns splice.core)`
+- In another Terminal window in the splice directory type `clj` to bring up the Clojure repl
+- In the clojure repl at the user=> prompt type`clj`
 - at the splice.core=> prompt type `(splice-start)`
 - To stop, in the clojure window type `(splice-stop)`
  
-### To run this form emacs using cider:
+### To run this form emacs using cider: - not certain if this is still accurate
 - Open qjackctl in a window and go to the "Graph" page
 - in a new Terminal window type `make cider`
 - Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
@@ -36,7 +44,11 @@ FIXME: description
 
 ## Options
 
-FIXME: listing of options this app accepts.
+- the splice-start command has the following optional options
+    - :loops <loops filename relative to splice directory> 
+    If not specified, the file splice/src/loops/loops.clj will be used
+    - :osc-debug ( true | [false] )
+    To print additional debugging info from Open Sound Control (OSC)
 
 ## Examples
 

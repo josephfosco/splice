@@ -1,9 +1,3 @@
--------- This release --------
-
-need to fix clj-osc location in sc-osc/deps.edn
-
--------- This release end --------
-
 Make all directory paths relative. Set a base path in settings and concatenate anything
 additional on to this base.
 
