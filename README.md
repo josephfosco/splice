@@ -47,7 +47,7 @@ When cloning this repo, if you use git clone --recurse-submodules <repository> g
 - the splice-start command has the following optional options
     - :loops &lt;loops filename relative to splice directory&gt;  
     If not specified, the file splice/src/loops/loops.clj will be used
-    - :osc-debug ( true | [false] ) 
+    - :osc-debug ( true | [false] )   
     To print additional debugging info from Open Sound Control (OSC)
 
 ## Examples
