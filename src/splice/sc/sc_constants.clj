@@ -1,4 +1,4 @@
-;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,16 +13,10 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(defproject splice "0.1.0-SNAPSHOT"
-  :description "A generative loop-based music system"
-  :url "http://example.com/FIXME"
-  :license {:name "GNU General Public License version 3"
-            :url "http://www.gnu.org/licenses/"}
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.async "0.3.465"]
-                 ;; [overtone "0.10.3"]
-                 ]
-  :jvm-opts ^:replace [] ;; turns off JVM arg TieredStopAtLevel=1
-  :main ^:skip-aot splice.core
-  :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+(ns splice.sc.sc-constants)
+
+(defonce head 0)
+(defonce tail 1)
+(defonce before 2)
+(defonce after 3)
+(defonce replce 4)

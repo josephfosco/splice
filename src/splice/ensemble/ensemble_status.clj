@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,17 +15,18 @@
 
 (ns splice.ensemble.ensemble-status
   (:require
-   [clojure.core.async :refer [<! >!! chan go-loop sub]]
-   [overtone.live :refer [apply-at]]
+   [clojure.core.async :refer [<! >!! chan go-loop sub timeout]]
+   [sc-osc.sc :refer [sc-oneshot-sync-event sc-uuid]]
    [splice.config.constants :refer [STATUS-UPDATE-MILLIS
                                      DECREASING
                                      INCREASING
                                      STEADY]]
    [splice.melody.melody-event :refer [get-freq-from-melody-event
-                                        get-dur-millis-from-melody-event
-                                        get-event-time-from-melody-event
-                                        get-play-time-from-melody-event
-                                        ]]
+                                       get-dur-millis-from-melody-event
+                                       get-event-time-from-melody-event
+                                       get-play-time-from-melody-event
+                                       ]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel get-msg-pub]]
    )
@@ -35,6 +36,7 @@
 ;; of a note that was played. Used to compute ensemble density
 (def ^:private note-times (atom []))
 (def ^:private ensemble-density (atom 0.0))
+(def ^:private stop-processing-status-mgs (atom false))
 
 (defrecord EnsembleStatus [density density-trend])
 
@@ -88,10 +90,7 @@
       (swap! note-times
              add-event-to-note-times
              (list play-time
-                   (- (get-dur-millis-from-melody-event melody-event)
-                      (- play-time
-                         (get-event-time-from-melody-event melody-event))
-                      )
+                   (get-dur-millis-from-melody-event melody-event)
                    )
              )
       ))
@@ -144,30 +143,43 @@
   (let [new-ens-density (compute-ensemble-density)
         ens-status (create-ensemble-status :density new-ens-density
                                            :density-trend STEADY)
+        ch (get-msg-channel)
         ]
     (println "****************** new-density: " new-ens-density " ************************")
     (reset! ensemble-density new-ens-density)
-    (>!! (get-msg-channel)
-         {:msg :ensemble-status
-          :status ens-status
-          :time (System/currentTimeMillis)})
+    (if ch
+      (>!! ch
+           {:msg :ensemble-status
+            :status ens-status
+            :time (System/currentTimeMillis)}))
     )
-  (apply-at (+ (System/currentTimeMillis) STATUS-UPDATE-MILLIS)
-            update-ensemble-status)
   )
 
 (defn reset-ensemble-status
   []
+  (reset! stop-processing-status-mgs false)
   (reset! note-times [])
   (reset! ensemble-density 0)
   )
 
+(defn stop-ensemble-status
+  [event]
+  (reset! stop-processing-status-mgs true)
+  )
+
 (defn start-ensemble-status
   []
+  (sc-oneshot-sync-event :reset stop-ensemble-status (sc-uuid))
   (reset-ensemble-status)
 
-  (apply-at (+ (System/currentTimeMillis) STATUS-UPDATE-MILLIS)
-            update-ensemble-status)
+  ;; call update-ensemble-status event STATUS-UPDATE-MILLIS
+  (go-loop []
+    (if @stop-processing-status-mgs
+      (log/info "ensemble_status message loop stopped.")
+      (do
+        (<! (timeout STATUS-UPDATE-MILLIS))
+        (update-ensemble-status)
+        (recur))))
 
   (def status-out-channel (chan (* 2 (get-setting :num-players))))
   (sub (get-msg-pub) :melody-event status-out-channel)

@@ -1,4 +1,4 @@
-;    Copyright (C) 2014-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,15 +15,16 @@
 
 (ns splice.instr.instrumentinfo)
 
-(defrecord InstrumentInfo [instrument envelope-type range-hi range-lo])
+(defrecord InstrumentInfo [instrument envelope-type range-hi range-lo note-off])
 
 (defn create-instrument-info
   "Used to create an InstrumentInfo record"
-  [& {:keys [instrument envelope-type range-hi range-lo]}]
+  [& {:keys [instrument envelope-type range-hi range-lo note-off]}]
   (InstrumentInfo. instrument
                    envelope-type
                    range-hi
                    range-lo
+                   note-off
                    )
   )
 
@@ -43,18 +44,15 @@
   [inst-info]
   (:range-lo inst-info))
 
-(defn get-range-hi-for-instrument-info
+(defn get-note-off-from-instrument-info
   [inst-info]
-  (:range-hi inst-info))
-
-(defn get-range-lo-for-instrument-info
-  [inst-info]
-  (:range-lo inst-info))
+  (:note-off inst-info))
 
 (defn get-all-instrument-info
   [inst-info]
   {:envelope-type (:envelope-type inst-info)
    :range-hi (:range-hi inst-info)
    :range-lo (:range-lo inst-info)
-   :instrument (:instrument inst-info)}
+   :instrument (:instrument inst-info)
+   :note-off (:note-off inst-info)}
   )

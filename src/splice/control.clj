@@ -1,4 +1,4 @@
-;    Copyright (C) 2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,28 +15,72 @@
 
 (ns splice.control
   (:require
-   [overtone.live :refer [apply-at now stop]]
-   [splice.effects.effects :refer [reverb]]
-   [splice.ensemble.ensemble :refer [init-ensemble]]
-   [splice.ensemble.ensemble-status :refer [start-ensemble-status]]
+   [clojure.core.async :refer [<! go timeout]]
+   [sc-osc.sc :refer [sc-allocate-bus-id
+                      sc-debug
+                      sc-event
+                      sc-free-id
+                      sc-send-msg
+                      sc-next-id
+                      sc-now
+                      sc-oneshot-sync-event
+                      sc-reset-counter!
+                      sc-uuid
+                      sc-with-server-sync]]
+   [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
+   [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
    [splice.player.player :refer [create-player]]
-   [splice.player.player-play-note :refer [play-next-note]]
-   [splice.melody.melody-event :refer [create-melody-event]]
+   [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
+   [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
+   [splice.melody.melody-event :refer [create-rest-event]]
+   [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
-   [splice.util.print :refer [print-banner]]
    [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel start-msg-channel]]
-   )
-  )
+  ))
 
-(def ^:private is-playing? (atom false))
+(def ^:private splice-status (atom ::stopped))
+(def main-fx-bus-first-in-chan (atom nil))
+(def main-fx-bus-first-out-chan (atom nil))
 
 (def valid-loop-keys (set '(:instrument-name
                             :loop-type
                             :melody-info
                             :name
                             )))
+
+(defn remove-synths-effects-busses
+  "Removes and frees all synths, effects, and main effect busses"
+  []
+  (log/info "freeing all synths, effects, and main effect busses....")
+  (sc-with-server-sync #(sc-send-msg
+                         "/g_deepFree"
+                         (:splice-group-id @base-group-ids*))
+                       "while freeing all synthes and effects")
+  (when @main-fx-bus-first-in-chan
+    (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
+    (reset! main-fx-bus-first-in-chan nil)
+    )
+  (when @main-fx-bus-first-out-chan
+    (sc-free-id :audio-bus @main-fx-bus-first-out-chan 2)
+    (reset! main-fx-bus-first-out-chan nil))
+  )
+
+(defn reset-control
+  [event]
+  (log/info "resetting control....")
+
+  (remove-synths-effects-busses)
+  ;; delete :node counters so when starting again it will start at 0 for root_goup_
+  (sc-reset-counter! :node)
+  (reset! splice-status ::stopped)
+  )
+
+(defn init-control
+  []
+  (sc-oneshot-sync-event :reset reset-control (sc-uuid))
+  )
 
 (defn init-splice
   "Initialize splice to play.
@@ -48,6 +92,7 @@
   "
   [players melodies msgs]
   (start-msg-channel)
+  (init-player-play-note)
   (init-ensemble players melodies msgs)
   (start-ensemble-status)
   )
@@ -99,35 +144,94 @@
 
 (defn init-melody
   [player-id]
+  (vector (create-rest-event player-id 0 0))
+  )
 
-  (vector (create-melody-event :melody-event-id 0
-                               :freq nil
-                               :dur-info nil
-                               :volume nil
-                               :instrument-info nil
-                               :player-id player-id
-                               :event-time 0
-                               ))
+(defn- send-load-msg
+  [filename]
+  (sc-with-server-sync #(sc-send-msg "/d_load" filename))
   )
 
 (defn init-main-bus-effects
   [effects]
-  (dorun (for [effect effects]
-           (cond (= (first effect) :reverb) (apply reverb (second effect))
-                 )
-           )
-         )
-  )
+
+  (println "init-main-bus-effects")
+  (if (nil? @main-fx-bus-first-in-chan)
+    (reset! main-fx-bus-first-in-chan (sc-allocate-bus-id :audio-bus 2)))
+  (if (nil? @main-fx-bus-first-out-chan)
+    (reset! main-fx-bus-first-out-chan (sc-allocate-bus-id :audio-bus 2)))
+
+  (let [fx-path "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"]
+    (send-load-msg (str fx-path "fx-snd-rtn-2ch" ".scsyndef"))
+    ;; Create effects send from mains (ch 0 and 1)
+    (sc-with-server-sync #(sc-send-msg
+                           "/s_new"
+                           "fx-snd-rtn-2ch"
+                           (sc-next-id :node)
+                           head
+                           (:pre-fx-group-id @base-group-ids*)
+                           "in" 0.0
+                           "out" (float @main-fx-bus-first-in-chan))
+                         "while starting up the main effect send")
+    ;; create effects return to mains
+    (sc-with-server-sync #(sc-send-msg
+                           "/s_new"
+                           "fx-snd-rtn-2ch"
+                           (sc-next-id :node)
+                           head
+                           (:post-fx-group-id @base-group-ids*)
+                           "in" (float @main-fx-bus-first-out-chan)
+                           "out" 0.0)
+                         "while starting up the main effect return")
+    (dorun (for [effect effects]
+             (cond (= (first effect) "reverb-2ch")
+                   (do
+                     ;; TODO will eventually need to keep track of which effects are loaded so
+                     ;; an effect is not "double loaded"
+                     (send-load-msg (str fx-path "reverb-2ch" ".scsyndef"))
+                     (sc-with-server-sync #(apply sc-send-msg "/s_new"
+                                                  "reverb-2ch"
+                                                  (sc-next-id :node)
+                                                  tail
+                                                  (:main-fx-group-id @base-group-ids*)
+                                                  "in" (float @main-fx-bus-first-in-chan)
+                                                  "out" (float @main-fx-bus-first-out-chan)
+                                                  (second effect))
+                                          "while starting the main reverb-2ch effect"))
+
+                   )))
+    ))
+
+(defn- load-sc-synthdefs
+  [loops]
+  (println "loading synthdefs....")
+  (let [synth-files (set (for [loop loops]
+                          (str
+                           "/home/joseph/src/clj/splice/src/splice/instr/instruments/sc/"
+                           (name (:instrument-name loop))
+                           ".scsyndef")
+                          ))
+
+        missing-files (filter #(not (.exists (java.io.File. %))) synth-files)
+        ]
+    (if (seq missing-files)
+      (throw (Throwable.
+              (str "MISSING SYNTHDEF FILES\n"
+                   "The following SynthDef files are missing:\n"
+                   (clojure.string/join "\n" missing-files))
+              ))
+      (doall (map send-load-msg synth-files))
+      )
+    ))
 
 (defn- play-first-note
   [player-id min-time-offset max-time-offset]
-
-  (let [note-time (+ (now) (random-int (* min-time-offset 1000)
-                                       (* max-time-offset 1000)))]
-    (apply-at note-time
-              play-next-note
-              [player-id note-time]
-              ))
+  (let [delay-millis (+ (random-int (* min-time-offset 1000)
+                                    (* max-time-offset 1000)))
+        note-time (+ (sc-now) delay-millis)
+        ]
+    (go (<! (timeout delay-millis))
+        (play-next-note player-id note-time)))
   )
 
 (defn- start-playing
@@ -138,40 +242,71 @@
     (play-first-note id min-start-offset max-start-offset))
   )
 
-(defn start-splice
-  [{loops :loops :or {loops "src/splice/loops.clj"} :as args}]
-  (println "about to start with args: " args)
-  (if (false? is-playing?)
-    (println "STARTING")
-    (let [player-settings (load-settings loops)
-          number-of-players (set-setting! :num-players
-                                          (count (:loops player-settings)))
-          initial-players (init-players player-settings)
-          init-melodies (map init-melody (range number-of-players))
-          init-msgs (for [x (range number-of-players)] [])
-          ]
-      (init-main-bus-effects (:main-bus-effects player-settings))
-      (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
-      (init-splice initial-players init-melodies init-msgs)
-      (start-playing (or (:min-start-offset player-settings) 0)
-                     (or (:max-start-offset player-settings) 0))
-      (reset! is-playing? true)
-      ))
+(defn- reserve-root-node-val
+  []
+  (set-setting! :root-group_ (sc-next-id :node))
+  (log/error (get-setting :root-group_))
+  (when (not= (get-setting :root-group_) 0)
+    (throw (Throwable.
+            (str "root-group_ NOT 0\n"
+                 "root-group_ must be 0 in the :node table because supercollider\n"
+                 "sets the root node to zero and this cannot be changed\n"
+                 "Somehow sc-next-id or sc_osc.counters/next-id was called before"
+                 ":root-group_ was assigned an id in control/reserve-root-node-val"
+                 )
+            )))
   )
+
+(defn start-splice
+  [{:keys [loops] :or {loops "src/splice/loops.clj"} :as args}]
+  (println "about to start with args: " args)
+  (if (= @splice-status ::stopped)
+    (do
+      (reset! splice-status ::starting)
+      (log/info "STARTING")
+      ;; Set _root-group_ right away to make certain it is set to o in the :node counter
+      ;; It MUST be zero because in supercollider the root_node is always 0 and
+      ;; cannot be changed
+      (reserve-root-node-val)
+      (init-control)
+      (let [player-settings (load-settings loops)
+            number-of-players (set-setting! :num-players
+                                            (count (:loops player-settings)))
+            initial-players (init-players player-settings)
+            init-melodies (map init-melody (range number-of-players))
+            init-msgs (for [x (range number-of-players)] [])
+            ]
+        (setup-base-groups)
+        (load-sc-synthdefs (:loops player-settings))
+        (if-let [effects (get player-settings :main-bus-effects)]
+          (init-main-bus-effects effects))
+        (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+        (init-splice initial-players init-melodies init-msgs)
+        (start-playing (or (:min-start-offset player-settings) 0)
+                       (or (:max-start-offset player-settings) 0))
+        (reset! splice-status ::playing)
+        ))
+    (log/warn "******* CAN NOT START - SPLICE IS NOT STOPPED *******")
+    ))
 
 (defn clear-splice
   []
-  (println "*** clear-splice not implemented ***")
+  (log/warn "*** clear-splice not implemented ***")
   )
 
 (defn pause-splice
   []
-  (println "*** pause-splice not implemented ***")
+  (log/warn "*** pause-splice not implemented ***")
   )
+
+(defn reset-splice
+  [event]
+  (sc-event :reset))
 
 (defn quit-splice
   []
-  (stop)
-  (close-msg-channel)
-  (reset! is-playing? false)
+  ;; Wait for player scheduling to stop before resetting the rest of the app
+  (reset! splice-status ::stopping)
+  (sc-oneshot-sync-event :player-scheduling-stopped reset-splice (sc-uuid))
+  (sc-event :stop-player-scheduling)
   )

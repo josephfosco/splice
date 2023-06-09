@@ -1,4 +1,4 @@
-;    Copyright (C) 2014-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2014-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,16 +15,42 @@
 
 (ns splice.instr.sc-instrument
   (:require
-   [overtone.live :refer :all]
+   [sc-osc.sc :refer [sc-deref! sc-now sc-on-sync-event sc-send-bundle sc-send-msg sc-uuid]]
    ))
 
-(defn stop-instrument
-  [sc-instrument-id]
-  (ctl sc-instrument-id :gate 0)
+(defn sched-gate-off
+  ([sc-synth-id] (sched-gate-off sc-synth-id (sc-now)))
+  ([sc-synth-id time]
+   (sc-send-bundle time
+                   (sc-send-msg "/n_set" sc-synth-id "gate" 0.0)))
+  )
+
+(defn sched-control-val
+  [sc-synth-id time & ctl-vals]
+  (sc-send-bundle time
+                  (apply sc-send-msg "/n_set" sc-synth-id ctl-vals))
   )
 
 (defn get-release-millis-from-instrument
   ""
-  [sc-instrument-id]
-  (*  (node-get-control sc-instrument-id :release) 1000)
-  )
+  ;; (*  (node-get-control sc-synth-id :release) 1000)
+  ([sc-synth-id] (get-release-millis-from-instrument sc-synth-id nil))
+  ([sc-synth-id matcher-fn]
+   (let [p     (promise)
+         key   (sc-uuid)
+         res   (do (sc-on-sync-event "/n_set"
+                                     (fn [info]
+                                       (when (or (nil? matcher-fn)
+                                                 (matcher-fn info))
+                                         (deliver p info)
+                                         :sc-osc/remove-handler))
+                                     key)
+                   p)
+         cvals (do (sc-send-msg "/s_get" sc-synth-id "release")
+                   (:args (sc-deref! res
+                                     (str "attempting to get control value release for sc-synth-id "
+                                          (with-out-str (pr sc-synth-id))))))]
+     ;; cvals should be a list something like this
+     ;; (7 release 3.0) sc-synth-id contro-param ("release") param-value
+     (* (last cvals) 1000)
+     )))

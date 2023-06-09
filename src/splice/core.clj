@@ -1,4 +1,4 @@
-;    Copyright (C) 2019 Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2019, 2023 Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
 (ns splice.core
   (:gen-class)
   (:require
-   [overtone.live :as overtone]
-   [splice.control :refer [clear-splice pause-splice quit-splice
-                           start-splice ]]
+   [sc-osc.sc :refer [sc-connect sc-connection-status sc-debug]]
+   ;; [splice.control :refer [clear-splice pause-splice quit-splice
+   ;;                         start-splice ]]
+   [splice.control :refer [quit-splice start-splice ]]
    [splice.util.log :as log]
    [splice.util.settings :refer [get-setting load-settings set-setting!]]
    [splice.version :refer [SPLICE-VERSION-STR]]
@@ -45,6 +46,10 @@
   (get-settings "src/splice/settings.clj")
   (log/set-print-log-level! true)
   (log/set-log-level! (get-setting :log-level))
+  (if (not= (sc-connection-status) :connected)
+    (do
+      (sc-connect)
+      (sc-debug (get args :osc-debug false))))
   (start-splice args)
 )
 
@@ -67,13 +72,16 @@
 (defn splice-pause
   "Stop playing after players finish what they have scheduled"
   []
-  (pause-splice)
+  ;; (pause-splice)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-pause"))
+
 )
 
 (defn splice-clear
   "Clears the scheduler, message-processor, and players"
   []
-  (clear-splice)
+  ;; (clear-splice)
+  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-clear"))
   )
 
 (defn splice-help
@@ -85,7 +93,9 @@
    Functions to run splice
 
      (splice-start)        Start playing
-                             optional key :num-players
+                             optional keys :loops <loops filename relative to splice directory>
+                                           :osc-debug ( true | [false] )
+
      (splice-pause)        Pause after playing current notes
 
      (splice-help)         Print this message
@@ -94,9 +104,5 @@
    ")
   (println "")
   )
-
-(defn stop
-  []
-  (overtone/stop))
 
 (splice-help)

@@ -1,4 +1,4 @@
-;    Copyright (C) 2018-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 
 (ns splice.player.loops.loop
   (:require
+   [splice.instr.instrumentinfo :refer [get-note-off-from-instrument-info]]
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.player.loops.base-loop :refer [create-base-loop
                                           get-loop-dur-info
@@ -43,6 +44,12 @@
    checks each loop-events :play-prob (play probability) if it exists
   "
   [loop-structr start-ndx]
+  ;; ndx in the for will range between 0 and start-ndx, but will start at start-ndx
+  ;; If there is a play-prob, for the next melody-info event it will check if it
+  ;; should play the event based on the play-prob. If it should it will return that
+  ;; ndx, otherwise it will continue trying with the next ndx until it finds the event
+  ;; ndx it should play. If there is no play-prob for the event, it will rutrun the next
+  ;; event ndx.
   (first
    (take 1
          (for [ndx (iterate
@@ -61,20 +68,32 @@
 )
 
 (defn get-next-melody
-  "Returns an updated loop structure and a melody-event"
-  [player melody loop-structr next-id]
+  "Returns an updated loop structure with the :next-melody-event-ndx updated and
+  a new melody-event"
+  [player melody loop-structr next-id event-time]
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
+        instrument-info (get-player-instrument-info player)
+        ;; frequency can be nil when pitch-type is variable and one or more entries in
+        ;; the pitch vector is nil, and the nil value is chosen
+        frequency (get-loop-pitch (:pitch melody-info))
+        event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
+                        true
+                        nil)
         melody-event (create-melody-event
                       :melody-event-id next-id
-                      :freq (get-loop-pitch (:pitch melody-info))
+                      :freq frequency
                       :dur-info (get-loop-dur-info (:dur melody-info))
                       :volume (get-loop-volume (:volume melody-info))
-                      :instrument-info (get-player-instrument-info player)
+                      :instrument-info instrument-info
                       :instrument-settings (:instrument-settings melody-info)
                       :player-id (get-player-id player)
-                      :event-time nil
+                      :event-time event-time
+                      :note-off (if (or (= :rest (:type (:pitch melody-info)))
+                                        (nil? frequency))
+                                  nil
+                                  event-note-off)
                       )
         ]
     [

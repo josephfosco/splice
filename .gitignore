@@ -13,3 +13,4 @@ pom.xml.asc
 .cpcache
 /native
 /overtone
+osc.log*

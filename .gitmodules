@@ -1,0 +1,3 @@
+[submodule "sc-osc"]
+	path = sc-osc
+	url = git@github.com:josephfosco/sc-osc.git

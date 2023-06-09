@@ -15,10 +15,10 @@
 
 (ns splice.player.loops.base-loop
   (:require
-   [overtone.live :refer [midi->hz]]
    [splice.melody.dur-info :refer [create-dur-info]]
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
+   [splice.music.music :refer [midi->hz]]
    )
   )
 
@@ -62,13 +62,22 @@
 
 (defn get-loop-pitch
   [pitch-info]
+  ;; Throw an error if the pitch-freq or pitch-midi-note is nil or missing when pitch :type
+  ;; is not :rest
+  ;; TODO This validation should occur when the loop file is loaded possibly in control/validate-player-settings
+  (if (and (not= (:type pitch-info) :rest)
+           (nil? (:pitch-freq pitch-info))
+           (nil? (:pitch-midi-note pitch-info))
+           (nil? (:pitches pitch-info)))
+    (throw (Throwable. (str "Missing :pitch-freq, :pitch-midi-note or :pitches when "
+                            ":pitch-type is :fixed or :variable")))
+
+    )
   (condp = (:type pitch-info)
     :fixed (or (:pitch-freq pitch-info)
                (if-let [note-no (:pitch-midi-note pitch-info)]
                  (midi->hz note-no)
                  )
-               ;; returns nil (rest) if neither :pitch-freq or :pitch-midi-note
-               ;;    are specified
                )
     :variable (let [pitch (rand-nth (:pitches pitch-info))]
                 (if (and pitch (= :midi-note (:pitch-type pitch-info)))

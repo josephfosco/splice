@@ -2,7 +2,7 @@
  :max-start-offset 24
 
  :main-bus-effects
- {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ {"reverb-2ch" ("vol" 0.8 "mix" 1.0 "room" 0.95)}
 
  :loops
  [
@@ -17,37 +17,41 @@
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 109 110 112 nil]}
+             :pitches [105 105 105 105 109 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume {:type :variable
+              :min-volume 0.3
+              :max-volume 0.5}
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 109 110 112 nil]}
+             :pitches [105 109 110 110 110 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume {:type :variable
+              :min-volume 0.3
+              :max-volume 0.5}
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 109 110 112 nil]}
+             :pitches [105 109 110 112 112 112 112 nil]}
      :dur {:type :variable-inc-millis
            :dur-millis 200
            :inc-millis 50
            :dec-millis 50}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume {:type :variable
+              :min-volume 0.3
+              :max-volume 0.5}
      }
     {:pitch {:type :variable
              :pitch-type :midi-note
-             :pitches [105 109 110 112 nil]}
+             :pitches [105 109 109 109 109 110 112 nil]}
      :dur {:type :fixed
            :dur-millis 200}
-     :volume {:type :fixed
-              :level 0.5}
+     :volume {:type :variable
+              :min-volume 0.3
+              :max-volume 0.5}
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -93,7 +97,7 @@
      :dur {:type :fixed
            :dur-millis 10000}
      :volume {:type :fixed
-              :level 0.5}
+              :level 0.2}
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -115,11 +119,11 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 4.0 :release 3.0)
+     :instrument-settings ("attack" 4.0 "release" 3.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
-           :dur-millis 14000}
+           :dur-millis 38000}
      }
     ]
    }
@@ -135,7 +139,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 2.5 :release 3.0)
+     :instrument-settings ("attack" 2.5 "release" 3.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -155,7 +159,7 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 5.5 :release 4.7)
+     :instrument-settings ("attack" 5.5 "release" 4.7)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
@@ -175,11 +179,11 @@
      :volume {:type :variable
               :min-volume 0.1
               :max-volume 0.4}
-     :instrument-settings (:attack 7.0 :release 4.0)
+     :instrument-settings ("attack" 7.0 "release" 4.0)
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
-           :dur-millis 26000}
+           :dur-millis 35000}
      }
     ]
    }
