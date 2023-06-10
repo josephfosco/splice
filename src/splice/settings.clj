@@ -15,4 +15,5 @@
 
 
 {:log-level :data2
+ :print-ensemble-density :on-change  ;; or :always or :on-change
  }

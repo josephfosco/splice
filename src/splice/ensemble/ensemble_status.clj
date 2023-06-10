@@ -145,7 +145,11 @@
                                            :density-trend STEADY)
         ch (get-msg-channel)
         ]
-    (println "****************** new-density: " new-ens-density " ************************")
+    (when (or (and(= (get-setting :print-ensemble-density) :on-change)
+                (not= @ensemble-density new-ens-density))
+            (= (get-setting :print-ensemble-density) :always)
+            )
+      (log/info "****************** new-density: " new-ens-density " ************************"))
     (reset! ensemble-density new-ens-density)
     (if ch
       (>!! ch
@@ -172,7 +176,7 @@
   (sc-oneshot-sync-event :reset stop-ensemble-status (sc-uuid))
   (reset-ensemble-status)
 
-  ;; call update-ensemble-status event STATUS-UPDATE-MILLIS
+  ;; call update-ensemble-status event every STATUS-UPDATE-MILLIS
   (go-loop []
     (if @stop-processing-status-mgs
       (log/info "ensemble_status message loop stopped.")

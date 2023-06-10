@@ -1,3 +1,5 @@
+Clean up branches
+
 Make all directory paths relative. Set a base path in settings and concatenate anything
 additional on to this base.
 
@@ -6,10 +8,16 @@ Move settings.clj outside of the src/splice directory
 Only print new-density message when density changes. Perhaps have an option to have it
 printed every time it is computed or only when it changes
 
-Add midi functions from overtone/src/overtone/midi.clj
-  and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-
 Set log settings (dir and level) for sc-osc
+
+Be able to pass in a settings file to splice-start that will overwrite/add to settings in
+the default settings file
+
+Add midi functions from overtone/src/overtone/midi.clj
+and/or overtone/src/overtone/studio/midi.clj (possibly do this)
+
+Change println(s) to data2 level log statements - need to make sure
+details print - not just Object IDs
 
 check if I want to use blocking or unblocking channels in ensemble_status.clj
 currently I use blocking channels if I want to switch to unblocking channels, change
@@ -23,9 +31,6 @@ retrieve the correct release time from the synth
 
 Should there be a limit to the number of times player_play_note/check_prior_event_note_off
 should be able to recur?
-
-Change println(s) to data2 level log statements - need to make sure
-details print - not just Object IDs
 
 -------- STOPPING SPLICE --------
 - Create a fade-out function that brings the value of volume-adjust down to 0 over a short
@@ -46,7 +51,6 @@ details print - not just Object IDs
 - Start up supercollider automatically.
 - Do not make a new synth for every note keep 1 synth and retrigger it
 - Learn how to use buffers for samples
-- Move sc-osc to a seperate repo and use submodules
 - Might want to change melody-info to a record and have accessor methods for the attributes
   instead of passing around a map
 - Do I want to move all vars from individual files to a common file so that if I reload the
