@@ -31,10 +31,23 @@
 (def perc-env (sorted-set "AD" "NE"))
 (def non-perc-env (sorted-set "ADSR" "ASR"))
 
-;; Note: when defining instruments :freq should always be the first param and
+;; Note: when defining instruments
+;;       :freq should always be the first param
 ;;       :vol should always be the second param
 ;;       :release should be the param name for :envelope release time in secs
-(def all-instruments {:gong
+(def all-instruments {:flute
+                      {:instrument "flute"
+                       :envelope-type "ASR"
+                       :range-lo 59
+                       :range-hi 96
+                       :note-off true}
+                      :pluck-string
+                      {:instrument "pluck-string"
+                       :envelope-type "NE"
+                       :range-lo 37
+                       :range-hi 89
+                       :note-off false}
+                      :gong
                       {:instrument "gong"
                        :envelope-type "AR"
                        :range-lo 20
@@ -80,21 +93,11 @@
 ;;                        :envelope-type "AD"
 ;;                        :range-lo 50
 ;;                        :range-hi 90}
-;;                       :flute
-;;                       {:instrument "flute"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 59
-;;                        :range-hi 96}
 ;;                       :organ-m1
 ;;                       {:instrument "organ-m1"
 ;;                        :envelope-type "ADSR"
 ;;                        :range-lo 40
 ;;                        :range-hi (last MIDI-RANGE)}
-;;                       :pluck-string
-;;                       {:instrument "pluck-string"
-;;                        :envelope-type "NE"
-;;                        :range-lo 37
-;;                        :range-hi 89}
 ;;                       :reedy-organ
 ;;                       {:instrument "reedy-organ"
 ;;                        :envelope-type "ASR"

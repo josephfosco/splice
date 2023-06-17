@@ -47,8 +47,12 @@ should be able to recur?
 
 -------- LONG TERM --------
 
+- Make pan a standard third param for synths
 - Connect mediapipe to supercollider automatically
 - Start up supercollider automatically.
+- Find a way to keep 1 synth playing and have the loop be just changing param(s). Perhaps
+  use a :no-release param to have the synth keep playing. Noeed a way to indicate when
+  to release the synth.
 - Do not make a new synth for every note keep 1 synth and retrigger it
 - Learn how to use buffers for samples
 - Might want to change melody-info to a record and have accessor methods for the attributes

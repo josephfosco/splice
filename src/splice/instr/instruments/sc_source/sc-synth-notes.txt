@@ -1,0 +1,2 @@
+- to print information from a SynthDef use .post. For variable amp use
+amp.post to print the value to the server window
