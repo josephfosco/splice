@@ -35,18 +35,24 @@
 ;;       :freq should always be the first param
 ;;       :vol should always be the second param
 ;;       :release should be the param name for :envelope release time in secs
-(def all-instruments {:flute
+(def all-instruments {:bassoon
+                      {:instrument "bassoon"
+                       :envelope-type "ASR"
+                       :range-lo 25
+                       :range-hi 84
+                       :note-off true}
+                      :clarinet
+                      {:instrument "clarinet"
+                       :envelope-type "ASR"
+                       :range-lo 20
+                       :range-hi 100
+                       :note-off true}
+                      :flute
                       {:instrument "flute"
                        :envelope-type "ASR"
                        :range-lo 59
                        :range-hi 96
                        :note-off true}
-                      :pluck-string
-                      {:instrument "pluck-string"
-                       :envelope-type "NE"
-                       :range-lo 37
-                       :range-hi 89
-                       :note-off false}
                       :gong
                       {:instrument "gong"
                        :envelope-type "AR"
@@ -58,6 +64,12 @@
                        :envelope-type "AD"
                        :range-lo 33
                        :range-hi (last MIDI-RANGE)
+                       :note-off false}
+                      :pluck-string
+                      {:instrument "pluck-string"
+                       :envelope-type "NE"
+                       :range-lo 37
+                       :range-hi 89
                        :note-off false}
                       :string-sect
                       {:instrument "string-sect"
@@ -78,16 +90,6 @@
 ;;                        :envelope-type "NE"
 ;;                        :range-lo 25
 ;;                        :range-hi 60}
-;;                       :bassoon
-;;                       {:instrument "bassoon"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 25
-;;                        :range-hi 84}
-;;                       :clarinet
-;;                       {:instrument "clarinet"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 20
-;;                        :range-hi 100}
 ;;                       :drum-m1
 ;;                       {:instrument "drum-m1"
 ;;                        :envelope-type "AD"

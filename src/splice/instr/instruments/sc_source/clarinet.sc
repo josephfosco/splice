@@ -14,25 +14,27 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (
-SynthDef('pluck-string', {|
-    freq = 164.81, vol = 0.5, pan = 0, done = 2, out = 0|
+SynthDef('clarinet', {|
+    freq = 440, vol = 1.0, pan = 0, attack = 0.01, sustain = 0.36, release = 0.1,
+	gate = 1.0, done = 2, out = 0|
 
-    var sound, env, dur;
+    var sound, env;
 
-	dur = 440 / freq;
-	env = EnvGen.kr(Env.perc(attackTime: 0.00, releaseTime: dur),
-		doneAction: done);
+	env = Linen.kr(attackTime: attack, susLevel: sustain, releaseTime: release,
+		           gate: gate, doneAction: done);
 
+	sound = LPF.ar(in: Pulse.ar(freq: freq),
+		           freq: (freq * 2));
 
-	sound = Pluck.ar(in: WhiteNoise.ar(), trig: 1, maxdelaytime: 1,
-		             delaytime: (1 / freq), decaytime: dur);
+    sound = Pan2.ar((sound * env * vol), pan);
 
-    sound = Pan2.ar(sound, pan);
-
-	OffsetOut.ar(out, (sound * env * vol));
+	OffsetOut.ar(out, sound);
 }).add;
 )
-a=Synth("pluck-string")
+
+a=Synth("clarinet", [\freq, 440])
+
+a.set("gate", 0)
 
 plotTree(s)
 
