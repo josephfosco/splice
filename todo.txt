@@ -47,6 +47,10 @@ should be able to recur?
 
 -------- LONG TERM --------
 
+- Can make all instruments use the Env function and have the length of the node set. If
+  instruments are created like this, the program might need to send gote-off messages. Instead,
+  each wnvelope would end on its own after the desired length. Need to check if this could
+  work.
 - Make pan a standard third param for synths
 - Connect mediapipe to supercollider automatically
 - Start up supercollider automatically.

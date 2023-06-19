@@ -34,8 +34,15 @@
 ;; Note: when defining instruments
 ;;       :freq should always be the first param
 ;;       :vol should always be the second param
+;;       :pan working to standardize on pan being the third param
 ;;       :release should be the param name for :envelope release time in secs
-(def all-instruments {:bassoon
+(def all-instruments {:bass-m1
+                      {:instrument "bass-m1"
+                       :envelope-type "NE"
+                       :range-lo 25
+                       :range-hi 60
+                       :note-off false}
+                      :bassoon
                       {:instrument "bassoon"
                        :envelope-type "ASR"
                        :range-lo 25
@@ -47,6 +54,12 @@
                        :range-lo 20
                        :range-hi 100
                        :note-off true}
+                      :drum-m1
+                      {:instrument "drum-m1"
+                       :envelope-type "AD"
+                       :range-lo 50
+                       :range-hi 90
+                       :note-off false}
                       :flute
                       {:instrument "flute"
                        :envelope-type "ASR"
@@ -59,6 +72,12 @@
                        :range-lo 20
                        :range-hi 40
                        :note-off false}
+                      :organ-m1
+                      {:instrument "organ-m1"
+                       :envelope-type "ADSR"
+                       :range-lo 40
+                       :range-hi (last MIDI-RANGE)
+                       :note-off true}
                       :plink-m1
                       {:instrument "plink-m1"
                        :envelope-type "AD"
@@ -70,6 +89,18 @@
                        :envelope-type "NE"
                        :range-lo 37
                        :range-hi 89
+                       :note-off false}
+                      :reedy-organ
+                      {:instrument "reedy-organ"
+                       :envelope-type "ASR"
+                       :range-lo 20
+                       :range-hi (last MIDI-RANGE)
+                       :note-off true}
+                      :steel-drum
+                      {:instrument "steel-drum"
+                       :envelope-type "AD"
+                       :range-lo 45
+                       :range-hi (last MIDI-RANGE)
                        :note-off false}
                       :string-sect
                       {:instrument "string-sect"
@@ -85,26 +116,7 @@
                        :note-off false}
                       })
 ;; TODO When added these instruments need :note-off keys
-;; (def all-instruments {:bass-m1
-;;                       {:instrument "bass-m1"
-;;                        :envelope-type "NE"
-;;                        :range-lo 25
-;;                        :range-hi 60}
-;;                       :drum-m1
-;;                       {:instrument "drum-m1"
-;;                        :envelope-type "AD"
-;;                        :range-lo 50
-;;                        :range-hi 90}
-;;                       :organ-m1
-;;                       {:instrument "organ-m1"
-;;                        :envelope-type "ADSR"
-;;                        :range-lo 40
-;;                        :range-hi (last MIDI-RANGE)}
-;;                       :reedy-organ
-;;                       {:instrument "reedy-organ"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 20
-;;                        :range-hi (last MIDI-RANGE)}
+;; (def all-instruments {
 ;;                       :saw-wave-sus
 ;;                       {:instrument "saw-wave-sus"
 ;;                        :envelope-type "ASR"
@@ -114,11 +126,6 @@
 ;;                       {:instrument "sine-wave-sus"
 ;;                        :envelope-type "ASR"
 ;;                        :range-lo (first MIDI-RANGE)
-;;                        :range-hi (last MIDI-RANGE)}
-;;                       :steel-drum
-;;                       {:instrument "steel-drum"
-;;                        :envelope-type "AD"
-;;                        :range-lo 45
 ;;                        :range-hi (last MIDI-RANGE)}
 ;;                       :tri-wave-sus
 ;;                       {:instrument "tri-wave-sus"
