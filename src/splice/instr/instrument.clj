@@ -102,11 +102,29 @@
                        :range-lo 45
                        :range-hi (last MIDI-RANGE)
                        :note-off false}
+                      :sine-wave-sus
+                      {:instrument "sine-wave-sus"
+                       :envelope-type "ASR"
+                       :range-lo (first MIDI-RANGE)
+                       :range-hi (last MIDI-RANGE)
+                       :note-off: true}
+                      :saw-wave-sus
+                      {:instrument "saw-wave-sus"
+                       :envelope-type "ASR"
+                       :range-lo 25
+                       :range-hi (last MIDI-RANGE)
+                       :note-off true}
                       :string-sect
                       {:instrument "string-sect"
                        :envelope-type "ASR"
                        :range-lo 40
                        :range-hi 96
+                       :note-off true}
+                      :tri-wave-sus
+                      {:instrument "tri-wave-sus"
+                       :envelope-type "ASR"
+                       :range-lo 15
+                       :range-hi (last MIDI-RANGE)
                        :note-off true}
                       :woosh
                       {:instrument "woosh"
@@ -115,24 +133,6 @@
                        :range-hi 40
                        :note-off false}
                       })
-;; TODO When added these instruments need :note-off keys
-;; (def all-instruments {
-;;                       :saw-wave-sus
-;;                       {:instrument "saw-wave-sus"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 25
-;;                        :range-hi (last MIDI-RANGE)}
-;;                       :sine-wave-sus
-;;                       {:instrument "sine-wave-sus"
-;;                        :envelope-type "ASR"
-;;                        :range-lo (first MIDI-RANGE)
-;;                        :range-hi (last MIDI-RANGE)}
-;;                       :tri-wave-sus
-;;                       {:instrument "tri-wave-sus"
-;;                        :envelope-type "ASR"
-;;                        :range-lo 15
-;;                        :range-hi (last MIDI-RANGE)}
-;;                         })
 
 (defn non-perc-instruments
   [instrument-list]
