@@ -14,6 +14,6 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-{:log-level :data2
+{:log-level :debug
  :print-ensemble-density :on-change  ;; or :always or :on-change
  }

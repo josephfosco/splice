@@ -107,7 +107,7 @@
                        :envelope-type "ASR"
                        :range-lo (first MIDI-RANGE)
                        :range-hi (last MIDI-RANGE)
-                       :note-off: true}
+                       :note-off true}
                       :saw-wave-sus
                       {:instrument "saw-wave-sus"
                        :envelope-type "ASR"
