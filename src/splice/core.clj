@@ -43,8 +43,8 @@
   "Start playing.
   "
   [& {:keys [] :as args} ]
-  (get-settings "src/splice/settings.clj")
   (log/set-print-log-level! true)
+  (get-settings "settings.clj")
   (log/set-log-level! (get-setting :log-level))
   (if (not= (sc-connection-status) :connected)
     (do

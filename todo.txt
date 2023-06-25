@@ -3,11 +3,6 @@ Clean up branches
 Make all directory paths relative. Set a base path in settings and concatenate anything
 additional on to this base.
 
-Move settings.clj outside of the src/splice directory
-
-Only print new-density message when density changes. Perhaps have an option to have it
-printed every time it is computed or only when it changes
-
 Set log settings (dir and level) for sc-osc
 
 Be able to pass in a settings file to splice-start that will overwrite/add to settings in
@@ -54,6 +49,7 @@ should be able to recur?
   each wnvelope would end on its own after the desired length. Need to check if this could
   work.
 - Make pan a standard third param for synths
+- allow :never to settings.py print-ensemble-density
 - Connect mediapipe to supercollider automatically
 - Start up supercollider automatically.
 - Find a way to keep 1 synth playing and have the loop be just changing param(s). Perhaps

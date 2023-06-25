@@ -15,5 +15,10 @@
 
 
 {:log-level :debug
- :print-ensemble-density :on-change  ;; or :always or :on-change
+ ;; ensemble density is printed as a info level log msg
+ ;; print-ensemble-density manages when the ensemble density is logged
+ ;;  :always     - prints ensemble density eachtime it is calculated
+ ;;  : on-chenge - prints ensembly density only if the new calculated
+ ;;                value is different than the previous value
+ :print-ensemble-density :on-change  ;; :always or :on-change
  }
