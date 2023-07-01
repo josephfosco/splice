@@ -17,6 +17,7 @@
   (:require
    [splice.melody.dur-info]
    [splice.util.random :refer [random-int]]
+   [splice.util.settings :refer [set-setting!]]
    )
   (:import
    [splice.melody.dur_info DurInfo]
@@ -36,4 +37,9 @@
    (DurInfo. (get-random-dur-millis) nil))
   ([min max]
    (DurInfo. (get-random-dur-millis min max) nil))
+  )
+
+(defn set-global-dur-mult-millis
+  [mult]
+  (set-setting! :global-dur-mult-millis mult)
   )

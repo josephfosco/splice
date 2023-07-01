@@ -15,10 +15,11 @@
 
 (ns splice.player.loops.base-loop
   (:require
-   [splice.melody.dur-info :refer [create-dur-info]]
+   [splice.melody.dur-info :refer [create-dur-info get-dur-millis-from-dur-info]]
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
+   [splice.util.settings :refer [get-setting]]
    )
   )
 
@@ -42,21 +43,27 @@
 
 (defn get-loop-dur-info
   [dur-info]
-  (condp = (:type dur-info)
-    :fixed (create-dur-info
-            :dur-millis (:dur-millis dur-info)
-            :dur-beats (:dur-beats dur-info)
-            )
-    :variable-millis (select-random-dur-info
-                      (:min-millis dur-info)
-                      (:max-millis dur-info)
-                      )
-    :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
-                           (select-random-dur-info
-                            (- base-dur (:dec-millis dur-info))
-                            (+ base-dur (:inc-millis dur-info))
-                            ))
-    :variable-pct nil
+  (let [dur-info
+        (condp = (:type dur-info)
+          :fixed (create-dur-info
+                  :dur-millis (:dur-millis dur-info)
+                  :dur-beats (:dur-beats dur-info)
+                  )
+          :variable-millis (select-random-dur-info
+                            (:min-millis dur-info)
+                            (:max-millis dur-info)
+                            )
+          :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
+                                 (select-random-dur-info
+                                  (- base-dur (:dec-millis dur-info))
+                                  (+ base-dur (:inc-millis dur-info))
+                                  ))
+          :variable-pct nil
+          )]
+    (if-let [mult (get-setting :global-dur-mult-millis)]
+      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info dur-info) mult))
+      dur-info
+      )
     )
   )
 
