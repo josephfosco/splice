@@ -19,9 +19,14 @@
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
-   [splice.util.settings :refer [get-setting]]
    )
   )
+
+(def ^:private  global-dur-mult-millis (atom nil))
+
+(defn init-base-loop
+  []
+  (reset! global-dur-mult-millis nil))
 
 (defrecord BaseLoop [name next-melody-fn])
 
@@ -40,6 +45,16 @@
   [loop-structr]
   (:next-melody-fn (:base-loop loop-structr))
  )
+
+(defn get-global-dur-mult-millis
+  []
+  @global-dur-mult-millis
+  )
+
+(defn set-global-dur-mult-millis
+  [mult]
+  (reset! global-dur-mult-millis mult)
+  )
 
 (defn get-loop-dur-info
   [dur-info]
@@ -60,7 +75,7 @@
                                   ))
           :variable-pct nil
           )]
-    (if-let [mult (get-setting :global-dur-mult-millis)]
+    (if-let [mult (get-global-dur-mult-millis)]
       (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info dur-info) mult))
       dur-info
       )

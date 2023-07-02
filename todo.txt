@@ -46,7 +46,6 @@ should be able to recur?
 
 --  FEATURES
 
-- Need to reset global-dur-mult-millis to 1 when splice-stop (?)
 - Create a way to solo or mute a specific loop number. Perhaps create a function that sets a param
   in settings that can be checked each time a note is played.
 - Do I need an "active" indicator for each loop, or can this be accomplished with the
