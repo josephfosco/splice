@@ -77,3 +77,8 @@
   :min-volume - if :type == :variable the minimum volume for this event
   :max-volume - if :type == :variable the maximum volume for this event, for :variable type
 ]
+
+:range-lo and :range-hi
+[
+  minimum and maximum midi note numbers for the instrument's pitch
+]

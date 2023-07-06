@@ -15,15 +15,15 @@
 
 (
 SynthDef('wurlitzer-piano', {|
-    freq = 440, vol = 1.0, pan = 0, attack = 0.01, decay = 0.1, decay2 = 2.5, sustain = 0.0,
+    freq = 440, vol = 1.0, pan = 0, attack = 0.01, decay = 0.1, decay2 = 3.0, sustain = 0.0,
 	release = 0.05, vel = 0.7, gate = 1.0, done = 2, out = 0|
 
     var sound, piano_env, piano_envg, filter_env, filter_envg;
 
-	piano_env = Env.new(levels:[0, 1, 0.8, sustain, 0], times: [attack, decay, decay2, release], releaseNode: 3);
+	piano_env = Env.new(levels:[0, 1, 0.7, sustain, 0], times: [attack, decay, decay2, release], releaseNode: 3);
 	piano_envg = EnvGen.kr(envelope: piano_env,
 		            gate: gate, doneAction: done);
-	filter_env = Env.new(levels:[9.0, 6.0, 5.0, 0.05, 0.05], times: [attack, decay, decay2, release],
+	filter_env = Env.new(levels:[9.0, 5.0, 4.0, 0.05, 0.0], times: [attack, decay, decay2, release],
 		                 curve: [0, 0, -3, 0], releaseNode: 3);
 	filter_envg = EnvGen.kr(envelope: filter_env,
 		            gate: gate, doneAction: done);

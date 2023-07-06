@@ -72,6 +72,12 @@
                        :range-lo 20
                        :range-hi 40
                        :note-off false}
+                      :rhodes-piano
+                      {:instrument "rhodes-piano"
+                       :envelope-type "ADSR"
+                       :range-lo 40
+                       :range-hi (last MIDI-RANGE)
+                       :note-off true}
                       :organ-m1
                       {:instrument "organ-m1"
                        :envelope-type "ADSR"
@@ -132,6 +138,12 @@
                        :range-lo 15
                        :range-hi 40
                        :note-off false}
+                      :wurlitzer-piano
+                      {:instrument "wurlitzer-piano"
+                       :envelope-type "ADSR"
+                       :range-lo 40
+                       :range-hi (last MIDI-RANGE)
+                       :note-off true}
                       })
 
 (defn non-perc-instruments

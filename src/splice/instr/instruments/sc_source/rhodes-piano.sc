@@ -19,7 +19,7 @@ SynthDef('rhodes-piano', {
     // standard meanings
     freq = 440, vol = 1.0, pan = 0, gate = 1, out = 0,
     // all of these range from 0 to 1
-    vel = 0.8, modIndex = 0.2, mix = 0.2, lfoSpeed = 0.4, lfoDepth = 0.1
+    vel = 0.7, modIndex = 0.2, mix = 0.2, lfoSpeed = 0.4, lfoDepth = 0.1
     |
     var env1, env2, env3, env4;
     var osc1, osc2, osc3, osc4, snd;
