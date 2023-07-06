@@ -13,6 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// Slightly modified version of FM Rhodes Synthesizer, Rhodey, from https://sccode.org/1-522
+
 (
 SynthDef('rhodes-piano', {
     |
@@ -39,7 +41,8 @@ SynthDef('rhodes-piano', {
     snd = Mix((osc3 * (1 - mix)) + (osc1 * mix));
     snd = snd * (SinOsc.ar(lfoSpeed) * lfoDepth + 1);
 
-    // using the doneAction: 2 on the other envs can create clicks (bc of the linear curve maybe?)
+    // using the doneAction: 2 on the other envs can create clicks
+	// (bc of the linear curve maybe?)
     snd = snd * EnvGen.ar(Env.asr(0, 1, 0.1), gate, doneAction: 2);
 	snd = Pan2.ar(snd, pan, (vol * 0.7));
 
