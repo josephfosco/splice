@@ -29,6 +29,7 @@
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
+   [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
    [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
@@ -93,6 +94,7 @@
   [players melodies msgs]
   (start-msg-channel)
   (init-player-play-note)
+  (init-base-loop)
   (init-ensemble players melodies msgs)
   (start-ensemble-status)
   )

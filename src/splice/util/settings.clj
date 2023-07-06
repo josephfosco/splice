@@ -16,16 +16,22 @@
 (ns splice.util.settings
   (:require
    [clojure.java.io :as io]
+   [splice.util.log :as log]
    )
   )
 
 (defn load-settings
-  "reads a settings file and returns the contents. For settings,
+  "Reads a settings file and returns the contents. For splice settings,
    this file should be a map"
   [filename]
-  (with-open [r (io/reader filename)]
-    (binding [*read-eval* false]
-             (read (java.io.PushbackReader. r))))
+  (try
+    (with-open [r (io/reader filename)]
+      (binding [*read-eval* false]
+        (read (java.io.PushbackReader. r))))
+    (catch java.io.FileNotFoundException e
+      (log/warn (str "File: " filename " is missing...."))
+      {})
+    )
   )
 
 (declare settings)

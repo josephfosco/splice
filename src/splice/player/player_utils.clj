@@ -20,7 +20,9 @@
    [splice.melody.pitch :refer [select-random-pitch]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
-                                          get-base-loop-name]]))
+                                          get-base-loop-name]]
+   [splice.util.log :as log]
+   ))
 
 ;; method return values
 (def OK 1)  ;; Method completed normally
@@ -61,7 +63,7 @@
   "Returns an updated player and a melody-event"
   [ensemble player melody player-id event-time]
 
-  (println player-id " PLAYER: " player " MELODY: " melody)
+  (log/data (str player-id) " PLAYER: " (pr-str player) " MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
         [upd-loop-structr melody-event ]
         ((get-melody-fn loop-structr) player
@@ -79,7 +81,7 @@
 
 (defn get-final-rest-event
   [player melody player-id event-time]
-  (println "GETTING FINAL REST EVENT FOR player-id: " player-id)
+  (log/info "GETTING FINAL REST EVENT FOR player-id: " player-id)
   [player (create-rest-event player-id (get-next-melody-event-id melody) event-time)]
   )
 

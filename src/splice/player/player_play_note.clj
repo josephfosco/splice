@@ -139,7 +139,7 @@
              (get-sc-synth-id-from-melody-event prior-melody-event))
       (do
         (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
-        (println "%%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: " player-id " %%%%%%%%")
+        (log/warn "%%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: " player-id " %%%%%%%%")
         (recur player-id
                prior-melody-event-ndx
                (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
@@ -191,7 +191,7 @@
   is sheduled if appropriate and the melody event is updated with note-off=true.
   "
   [event]
-  (println "***** sched-release event: " event)
+  (log/debug "***** sched-release event: " event)
   (if (= (nth (event :args) 4) 0)  ;; 0 means this is a synth
       (let [sc-synth-id (first (event :args))
             melody-event (get @synth-melody-map sc-synth-id)
@@ -264,7 +264,7 @@
       (when (= :new synth-type)  ;; Do not add :prior to synth-map
         (swap! synth-melody-map assoc sc-synth-id full-melody-event))
 
-      (println "play-melody-event: " full-melody-event)
+      (log/info "play-melody-event: " (pr-str full-melody-event))
       full-melody-event
       )
     ))
@@ -275,11 +275,11 @@
   to allow scheduling to start again.
   "
   [player-id]
-  (println "Stopping player-id: " player-id)
+  (log/info "Stopping player-id: " player-id)
   (swap! num-players-stopped inc)
   (if (= @num-players-stopped (get-setting :num-players))
     (do
-      (println "\n\n\n------ ALL PLAYERS STOPPED!")
+      (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
       (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
       (reset! num-players-stopped 0)))
@@ -288,7 +288,7 @@
 (declare sched-next-note)
 (defn play-next-note
   [player-id sched-time]
-  (println "--- start player-id: " player-id "---")
+  (log/info "--- start player-id: " player-id "---")
   (let [event-time sched-time
         play-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
         ;; TODO document why we are clearing messages here
@@ -313,8 +313,8 @@
                                             play-time)
         upd-melody (update-melody-with-event melody upd-melody-event)
         ]
-    (println player-id
-             (get-loop-name player)
+    (log/debug player-id " "
+             (get-loop-name player) " "
              (if (get-freq-from-melody-event upd-melody-event)
                ""
                "REST"))
@@ -326,8 +326,8 @@
         (>!! (get-msg-channel) {:msg :melody-event
                                 :data upd-melody-event
                                 :time (System/currentTimeMillis)})
-        (println "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event))
-        (println "\n\n\n"))
+        (log/debug "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event) "\n\n\n")
+        )
       (do
         (when (> play-time (System/currentTimeMillis))
           ;; This means the last note played might not have started playing, or might

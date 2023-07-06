@@ -3,11 +3,6 @@ Clean up branches
 Make all directory paths relative. Set a base path in settings and concatenate anything
 additional on to this base.
 
-Move settings.clj outside of the src/splice directory
-
-Only print new-density message when density changes. Perhaps have an option to have it
-printed every time it is computed or only when it changes
-
 Set log settings (dir and level) for sc-osc
 
 Be able to pass in a settings file to splice-start that will overwrite/add to settings in
@@ -32,7 +27,9 @@ retrieve the correct release time from the synth
 Should there be a limit to the number of times player_play_note/check_prior_event_note_off
 should be able to recur?
 
+
 -------- STOPPING SPLICE --------
+- Speed up shutdown by finding a way to stop already scheduled supercollider OSC events
 - Create a fade-out function that brings the value of volume-adjust down to 0 over a short
   amount of time
 - Should Supercollider be stopped?
@@ -45,10 +42,39 @@ should be able to recur?
   (event-time, play-time) be effected. Also, since all notes should be stopped, checking
   for prior-note-off should not be done.
 
+
 -------- LONG TERM --------
 
-- Connect mediapipe to supercollider automatically
+--  FEATURES
+
+- Create a way to solo or mute a specific loop number. Perhaps create a function that sets a
+  param in settings that can be checked each time a note is played.
+- Do I need an "active" indicator for each loop, or can this be accomplished with the
+  solo and mute functions. This is to have some loops "inactive" (or maybe muted) to start
+- allow :never to settings.py print-ensemble-density
+- Create a "global multiplier" indicator. This will allow all times to be multiplied by some
+  value (2x, 0.5x etc...). Would this valuable at a loop level so each loop could have its'
+  own multiplier value. Would it be good to have an "ignore global multiplier" setting for
+  each loop so that individual loop would not have its times multiplied? Would it be a good
+  idea to do the same thing with frequency?
+- Have the ability to sync specific events of one or more loops together
+- Ability to specify durations in beats
+- If beats can be specified as dur need to allow global-dur-mult to be set to beats
+
+
+-- ARCHITECTURE
+
+- Can make all instruments use the Env function and have the length of the node set. If
+  instruments are created like this, the program might need to send gote-off messages. Instead,
+  each wnvelope would end on its own after the desired length. Need to check if this could
+  work.
+- Make pan a standard third param for synths
 - Start up supercollider automatically.
+- Make splice a server with an api
+- Connect mediapipe to supercollider automatically
+- Find a way to keep 1 synth playing and have the loop be just changing param(s). Perhaps
+  use a :no-release param to have the synth keep playing. Noeed a way to indicate when
+  to release the synth.
 - Do not make a new synth for every note keep 1 synth and retrigger it
 - Learn how to use buffers for samples
 - Might want to change melody-info to a record and have accessor methods for the attributes
@@ -58,3 +84,7 @@ should be able to recur?
   have functions for clearing vars?
 - Have the ability to load new loop file while playing
 - Ability to control loop file from an external controller (grid controller)
+
+
+-------- MUSIC --------
+- Have a loop (or part of a loop) with a descending bass line in long tones.
