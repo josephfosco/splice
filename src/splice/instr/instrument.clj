@@ -72,6 +72,12 @@
                        :range-lo 20
                        :range-hi 40
                        :note-off false}
+                      :kalimba
+                      {:instrument "kalimba"
+                       :envelope-type "AR"
+                       :range-lo 35
+                       :range-hi 101
+                       :note-off false}
                       :rhodes-piano
                       {:instrument "rhodes-piano"
                        :envelope-type "ADSR"
