@@ -29,10 +29,10 @@ SynthDef('rhodes-piano', {
     lfoSpeed = lfoSpeed * 12;
     freq = freq * 2;
 
-    env1 = EnvGen.ar(Env.adsr(0.001, 1.25, 0.0, 0.04, curve: \lin));
-    env2 = EnvGen.ar(Env.adsr(0.001, 1.00, 0.0, 0.04, curve: \lin));
-    env3 = EnvGen.ar(Env.adsr(0.001, 1.50, 0.0, 0.04, curve: \lin));
-    env4 = EnvGen.ar(Env.adsr(0.001, 1.50, 0.0, 0.04, curve: \lin));
+    env1 = EnvGen.ar(Env.adsr(0.001, 3.25, 0.0, 0.04, curve: \lin));
+    env2 = EnvGen.ar(Env.adsr(0.001, 3.00, 0.0, 0.04, curve: \lin));
+    env3 = EnvGen.ar(Env.adsr(0.001, 3.50, 0.0, 0.04, curve: \lin));
+    env4 = EnvGen.ar(Env.adsr(0.001, 3.50, 0.0, 0.04, curve: \lin));
 
     osc4 = SinOsc.ar(freq * 0.5) * 2pi * 2 * 0.535887 * modIndex * env4 * vel;
     osc3 = SinOsc.ar(freq, osc4) * env3 * vel;
@@ -43,13 +43,12 @@ SynthDef('rhodes-piano', {
 
     // using the doneAction: 2 on the other envs can create clicks
 	// (bc of the linear curve maybe?)
-    snd = snd * EnvGen.ar(Env.asr(0, 1, 0.1), gate, doneAction: 2);
+    snd = snd * EnvGen.ar(Env.asr(0, 3, 0.1), gate, doneAction: 2);
 	snd = Pan2.ar(snd, pan, (vol * 0.7));
 
     Out.ar(out, snd);
 }).add;
 )
-
 a=Synth("rhodes-piano", [\freq, 440, \vel, 0.2])
 a.set("gate", 0)
 
