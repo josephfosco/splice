@@ -307,6 +307,20 @@
 
 (defn quit-splice
   []
+  ;; The way splice-stop works at this point is
+  ;; - this module registers a :player-scheduling-stopped event here
+  ;; - then this modules fires a :stop-player-scheduling event.
+  ;; - player/player-play-note.clj has registered to receive the :player-stop-scheduling
+  ;;   event, and when it receives the event it stops scheduling new notes/events for
+  ;;   all players.
+  ;; - When all players have been stopped, player/player-play-note.clj fires a
+  ;; - :player-scheduling-stopped event
+  ;; - the :player-scheduling-stopped event is picked up in this module and calls
+  ;;   the function reset-splice.
+  ;; - reset-splice fires a :reset event
+  ;; - modules have registered to receive the :reset event in order to shut down or
+  ;;   reset themselves.
+
   ;; Wait for player scheduling to stop before resetting the rest of the app
   (reset! splice-status ::stopping)
   (sc-oneshot-sync-event :player-scheduling-stopped reset-splice (sc-uuid))

@@ -282,7 +282,11 @@
       (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
       (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
-      (reset! num-players-stopped 0)))
+      (reset! num-players-stopped 0))
+    (log/info @num-players-stopped
+              " out of "
+              (get-setting :num-players)
+              " players stopped" ))
   )
 
 (declare sched-next-note)

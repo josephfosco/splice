@@ -31,7 +31,8 @@ should be able to recur?
 -------- BUGS/ERRORS --------
 - If splice-stop occurs while checking the prior event note off, it can enter an infinite
 recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
-- if splice-stop is run when splice is not playing, splice cannot start again
+- If splice-stop is run when splice is not playing, splice cannot start again
+- There seem to be clicks or static in the rhodes-piano.sc instruments
 
 -------- STOPPING SPLICE --------
 - Speed up shutdown by finding a way to stop already scheduled supercollider OSC events

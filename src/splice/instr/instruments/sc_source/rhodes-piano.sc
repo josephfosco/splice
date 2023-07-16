@@ -44,7 +44,7 @@ SynthDef('rhodes-piano', {
     // using the doneAction: 2 on the other envs can create clicks
 	// (bc of the linear curve maybe?)
     snd = snd * EnvGen.ar(Env.asr(0, 3, 0.1), gate, doneAction: 2);
-	snd = Pan2.ar(snd, pan, (vol * 0.7));
+	snd = Pan2.ar(snd, pan, (vol * 0.2));
 
     Out.ar(out, snd);
 }).add;
