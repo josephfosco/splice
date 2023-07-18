@@ -81,7 +81,6 @@
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
   (log/info "stopping player scheduling....")
-  (sc-remove-event-handler ::go-key)
   (reset! is-scheduling? false)
   )
 
@@ -280,6 +279,9 @@
   (if (= @num-players-stopped (get-setting :num-players))
     (do
       (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
+      ;; remove the ::go-key handler after all players have stopped
+      ;; to make certain we do not miss sending any gate-off events
+      (sc-remove-event-handler ::go-key)
       (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
       (reset! num-players-stopped 0))
