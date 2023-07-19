@@ -27,7 +27,6 @@
                    scale
                    mm
                    instrument-info
-                   can-schedule? ;; is not waiting for msg(s)
                    ])
 
 (defn build-loop-structr
@@ -58,6 +57,5 @@
            nil  ;; scale
            nil  ;; mm
            (get-instrument (:instrument-name loop-settings))
-           true ;; can-schedule?
            )
   )

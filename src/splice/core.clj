@@ -19,7 +19,7 @@
    [sc-osc.sc :refer [sc-connect sc-connection-status sc-debug]]
    ;; [splice.control :refer [clear-splice pause-splice quit-splice
    ;;                         start-splice ]]
-   [splice.control :refer [quit-splice start-splice ]]
+   [splice.control :refer [pause-splice quit-splice start-splice ]]
    [splice.util.log :as log]
    [splice.util.settings :refer [get-setting load-settings set-setting!]]
    [splice.version :refer [SPLICE-VERSION-STR]]
@@ -70,10 +70,10 @@
   (quit-splice))
 
 (defn splice-pause
-  "Stop playing after players finish what they have scheduled"
+  "Stop playing after players finish what they have scheduled
+   all structure and supercollider instruments are not removed"
   []
-  ;; (pause-splice)
-  (throw (Throwable. "COMMENTED OUT CODE in splice.core/splice-pause"))
+  (pause-splice)
 
 )
 

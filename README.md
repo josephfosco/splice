@@ -20,8 +20,7 @@ When cloning this repo, if you use git clone --recurse-submodules <repository> g
 - Go to the qjackctl window and connect output 1 and 2 from the "Overtone" component/server to
   the input 1 and 2 of the computer speakers
 - In another Terminal window in the splice directory type `clj` to bring up the Clojure repl
-- In the clojure repl at the user=> prompt type`clj`
-- at the splice.core=> prompt type `(splice-start)`
+- In the clojure repl at the user=> prompt type`(splice-start)`
 - To stop, in the clojure window type `(splice-stop)`
  
 ### To run this form emacs using cider: - not certain if this is still accurate

@@ -298,7 +298,8 @@
 
 (defn pause-splice
   []
-  (log/warn "*** pause-splice not implemented ***")
+  "Stop player scheduling everything else remains active"
+  (sc-event :stop-player-scheduling)
   )
 
 (defn reset-splice
