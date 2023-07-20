@@ -87,13 +87,15 @@
   ;; Throw an error if the pitch-freq or pitch-midi-note is nil or missing when pitch :type
   ;; is not :rest
   ;; TODO This validation should occur when the loop file is loaded possibly in control/validate-player-settings
+  (when (= (:type pitch-info) nil)
+    (throw (Throwable. (str "Missing :pitch-type")))
+    )
   (if (and (not= (:type pitch-info) :rest)
            (nil? (:pitch-freq pitch-info))
            (nil? (:pitch-midi-note pitch-info))
            (nil? (:pitches pitch-info)))
     (throw (Throwable. (str "Missing :pitch-freq, :pitch-midi-note or :pitches when "
                             ":pitch-type is :fixed or :variable")))
-
     )
   (condp = (:type pitch-info)
     :fixed (or (:pitch-freq pitch-info)

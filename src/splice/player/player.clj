@@ -16,6 +16,7 @@
 (ns splice.player.player
   (:require
    [splice.player.loops.loop :refer [create-loop]]
+   [splice.player.loops.multiplying-loop :refer [create-multiplying-loop]]
    [splice.instr.instrument :refer [get-instrument]]
    [splice.util.log :as log]
    )
@@ -36,6 +37,13 @@
                      :melody-info (:melody-info loop-settings)
                      :next-melody-event-ndx 0
                      )
+
+        (= (:loop-type loop-settings) :multiplying-loop)
+        (create-loop :name (:name loop-settings)
+                     :melody-info (:melody-info loop-settings)
+                     :next-melody-event-ndx 0
+                     )
+
         (= (:loop-type loop-settings) nil)
         (throw (Throwable. (str ":loop-type missing")))
         :else
