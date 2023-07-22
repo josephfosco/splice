@@ -1,8 +1,9 @@
-{:min-start-offset 1
- :max-start-offset 24
+{
+ ;; :min-start-offset 1
+ ;; :max-start-offset 24
 
- :main-bus-effects
- {:reverb (:wet-dry 0.9 :room-size 1.0)}
+ ;; :main-bus-effects
+ ;; {:reverb (:wet-dry 0.9 :room-size 1.0)}
 
  :loops
  [
@@ -99,7 +100,7 @@
   ;;  }
 
   {:name "strings-1"
-   :loop-type :multiply-loop
+   :loop-type :multiplying-loop
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed-pitch

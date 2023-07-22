@@ -15,12 +15,15 @@
 
 (ns splice.player.loops.multiplying-loop
   (:require
+   [splice.player.loops.base-loop :refer [LoopType]]
    [splice.player.loops.loop :refer [create-loop get-next-melody]])
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops
                             loop
-                            ])
+                            ]
+  LoopType
+  )
 
 (defn get-next-mult-melody
   [player melody loop-structr next-id event-time]

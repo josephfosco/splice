@@ -32,26 +32,24 @@
 
 (defn build-loop-structr
   [loop-settings]
-  (cond (= (:loop-type loop-settings) :loop)
-        (create-loop :name (:name loop-settings)
-                     :melody-info (:melody-info loop-settings)
-                     :next-melody-event-ndx 0
-                     )
+  (condp = (:loop-type loop-settings)
+    :loop (create-loop :name (:name loop-settings)
+                       :melody-info (:melody-info loop-settings)
+                       :next-melody-event-ndx 0
+                       )
 
-        (= (:loop-type loop-settings) :multiplying-loop)
-        (create-loop :name (:name loop-settings)
-                     :melody-info (:melody-info loop-settings)
-                     :next-melody-event-ndx 0
-                     )
+    :multiplying-loop (create-multiplying-loop
+                       :name (:name loop-settings)
+                       :melody-info (:melody-info loop-settings)
+                       :next-melody-event-ndx 0
+                       )
 
-        (= (:loop-type loop-settings) nil)
-        (throw (Throwable. (str ":loop-type missing")))
-        :else
-        (do
-          (throw (Throwable. (str "Invalid :loop-type "
-                                  (:loop-type loop-settings))))
-          )
-        )
+    nil (throw (Throwable. (str ":loop-type missing")))
+    (do
+      (throw (Throwable. (str "Invalid :loop-type "
+                              (:loop-type loop-settings))))
+      )
+    )
   )
 
 (defn create-player

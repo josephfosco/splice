@@ -1,4 +1,4 @@
-;    Copyright (C) 2018-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -24,11 +24,15 @@
 
 (def ^:private  global-dur-mult-millis (atom nil))
 
+(defprotocol LoopType)
+
 (defn init-base-loop
   []
   (reset! global-dur-mult-millis nil))
 
-(defrecord BaseLoop [name next-melody-fn])
+(defrecord BaseLoop [name next-melody-fn]
+  LoopType
+  )
 
 (defn create-base-loop
   [& {:keys [name next-melody-fn]}]
@@ -43,8 +47,33 @@
 
 (defn get-melody-fn
   [loop-structr]
-  (:next-melody-fn (:base-loop loop-structr))
- )
+  (println "get-loop-fn: " (type loop-structr) loop-structr)
+  ;; (:next-melody-fn (:base-loop loop-structr))
+  (cond
+    (contains? loop-structr :next-melody-fn) (:next-melody-fn loop-structr)
+
+    ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
+    ;; recurse through it
+    (satisfies? LoopType loop-structr)
+    (some #(get-melody-fn %) (filter record? (vals loop-structr)))
+
+    :else nil)
+  )
+
+(defn get-loop-param
+  [loop-structr param]
+  (println "get-loop-param " (type loop-structr) loop-structr)
+  ;; (:next-melody-fn (:base-loop loop-structr))
+  (cond
+    (contains? loop-structr param) (param loop-structr)
+
+    ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
+    ;; recurse through it
+    (satisfies? LoopType loop-structr)
+    (some #(get-loop-param % param) (filter record? (vals loop-structr)))
+
+    :else nil)
+  )
 
 (defn get-global-dur-mult-millis
   []
