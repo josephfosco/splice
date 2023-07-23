@@ -19,7 +19,6 @@
    [splice.melody.melody-event :refer [create-melody-event]]
    [splice.player.loops.base-loop :refer [LoopType
                                           create-base-loop
-                                          get-loop-param
                                           get-loop-dur-info
                                           get-loop-pitch
                                           get-loop-volume
@@ -54,30 +53,31 @@
   ;; ndx, otherwise it will continue trying with the next ndx until it finds the event
   ;; ndx it should play. If there is no play-prob for the event, it will rutrun the next
   ;; event ndx.
-  (let [melody-info (get-loop-param loop-structr :melody-info)]
-    (first
-     (take 1
-           (for [ndx (iterate
-                      #(mod (inc %1)
-                            (count melody-info)) start-ndx)
-                 :when (let [play-prob (:play-prob (melody-info ndx))]
-                         (println ndx)
-                         (if play-prob
-                           (play-event? play-prob)
-                           ndx
-                           ))
-                 ]
-             ndx)
-           )))
-)
+  (println "get-next-loop-event-ndx start-ndx: " start-ndx)
+  (println "get-next-loop-event-ndx loop-structr: " loop-structr)
+  (first
+   (take 1
+         (for [ndx (iterate
+                    #(mod (inc %1)
+                          (count (:melody-info loop-structr))) start-ndx)
+               :when (let [play-prob (:play-prob ((:melody-info loop-structr) ndx))]
+                       (println ndx)
+                       (if play-prob
+                         (play-event? play-prob)
+                         ndx
+                         ))
+               ]
+           ndx)
+         ))
+  )
 
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
-  a new melody-event"
+  a new melody-event. loop-structr must be a Loop record."
   [player melody loop-structr next-id event-time]
   (let [melody-ndx (get-next-loop-event-ndx loop-structr
-                                            (get-loop-param loop-structr :next-melody-event-ndx))
-        melody-info ((get-loop-param loop-structr :melody-info) melody-ndx)
+                                            (:next-melody-event-ndx loop-structr))
+        melody-info ((:melody-info loop-structr) melody-ndx)
         instrument-info (get-player-instrument-info player)
         ;; frequency can be nil when pitch-type is variable and one or more entries in
         ;; the pitch vector is nil, and the nil value is chosen
@@ -85,7 +85,6 @@
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
                         true
                         nil)
-        pmel (println "get-next-melody melody-info: " melody-info)
         melody-event (create-melody-event
                       :melody-event-id next-id
                       :freq frequency

@@ -222,7 +222,6 @@
 
 (defn play-note-new-instrument
   [melody-event play-time]
-  (println "play-note-new-instrument melody-event: " melody-event)
   (let [sc-synth-id (sc-next-id :node)]
     ;; Need to use apply here to unpack the args from get-instrument-settings-from-melody-event
     (sc-send-bundle play-time

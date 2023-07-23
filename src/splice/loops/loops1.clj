@@ -108,7 +108,8 @@
            :min-millis 7000
            :max-millis 13500
            }
-     :volume 0.2
+     :volume {:type fixed
+              :level 0.2}
      :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch {:type :fixed-pitch

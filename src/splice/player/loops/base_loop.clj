@@ -47,8 +47,6 @@
 
 (defn get-loop-param
   [loop-structr param]
-  (println "get-loop-param " (type loop-structr) loop-structr)
-  ;; (:next-melody-fn (:base-loop loop-structr))
   (cond
     (contains? loop-structr param) (param loop-structr)
 

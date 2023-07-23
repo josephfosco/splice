@@ -27,7 +27,18 @@
 
 (defn get-next-mult-melody
   [player melody loop-structr next-id event-time]
-  (get-next-melody player melody (:core-loop loop-structr) next-id event-time)
+  (let [[upd-core-loop-structr melody-event]
+        ;; Since here core-loop is a Loop record and get-next-melody is in loop.clj,
+        ;; just core-loop to get-next-melody
+        (get-next-melody player melody (:core-loop loop-structr) next-id event-time)]
+
+    ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
+    ;; record. This is placed in the core-loop of this multiplying-loop
+    [
+     (assoc loop-structr :core-loop upd-core-loop-structr)
+     melody-event
+     ]
+    )
   )
 
 (defn create-multiplying-loop

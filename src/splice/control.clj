@@ -239,7 +239,7 @@
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
   [min-start-offset max-start-offset]
-  (log/info "********** Start-playing ****************")
+  (log/info "********** start-playing ****************")
   (dotimes [id (get-setting :num-players)]
     (play-first-note id min-start-offset max-start-offset))
   )
