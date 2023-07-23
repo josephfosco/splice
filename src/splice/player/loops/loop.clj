@@ -31,7 +31,7 @@
 
 (defrecord Loop [melody-info
                  next-melody-event-ndx
-                 base-loop
+                 core-loop
                  ]
   LoopType
   )
@@ -85,6 +85,7 @@
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
                         true
                         nil)
+        pmel (println "get-next-melody melody-info: " melody-info)
         melody-event (create-melody-event
                       :melody-event-id next-id
                       :freq frequency

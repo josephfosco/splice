@@ -20,14 +20,14 @@
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops
-                            loop
+                            core-loop
                             ]
   LoopType
   )
 
 (defn get-next-mult-melody
   [player melody loop-structr next-id event-time]
-  (get-next-melody player melody loop-structr next-id event-time)
+  (get-next-melody player melody (:core-loop loop-structr) next-id event-time)
   )
 
 (defn create-multiplying-loop

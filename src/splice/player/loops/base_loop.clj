@@ -45,21 +45,6 @@
   (:name (:base-loop loop-structr))
   )
 
-(defn get-melody-fn
-  [loop-structr]
-  (println "get-loop-fn: " (type loop-structr) loop-structr)
-  ;; (:next-melody-fn (:base-loop loop-structr))
-  (cond
-    (contains? loop-structr :next-melody-fn) (:next-melody-fn loop-structr)
-
-    ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
-    ;; recurse through it
-    (satisfies? LoopType loop-structr)
-    (some #(get-melody-fn %) (filter record? (vals loop-structr)))
-
-    :else nil)
-  )
-
 (defn get-loop-param
   [loop-structr param]
   (println "get-loop-param " (type loop-structr) loop-structr)
@@ -69,10 +54,28 @@
 
     ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
     ;; recurse through it
+    ;; TODO this will not necessarily work if any it the loop-structr contains more
+    ;;      than 1 LoopType
     (satisfies? LoopType loop-structr)
     (some #(get-loop-param % param) (filter record? (vals loop-structr)))
 
     :else nil)
+  )
+
+(defn get-melody-fn
+  [loop-structr]
+  (get-loop-param loop-structr :next-melody-fn)
+  ;; (println "get-loop-fn: " (type loop-structr) loop-structr)
+  ;; ;; (:next-melody-fn (:base-loop loop-structr))
+  ;; (cond
+  ;;   (contains? loop-structr :next-melody-fn) (:next-melody-fn loop-structr)
+
+  ;;   ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
+  ;;   ;; recurse through it
+  ;;   (satisfies? LoopType loop-structr)
+  ;;   (some #(get-melody-fn %) (filter record? (vals loop-structr)))
+
+  ;;   :else nil)
   )
 
 (defn get-global-dur-mult-millis

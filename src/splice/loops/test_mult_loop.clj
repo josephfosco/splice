@@ -103,7 +103,7 @@
    :loop-type :multiplying-loop
    :instrument-name :string-sect
    :melody-info
-   [{:pitch {:type :fixed-pitch
+   [{:pitch {:type :fixed
              :pitch-midi-note 69}
      :dur {:type :variable-millis
            :min-millis 7000
@@ -112,8 +112,7 @@
      :volume 0.2
      :instrument-settings (:attack 4.0 :release 3.0)
      }
-    {:pitch {:type :fixed-pitch
-             :pitch-freq nil}
+    {:pitch {:type :rest}
      :dur {:type :fixed
            :dur-millis 14000}
      }
