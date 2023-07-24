@@ -42,6 +42,7 @@
                        :name (:name loop-settings)
                        :melody-info (:melody-info loop-settings)
                        :next-melody-event-ndx 0
+                       :max-num-mult-loops (:max-num-mult-loops loop-settings)
                        )
 
     nil (throw (Throwable. (str ":loop-type missing")))

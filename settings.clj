@@ -14,7 +14,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-{:log-level :debug
+{:log-level :data
  ;; ensemble density is printed as a info level log msg
  ;; print-ensemble-density manages when the ensemble density is logged
  ;;  :always     - prints ensemble density eachtime it is calculated

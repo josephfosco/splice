@@ -10,6 +10,7 @@
 
   {:name "strings-1"
    :loop-type :multiplying-loop
+   :max-num-mult-loops 4
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :fixed
@@ -24,7 +25,7 @@
      }
     {:pitch {:type :rest}
      :dur {:type :fixed
-           :dur-millis 2000}
+           :dur-millis 4000}
      }
     ]
    }

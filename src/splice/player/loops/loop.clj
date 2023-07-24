@@ -42,7 +42,12 @@
     false)
   )
 
-(defn get-next-loop-event-ndx
+(defn get-next-melody-event-ndx
+  [loop-structr]
+  (:next-melody-event-ndx loop-structr)
+  )
+
+(defn compute-next-melody-event-ndx
   "Returns the next loop-event index to use starting at start-ndx
    checks each loop-events :play-prob (play probability) if it exists
   "
@@ -53,8 +58,6 @@
   ;; ndx, otherwise it will continue trying with the next ndx until it finds the event
   ;; ndx it should play. If there is no play-prob for the event, it will rutrun the next
   ;; event ndx.
-  (println "get-next-loop-event-ndx start-ndx: " start-ndx)
-  (println "get-next-loop-event-ndx loop-structr: " loop-structr)
   (first
    (take 1
          (for [ndx (iterate
@@ -75,7 +78,7 @@
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event. loop-structr must be a Loop record."
   [player melody loop-structr next-id event-time]
-  (let [melody-ndx (get-next-loop-event-ndx loop-structr
+  (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                             (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
         instrument-info (get-player-instrument-info player)

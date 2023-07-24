@@ -49,6 +49,7 @@
                             :loop-type
                             :melody-info
                             :name
+                            :max-num-mult-loops
                             )))
 
 (defn remove-synths-effects-busses
@@ -101,12 +102,13 @@
 
 (defn validate-loop-keys
   [loop-settings]
+  ;; TODO validate loop keys based on type of loop
   (flatten
    (for [loop loop-settings]
      (let [loop-keys (keys loop)]
        (for [loop-key loop-keys
              :when (not (contains? valid-loop-keys loop-key))]
-         (str "Invalid loop key " loop-key " in player-settings")
+         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
          )
        )
      ))

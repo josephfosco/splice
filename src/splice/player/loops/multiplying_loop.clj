@@ -16,10 +16,12 @@
 (ns splice.player.loops.multiplying-loop
   (:require
    [splice.player.loops.base-loop :refer [LoopType]]
-   [splice.player.loops.loop :refer [create-loop get-next-melody]])
+   [splice.player.loops.loop :refer [create-loop get-next-melody-event-ndx get-next-melody]])
   )
 
-(defrecord MultiplyingLoop [max-num-mult-loops
+(defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
+                            original-loop?  ;; true - first loop, false - loop copy
+                            loop-repitition ;; number of this repetition (1 - n) nil for copy
                             core-loop
                             ]
   LoopType
@@ -30,21 +32,39 @@
   (let [[upd-core-loop-structr melody-event]
         ;; Since here core-loop is a Loop record and get-next-melody is in loop.clj,
         ;; just core-loop to get-next-melody
-        (get-next-melody player melody (:core-loop loop-structr) next-id event-time)]
+        (get-next-melody player melody (:core-loop loop-structr) next-id event-time)
+        loop-rep (if (and (:original-loop? loop-structr)
+                          (= (get-next-melody-event-ndx upd-core-loop-structr) 0))
+                   (inc (:loop-repitition loop-structr))
+                   (:loop-repitition loop-structr)
+                   )
+        upd-loop-structr (assoc loop-structr
+                                :core-loop upd-core-loop-structr
+                                :loop-repitition loop-rep
+                                )
+
+        ]
 
     ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
     ;; record. This is placed in the core-loop of this multiplying-loop
     [
-     (assoc loop-structr :core-loop upd-core-loop-structr)
+     upd-loop-structr
      melody-event
      ]
     )
   )
 
 (defn create-multiplying-loop
-  [& {:keys [name melody-info next-melody-event-ndx next-melody-fn max-num-mult-loops]
-      :or {next-melody-fn get-next-mult-melody}}]
+  [& {:keys [name
+             melody-info
+             next-melody-event-ndx
+             next-melody-fn
+             max-num-mult-loops
+             ]
+      :or {next-melody-fn get-next-mult-melody max-num-mult-loops nil}}]
   (MultiplyingLoop. max-num-mult-loops
+                    (if max-num-mult-loops true false)
+                    (if max-num-mult-loops 1 nil)
                     (create-loop :name name
                                  :melody-info melody-info
                                  :next-melody-event-ndx next-melody-event-ndx
