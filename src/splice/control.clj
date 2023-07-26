@@ -38,7 +38,7 @@
    [splice.util.log :as log]
    [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
-   [splice.util.util :refer [close-msg-channel start-msg-channel]]
+   [splice.util.util :refer [close-msg-channel compute-volume-adjust start-msg-channel]]
   ))
 
 (def ^:private splice-status (atom ::stopped))
@@ -141,7 +141,7 @@
         (throw (Throwable. "Validation error(s) in player loops"))
         )
       (doall (map new-player
-                  (range (get-setting :num-players))
+                  (range (get-setting :number-of-players))
                   (:loops player-settings)))
       ))
  )
@@ -242,7 +242,7 @@
   "calls play-note the first time for every player in ensemble"
   [min-start-offset max-start-offset]
   (log/info "********** start-playing ****************")
-  (dotimes [id (get-setting :num-players)]
+  (dotimes [id (get-setting :number-of-players)]
     (play-first-note id min-start-offset max-start-offset))
   )
 
@@ -274,7 +274,7 @@
       (reserve-root-node-val)
       (init-control)
       (let [player-settings (load-settings loops)
-            number-of-players (set-setting! :num-players
+            number-of-players (set-setting! :number-of-players
                                             (count (:loops player-settings)))
             initial-players (init-players player-settings)
             init-melodies (map init-melody (range number-of-players))
@@ -284,7 +284,7 @@
         (load-sc-synthdefs (:loops player-settings))
         (if-let [effects (get player-settings :main-bus-effects)]
           (init-main-bus-effects effects))
-        (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+        (set-setting! :volume-adjust (compute-volume-adjust number-of-players))
         (init-splice initial-players init-melodies init-msgs)
         (start-playing (or (:min-start-offset player-settings) 0)
                        (or (:max-start-offset player-settings) 0))

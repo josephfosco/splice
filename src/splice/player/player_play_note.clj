@@ -277,7 +277,7 @@
   [player-id]
   (log/info "Stopping player-id: " player-id)
   (swap! num-players-stopped inc)
-  (if (= @num-players-stopped (get-setting :num-players))
+  (if (= @num-players-stopped (get-setting :number-of-players))
     (do
       (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
       ;; remove the ::go-key handler AFTER ALL players have stopped
@@ -288,7 +288,7 @@
       (reset! num-players-stopped 0))
     (log/info @num-players-stopped
               " out of "
-              (get-setting :num-players)
+              (get-setting :number-of-players)
               " players stopped" ))
   )
 

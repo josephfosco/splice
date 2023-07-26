@@ -16,7 +16,10 @@
 (ns splice.player.loops.multiplying-loop
   (:require
    [splice.player.loops.base-loop :refer [LoopType]]
-   [splice.player.loops.loop :refer [create-loop get-next-melody-event-ndx get-next-melody]])
+   [splice.player.loops.loop :refer [create-loop get-next-melody-event-ndx get-next-melody]]
+   [splice.util.log :as log]
+   [splice.util.settings :refer [update-settings!]]
+   [splice.util.util :refer [compute-volume-adjust]])
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
@@ -27,14 +30,63 @@
   LoopType
   )
 
+(defn add-player-to-settings
+  [settings]
+  (log/data "add-player-to-settings settings: " settings)
+  (let [new-num-players (inc (:number-of-players settings))
+        new-vol-adjust (compute-volume-adjust new-num-players)
+        ]
+    (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
+    )
+  )
+
+(defn build-loop-structr
+  [loop]
+  ;; Building a Loop record structure here because the loop we are creating will not
+  ;; multiply. Only the original loop will multiply
+
+   [
+
+  ;; {:name "strings-1"
+   :loop-type :loop
+  ;;  :instrument-name :string-sect
+  ;;  :melody-info
+  ;;  [{:pitch {:type :fixed
+  ;;            :pitch-midi-note 69}
+  ;;    :dur {:type :variable-millis
+  ;;          :min-millis 2000
+  ;;          :max-millis 3000
+  ;;          }
+  ;;    :volume {:type :fixed
+  ;;             :level 0.2}
+  ;;    :instrument-settings ("attack" 0.5 "release" 0.5)
+  ;;    }
+  ;;   {:pitch {:type :rest}
+  ;;    :dur {:type :fixed
+  ;;          :dur-millis 4000}
+  ;;    }
+  ;;   ]
+  ;;  }
+
+  ]
+
+  )
+
+(defn create-new-player
+  [player loop]
+  (update-settings! add-player-to-settings)
+  )
+
 (defn get-next-mult-melody
   [player melody loop-structr next-id event-time]
   (let [[upd-core-loop-structr melody-event]
         ;; Since here core-loop is a Loop record and get-next-melody is in loop.clj,
         ;; just core-loop to get-next-melody
         (get-next-melody player melody (:core-loop loop-structr) next-id event-time)
+        ;; this melody-event is the start of the loop melody if the next-melody-event-ndx is 1
+        begining-of-loop (= (get-next-melody-event-ndx upd-core-loop-structr) 1)
         loop-rep (if (and (:original-loop? loop-structr)
-                          (= (get-next-melody-event-ndx upd-core-loop-structr) 0))
+                          begining-of-loop)
                    (inc (:loop-repitition loop-structr))
                    (:loop-repitition loop-structr)
                    )
@@ -44,6 +96,9 @@
                                 )
 
         ]
+    (when begining-of-loop
+      (create-new-player player upd-loop-structr)
+      )
 
     ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
     ;; record. This is placed in the core-loop of this multiplying-loop
@@ -69,5 +124,5 @@
                                  :melody-info melody-info
                                  :next-melody-event-ndx next-melody-event-ndx
                                  :next-melody-fn next-melody-fn)
-         )
+                    )
   )

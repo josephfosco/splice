@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -35,6 +35,11 @@
   (into (subvec vctr 0 ndx) (subvec vctr (inc ndx)))
   )
 
+(defn compute-volume-adjust
+  [num-players]
+  (min (/ 32 num-players) 1)
+  )
+
 (defn get-msg-channel
   []
   @msgs-in-channel
@@ -65,6 +70,6 @@
 (defn start-msg-channel
   []
   (sc-oneshot-sync-event :reset close-msg-channel (sc-uuid))
-  (reset! msgs-in-channel (chan (* 2 (get-setting :num-players))))
+  (reset! msgs-in-channel (chan (* 2 (get-setting :number-of-players))))
   (reset! msgs-pub (pub @msgs-in-channel :msg))
   )

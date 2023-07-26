@@ -128,7 +128,7 @@
                                                     from-time
                                                     cur-time))
         ]
-    (/ total-note-time (* STATUS-UPDATE-MILLIS (get-setting :num-players)))
+    (/ total-note-time (* STATUS-UPDATE-MILLIS (get-setting :number-of-players)))
     )
  )
 
@@ -185,7 +185,7 @@
         (update-ensemble-status)
         (recur))))
 
-  (def status-out-channel (chan (* 2 (get-setting :num-players))))
+  (def status-out-channel (chan (* 2 (get-setting :number-of-players))))
   (sub (get-msg-pub) :melody-event status-out-channel)
   (go-loop [full-msg (<! status-out-channel)]
     (when full-msg
