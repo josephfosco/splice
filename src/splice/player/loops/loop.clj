@@ -33,6 +33,12 @@
                  core-loop
                  ]
   LoopType
+  (get-name [loop] (get-name (:core-loop loop)))
+  )
+
+(defn get-melody-info
+  [loop]
+  (:melody-info loop)
   )
 
 (defn play-event?

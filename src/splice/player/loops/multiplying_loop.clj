@@ -16,10 +16,15 @@
 (ns splice.player.loops.multiplying-loop
   (:require
    [splice.player.loops.base-loop :refer [LoopType]]
-   [splice.player.loops.loop :refer [create-loop get-next-melody-event-ndx get-next-melody]]
+   [splice.player.loops.loop :refer [create-loop
+                                     get-melody-info
+                                     get-next-melody-event-ndx
+                                     get-next-melody
+                                     ]]
    [splice.util.log :as log]
    [splice.util.settings :refer [update-settings!]]
-   [splice.util.util :refer [compute-volume-adjust]])
+   [splice.util.util :refer [compute-volume-adjust]]
+   )
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
@@ -28,6 +33,7 @@
                             core-loop
                             ]
   LoopType
+  (get-name [loop] (LoopType/get-name (:core-loop loop)))
   )
 
 (defn add-player-to-settings
@@ -41,35 +47,16 @@
   )
 
 (defn build-loop-structr
-  [loop]
+  [loop instrument-name]
   ;; Building a Loop record structure here because the loop we are creating will not
   ;; multiply. Only the original loop will multiply
 
-   [
-
-  ;; {:name "strings-1"
-   :loop-type :loop
-  ;;  :instrument-name :string-sect
-  ;;  :melody-info
-  ;;  [{:pitch {:type :fixed
-  ;;            :pitch-midi-note 69}
-  ;;    :dur {:type :variable-millis
-  ;;          :min-millis 2000
-  ;;          :max-millis 3000
-  ;;          }
-  ;;    :volume {:type :fixed
-  ;;             :level 0.2}
-  ;;    :instrument-settings ("attack" 0.5 "release" 0.5)
-  ;;    }
-  ;;   {:pitch {:type :rest}
-  ;;    :dur {:type :fixed
-  ;;          :dur-millis 4000}
-  ;;    }
-  ;;   ]
-  ;;  }
-
-  ]
-
+  (let [loop-record (:core-loop loop)]
+    {:name (get-name loop-record)
+     :loop-type :loop
+     :instrument-name instrument-name
+     :melody-info (get-melody-info loop-record)
+     })
   )
 
 (defn create-new-player

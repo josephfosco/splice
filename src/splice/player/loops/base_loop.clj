@@ -24,15 +24,18 @@
 
 (def ^:private  global-dur-mult-millis (atom nil))
 
-(defprotocol LoopType)
+(defprotocol LoopType
+  (get-name [loop])
+  )
+
+(defrecord BaseLoop [name next-melody-fn]
+  LoopType
+  (get-name [loop] (:name loop))
+  )
 
 (defn init-base-loop
   []
   (reset! global-dur-mult-millis nil))
-
-(defrecord BaseLoop [name next-melody-fn]
-  LoopType
-  )
 
 (defn create-base-loop
   [& {:keys [name next-melody-fn]}]
