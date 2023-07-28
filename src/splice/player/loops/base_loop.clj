@@ -19,14 +19,11 @@
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
+   [splice.player.loops.looptype :refer [LoopType]]
    )
   )
 
 (def ^:private  global-dur-mult-millis (atom nil))
-
-(defprotocol LoopType
-  (get-name [loop])
-  )
 
 (defrecord BaseLoop [name next-melody-fn]
   LoopType

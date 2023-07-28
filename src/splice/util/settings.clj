@@ -51,8 +51,8 @@
   )
 
 (defn update-settings!
-  [fn]
-  (swap! settings fn)
+  [fn & args]
+  (swap! settings fn args)
   (log/data "settings.clj update-settings! settings: " @settings)
   )
 

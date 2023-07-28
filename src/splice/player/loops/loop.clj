@@ -17,12 +17,12 @@
   (:require
    [splice.instr.instrumentinfo :refer [get-note-off-from-instrument-info]]
    [splice.melody.melody-event :refer [create-melody-event]]
-   [splice.player.loops.base-loop :refer [LoopType
-                                          create-base-loop
+   [splice.player.loops.base-loop :refer [create-base-loop
                                           get-loop-dur-info
                                           get-loop-pitch
                                           get-loop-volume
                                           ]]
+   [splice.player.loops.looptype :refer [LoopType get-name]]
    [splice.player.player-utils :refer [get-player-id
                                        get-player-instrument-info]]
    )
