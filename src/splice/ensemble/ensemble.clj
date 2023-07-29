@@ -52,10 +52,17 @@
 
 (defn player-and-melody-update
   [ens player melody player-id]
-  (assoc ens
-         :players (assoc (:players ens) player-id player)
-         :melodies (assoc (:melodies ens) player-id melody)
-         )
+  ;; adds new player and melody it player-id is = number of players otherwise
+  ;; it replaces the player and melody at the index of player-id
+  (if (= player-id (count (:players ens)))
+    (assoc ens
+           :players (conj (:players ens) player-id player)
+           :melodies (conj (:melodies ens) player-id melody)
+           )
+    (assoc ens
+           :players (assoc (:players ens) player-id player)
+           :melodies (assoc (:melodies ens) player-id melody)
+           ))
   )
 
 (defn update-player-and-melody

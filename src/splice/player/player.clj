@@ -30,6 +30,7 @@
                    instrument-info
                    ])
 
+(declare create-player)
 (defn build-loop-structr
   [loop-settings]
   (condp = (:loop-type loop-settings)
@@ -43,6 +44,7 @@
                        :melody-info (:melody-info loop-settings)
                        :next-melody-event-ndx 0
                        :max-num-mult-loops (:max-num-mult-loops loop-settings)
+                       :create-player-fn create-player
                        )
 
     nil (throw (Throwable. (str ":loop-type missing")))

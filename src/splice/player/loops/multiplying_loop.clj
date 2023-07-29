@@ -16,14 +16,15 @@
 (ns splice.player.loops.multiplying-loop
   (:require
    [splice.ensemble.ensemble :refer [update-player-and-melody]]
+   [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    [splice.player.loops.loop :refer [create-loop
                                      get-melody-info
                                      get-next-melody-event-ndx
                                      get-next-melody
                                      ]]
    [splice.player.loops.looptype :refer [LoopType get-name]]
-   [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [play-first-note play-next-note]]
+   [splice.player.player-utils :refer [get-player-instrument-info]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.util.log :as log]
    [splice.util.settings :refer [update-settings!]]
@@ -34,6 +35,7 @@
 (defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
                             original-loop?  ;; true - first loop, false - loop copy
                             loop-repetition ;; number of this repetition (0 - n) nil for copy
+                            create-player-fn ;; need to pass in to avoid circular dependency with player.clj
                             core-loop
                             ]
   LoopType
@@ -58,12 +60,16 @@
 
   (let [new-num-players (inc (:number-of-players settings))
         new-vol-adjust (compute-volume-adjust new-num-players)
-        new-player (create-player :id new-num-players :loop-settings (build-new-loop-structr loop))
+        instrument-name (keyword (get-instrument-from-instrument-info
+                                  (get-player-instrument-info player)))
+        new-player ((:create-player-fn loop) :id new-num-players
+                    :loop-settings (build-new-loop-structr loop
+                                                           instrument-name))
         new-melody (vector (create-rest-event new-num-players 0 0))
         ]
 
     (play-first-note new-num-players 0 0)
-    (update-player-and-melody new-player new-player new-num-players)
+    (update-player-and-melody new-player new-melody new-num-players)
     (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
     )
   )
@@ -112,11 +118,13 @@
              next-melody-event-ndx
              next-melody-fn
              max-num-mult-loops
+             create-player-fn
              ]
       :or {next-melody-fn get-next-mult-melody max-num-mult-loops nil}}]
   (MultiplyingLoop. max-num-mult-loops
                     (if max-num-mult-loops true false)
                     (if max-num-mult-loops 0 nil)
+                    create-player-fn
                     (create-loop :name name
                                  :melody-info melody-info
                                  :next-melody-event-ndx next-melody-event-ndx

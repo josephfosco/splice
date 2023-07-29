@@ -22,7 +22,6 @@
                       sc-free-id
                       sc-send-msg
                       sc-next-id
-                      sc-now
                       sc-oneshot-sync-event
                       sc-reset-counter!
                       sc-uuid
@@ -36,7 +35,6 @@
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
-   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
    [splice.util.util :refer [close-msg-channel compute-volume-adjust start-msg-channel]]
   ))

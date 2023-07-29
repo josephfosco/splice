@@ -18,6 +18,7 @@
    [clojure.core.async :refer [>!! <! go timeout]]
    [sc-osc.sc :refer [sc-event
                       sc-next-id
+                      sc-now
                       sc-on-event
                       sc-oneshot-sync-event
                       sc-remove-event-handler
@@ -58,6 +59,7 @@
    [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [tail]]
    [splice.util.log :as log]
+   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
    ))
