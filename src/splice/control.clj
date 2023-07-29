@@ -31,7 +31,7 @@
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
-   [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
+   [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
    [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.sc-constants :refer [head tail]]
@@ -227,16 +227,6 @@
       (doall (map send-load-msg synth-files))
       )
     ))
-
-(defn- play-first-note
-  [player-id min-time-offset max-time-offset]
-  (let [delay-millis (+ (random-int (* min-time-offset 1000)
-                                    (* max-time-offset 1000)))
-        note-time (+ (sc-now) delay-millis)
-        ]
-    (go (<! (timeout delay-millis))
-        (play-next-note player-id note-time)))
-  )
 
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"

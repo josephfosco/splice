@@ -76,8 +76,6 @@
     (assoc ens :melodies upd-melodies)
     ))
 
-
-
 (defn update-melody-note-off-for-player-id
   [player-id melody-event-id note-off-val]
   (let [melody (get-melody-for-player-id player-id)

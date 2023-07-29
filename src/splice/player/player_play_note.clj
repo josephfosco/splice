@@ -355,3 +355,13 @@
       (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
       )))
+
+(defn play-first-note
+  [player-id min-time-offset max-time-offset]
+  (let [delay-millis (+ (random-int (* min-time-offset 1000)
+                                    (* max-time-offset 1000)))
+        note-time (+ (sc-now) delay-millis)
+        ]
+    (go (<! (timeout delay-millis))
+        (play-next-note player-id note-time)))
+  )
