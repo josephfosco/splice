@@ -58,25 +58,27 @@
   [settings [player loop]]
   (log/data "create-new-player settings: " settings)
 
-  (let [new-num-players (inc (:number-of-players settings))
-        new-vol-adjust (compute-volume-adjust new-num-players)
-        instrument-name (keyword (get-instrument-from-instrument-info
-                                  (get-player-instrument-info player)))
-        new-player ((:create-player-fn loop) :id new-num-players
-                    :loop-settings (build-new-loop-structr loop
-                                                           instrument-name))
-        new-melody (vector (create-rest-event new-num-players 0 0))
-        ]
+  (dosync
+   (let [new-player-id (:number-of-players settings)
+         new-num-players (inc new-player-id)
+         new-vol-adjust (compute-volume-adjust new-num-players)
+         instrument-name (keyword (get-instrument-from-instrument-info
+                                   (get-player-instrument-info player)))
+         new-player ((:create-player-fn loop) :id new-player-id
+                     :loop-settings (build-new-loop-structr loop
+                                                            instrument-name))
+         new-melody (vector (create-rest-event new-player-id 0 0))
+         ]
 
-    (play-first-note new-num-players 0 0)
-    (update-player-and-melody new-player new-melody new-num-players)
-    (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
-    )
+     (update-player-and-melody new-player new-melody new-player-id)
+     (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
+     ))
   )
 
 (defn add-player
   [player loop]
-  (update-settings! create-new-player player loop)
+  (create-new-player player loop)
+  ;; (play-first-note new-player-id 0 0)
   )
 
 (defn get-next-mult-melody

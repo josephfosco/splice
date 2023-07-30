@@ -50,15 +50,23 @@
   ((:players ensemble) player-id)
   )
 
+(defn add-msgs-for-new-player
+  [player-msgs]
+  (conj player-msgs [])
+  )
+
 (defn player-and-melody-update
   [ens player melody player-id]
   ;; adds new player and melody it player-id is = number of players otherwise
   ;; it replaces the player and melody at the index of player-id
   (if (= player-id (count (:players ens)))
-    (assoc ens
-           :players (conj (:players ens) player-id player)
-           :melodies (conj (:melodies ens) player-id melody)
-           )
+    (do
+      (assoc ens
+             :players (conj (:players ens) player-id player)
+             :melodies (conj (:melodies ens) player-id melody)
+             )
+      (swap! player-msgs add-msgs-for-new-player)
+      )
     (assoc ens
            :players (assoc (:players ens) player-id player)
            :melodies (assoc (:melodies ens) player-id melody)
