@@ -236,7 +236,8 @@
 
 (defn- reserve-root-node-val
   []
-  (set-setting! :root-group_ (sc-next-id :node))
+  (dosync
+   (set-setting! :root-group_ (sc-next-id :node)))
   (log/error (get-setting :root-group_))
   (when (not= (get-setting :root-group_) 0)
     (throw (Throwable.
@@ -262,8 +263,8 @@
       (reserve-root-node-val)
       (init-control)
       (let [player-settings (load-settings loops)
-            number-of-players (set-setting! :number-of-players
-                                            (count (:loops player-settings)))
+            number-of-players (dosync (set-setting! :number-of-players
+                                                     (count (:loops player-settings))))
             initial-players (init-players player-settings)
             init-melodies (map init-melody (range number-of-players))
             init-msgs (for [x (range number-of-players)] [])
@@ -272,7 +273,8 @@
         (load-sc-synthdefs (:loops player-settings))
         (if-let [effects (get player-settings :main-bus-effects)]
           (init-main-bus-effects effects))
-        (set-setting! :volume-adjust (compute-volume-adjust number-of-players))
+        (dosync
+         (set-setting! :volume-adjust (compute-volume-adjust number-of-players)))
         (init-splice initial-players init-melodies init-msgs)
         (start-playing (or (:min-start-offset player-settings) 0)
                        (or (:max-start-offset player-settings) 0))

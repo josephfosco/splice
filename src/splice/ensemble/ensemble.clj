@@ -22,7 +22,7 @@
    )
   )
 
-(def ^:private ensemble (atom nil))
+(def ^:private ensemble (ref nil))
 ;; TODO document what player-msgs is doing.
 ;; I am not sure anything is ever being put in here
 (def ^:private player-msgs (atom nil))
@@ -75,7 +75,8 @@
 
 (defn update-player-and-melody
   [player melody player-id]
-  (swap! ensemble player-and-melody-update player melody player-id)
+  (dosync
+   (alter ensemble player-and-melody-update player melody player-id))
   )
 
 (defn replace-melody-event-note-off
@@ -113,11 +114,12 @@
         (let [melody-event-ndx (first ndx-and-id)
               melody-event (nth melody melody-event-ndx)
               ]
-          (swap! ensemble replace-melody-event-note-off player-id
-                                                        melody-event
-                                                        melody-event-id
-                                                        melody-event-ndx
-                                                        note-off-val)
+          (dosync
+           (alter ensemble replace-melody-event-note-off player-id
+                                                         melody-event
+                                                         melody-event-id
+                                                         melody-event-ndx
+                                                         note-off-val))
         )))
   ))
 
@@ -155,19 +157,22 @@
 (defn clear-ensemble
   [event]
   (log/info "clearing ensemble....")
-  (reset! ensemble nil))
+  (dosync
+   (ref-set ensemble nil))
+  )
 
 (defn init-ensemble
   [init-players init-melodies init-msgs]
   (sc-oneshot-sync-event :reset clear-ensemble (sc-uuid))
-  (reset!
-   ensemble
-   {:players
-    (into [] init-players)
-    :melodies
-    (into [] init-melodies)
-    }
-   )
+  (dosync
+   (ref-set
+    ensemble
+    {:players
+     (into [] init-players)
+     :melodies
+     (into [] init-melodies)
+     }
+    ))
   (reset! player-msgs (into [] init-msgs))
   @ensemble
   )

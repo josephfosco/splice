@@ -34,7 +34,8 @@
   [filename]
   (let [settings (load-settings filename)]
     (doseq [[k v] (seq settings)]
-      (set-setting! k v)
+      (dosync
+       (set-setting! k v))
       )
     )
   )

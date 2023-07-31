@@ -27,7 +27,7 @@
    [splice.player.player-utils :refer [get-player-instrument-info]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.util.log :as log]
-   [splice.util.settings :refer [update-settings!]]
+   [splice.util.settings :refer [get-setting set-setting! update-settings!]]
    [splice.util.util :refer [compute-volume-adjust]]
    )
   )
@@ -56,11 +56,31 @@
 
 (defn create-new-player
   [settings [player loop]]
-  (log/data "create-new-player settings: " settings)
+  ;; (log/data "create-new-player settings: " settings)
 
+  ;; (dosync
+  ;;  (let [new-player-id (:number-of-players settings)
+  ;;        new-num-players (inc new-player-id)
+  ;;        new-vol-adjust (compute-volume-adjust new-num-players)
+  ;;        instrument-name (keyword (get-instrument-from-instrument-info
+  ;;                                  (get-player-instrument-info player)))
+  ;;        new-player ((:create-player-fn loop) :id new-player-id
+  ;;                    :loop-settings (build-new-loop-structr loop
+  ;;                                                           instrument-name))
+  ;;        new-melody (vector (create-rest-event new-player-id 0 0))
+  ;;        ]
+
+  ;;    (update-player-and-melody new-player new-melody new-player-id)
+  ;;    (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
+  ;;    ))
+  )
+
+(defn add-player
+  [player loop]
   (dosync
-   (let [new-player-id (:number-of-players settings)
-         new-num-players (inc new-player-id)
+   (let [new-num-players
+         (set-setting! :number-of-players (inc (get-setting :number-of-players)))
+         new-player-id (dec new-num-players)
          new-vol-adjust (compute-volume-adjust new-num-players)
          instrument-name (keyword (get-instrument-from-instrument-info
                                    (get-player-instrument-info player)))
@@ -70,14 +90,11 @@
          new-melody (vector (create-rest-event new-player-id 0 0))
          ]
 
-     (update-player-and-melody new-player new-melody new-player-id)
-     (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
-     ))
-  )
+     )
 
-(defn add-player
-  [player loop]
-  (create-new-player player loop)
+   )
+
+  ;; (create-new-player player loop)
   ;; (play-first-note new-player-id 0 0)
   )
 
@@ -101,6 +118,7 @@
                                 )
 
         ]
+    ;; TODO do not create more than max-num-mult-loops
     (when (and begining-of-loop (> (:loop-repetition loop-structr) 0))
       (add-player player upd-loop-structr)
       )

@@ -185,7 +185,7 @@
 
 (defn sched-release
   " This method is called whe supercollider sends a /n_go message indicating that
-  a new supercollider synth has been started. This call is set up at the at the top
+  a new supercollider synth has been started. This call is set up at the top
   of this file in init_player_play_note. If the melody event for this synth indicates
   that a gate-off does not need to be scheduled in supercollider
   (melody-event :note-off=true) than nothing is done. Otherwise, a gate-off event

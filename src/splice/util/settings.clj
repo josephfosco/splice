@@ -37,6 +37,7 @@
 (declare settings)
 (defn get-setting
   [key]
+  ;; TODO DO I need ensure here - or somewhere????????
   (key @settings)
   )
 
@@ -46,14 +47,15 @@
   ;;      current or prior value of key, it is possible that another thread ahs changed
   ;;      the value of the key before this changes it. In ths case it is possible that that
   ;;      val may no longer be correct.
-  (swap! settings assoc key val)
+  (dosync
+   (alter settings assoc key val))
   val
   )
 
 (defn update-settings!
   [fn & args]
-  (swap! settings fn args)
-  (log/data "settings.clj update-settings! settings: " @settings)
+  (dosync
+   (alter settings fn args))
   )
 
-(def settings (atom (load-settings "src/splice/config/init_settings.clj")))
+(def settings (ref (load-settings "src/splice/config/init_settings.clj")))
