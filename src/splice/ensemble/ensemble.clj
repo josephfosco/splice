@@ -59,13 +59,15 @@
   [ens player melody player-id]
   ;; adds new player and melody it player-id is = number of players otherwise
   ;; it replaces the player and melody at the index of player-id
+
+  ;; TODO might want to make this multi variant and not pass in player-id when adding a player
   (if (= player-id (count (:players ens)))
     (do
-      (assoc ens
-             :players (conj (:players ens) player-id player)
-             :melodies (conj (:melodies ens) player-id melody)
-             )
       (swap! player-msgs add-msgs-for-new-player)
+      (assoc ens
+             :players (conj (:players ens) player)
+             :melodies (conj (:melodies ens) melody)
+             )
       )
     (assoc ens
            :players (assoc (:players ens) player-id player)

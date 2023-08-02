@@ -15,7 +15,7 @@
 
 (ns splice.player.loops.multiplying-loop
   (:require
-   [splice.ensemble.ensemble :refer [update-player-and-melody]]
+   [splice.ensemble.ensemble :refer [update-player-and-melody get-ensemble]]
    [splice.instr.instrumentinfo :refer [get-instrument-from-instrument-info]]
    [splice.player.loops.loop :refer [create-loop
                                      get-melody-info
@@ -54,27 +54,6 @@
    }
   )
 
-(defn create-new-player
-  [settings [player loop]]
-  ;; (log/data "create-new-player settings: " settings)
-
-  ;; (dosync
-  ;;  (let [new-player-id (:number-of-players settings)
-  ;;        new-num-players (inc new-player-id)
-  ;;        new-vol-adjust (compute-volume-adjust new-num-players)
-  ;;        instrument-name (keyword (get-instrument-from-instrument-info
-  ;;                                  (get-player-instrument-info player)))
-  ;;        new-player ((:create-player-fn loop) :id new-player-id
-  ;;                    :loop-settings (build-new-loop-structr loop
-  ;;                                                           instrument-name))
-  ;;        new-melody (vector (create-rest-event new-player-id 0 0))
-  ;;        ]
-
-  ;;    (update-player-and-melody new-player new-melody new-player-id)
-  ;;    (assoc settings :number-of-players new-num-players :volume-adjust new-vol-adjust)
-  ;;    ))
-  )
-
 (defn add-player
   [player loop]
   (dosync
@@ -89,13 +68,10 @@
                                                             instrument-name))
          new-melody (vector (create-rest-event new-player-id 0 0))
          ]
-
-     )
-
-   )
-
-  ;; (create-new-player player loop)
-  ;; (play-first-note new-player-id 0 0)
+     (update-player-and-melody new-player new-melody new-player-id)
+     (set-setting! :volume-adjust new-vol-adjust)
+     new-player-id
+     ))
   )
 
 (defn get-next-mult-melody
@@ -119,8 +95,13 @@
 
         ]
     ;; TODO do not create more than max-num-mult-loops
-    (when (and begining-of-loop (> (:loop-repetition loop-structr) 0))
-      (add-player player upd-loop-structr)
+    (when (and begining-of-loop
+               (> loop-rep 1)
+               (< loop-rep (inc (:max-num-mult-loops player)))
+               )
+      (let [new-player-id (add-player player upd-loop-structr)]
+        ;; need to wait till the dosync in add-player commits before calling play-first-note
+        (play-first-note new-player-id 0 0))
       )
 
     ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
