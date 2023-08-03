@@ -92,12 +92,11 @@
                                 :core-loop upd-core-loop-structr
                                 :loop-repetition loop-rep
                                 )
-
         ]
-    ;; TODO do not create more than max-num-mult-loops
+    ;; Will add max-num-mult-loops additional loops starting on the second rep of the loop
     (when (and begining-of-loop
                (> loop-rep 1)
-               (< loop-rep (inc (:max-num-mult-loops player)))
+               (< loop-rep (+ 2 (:max-num-mult-loops loop-structr)))
                )
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
