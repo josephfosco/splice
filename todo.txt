@@ -1,31 +1,24 @@
-Clean up branches
-
-Make all directory paths relative. Set a base path in settings and concatenate anything
-additional on to this base.
-
-Set log settings (dir and level) for sc-osc
-
-Be able to pass in a settings file to splice-start that will overwrite/add to settings in
-the default settings file
-
-Add midi functions from overtone/src/overtone/midi.clj
-and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-
-Change println(s) to data2 level log statements - need to make sure
-details print - not just Object IDs
-
-check if I want to use blocking or unblocking channels in ensemble_status.clj
-currently I use blocking channels if I want to switch to unblocking channels, change
-(chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
-
-If an instrument has a variable release, like woosh, it needs to be taken into account
-when scheduling note-off events or even just when calling get-release-millis-from-instrument.
-Perhaps remove variable release's and instead add a param so the release can be set by
-splice when the synth is played and not changed inside the synth. That way you can always
-retrieve the correct release time from the synth
-
-Should there be a limit to the number of times player_play_note/check_prior_event_note_off
-should be able to recur?
+- multiplying-loop - Be able to have a variable number of multiplying-loops
+- Clean up branches
+- Make all directory paths relative. Set a base path in settings and concatenate anything
+  additional on to this base.
+- Set log settings (dir and level) for sc-osc
+- Be able to pass in a settings file to splice-start that will overwrite/add to settings in
+  the default settings file
+- Add midi functions from overtone/src/overtone/midi.clj
+  and/or overtone/src/overtone/studio/midi.clj (possibly do this)
+- Change println(s) to data2 level log statements - need to make sure
+  details print - not just Object IDs
+- check if I want to use blocking or unblocking channels in ensemble_status.clj
+  currently I use blocking channels if I want to switch to unblocking channels, change
+  (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
+- If an instrument has a variable release, like woosh, it needs to be taken into account
+  when scheduling note-off events or even just when calling get-release-millis-from-instrument.
+  Perhaps remove variable release's and instead add a param so the release can be set by
+  splice when the synth is played and not changed inside the synth. That way you can always
+  retrieve the correct release time from the synth
+- Should there be a limit to the number of times player_play_note/check_prior_event_note_off
+  should be able to recur?
 
 
 -------- BUGS/ERRORS --------
@@ -79,8 +72,8 @@ recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id
   work.
 - Make pan a standard third param for synths
 - Start up supercollider automatically.
-- Make splice a server with an api
 - Connect mediapipe to supercollider automatically
+- Make splice a server with an api
 - Find a way to keep 1 synth playing and have the loop be just changing param(s). Perhaps
   use a :no-release param to have the synth keep playing. Noeed a way to indicate when
   to release the synth.

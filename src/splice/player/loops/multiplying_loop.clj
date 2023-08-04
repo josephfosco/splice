@@ -33,6 +33,8 @@
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
+                            num-mult-loops-started
+                            loop-mult-probability ;; percent probability that loop will mult this rep
                             original-loop?  ;; true - first loop, false - loop copy
                             loop-repetition ;; number of this repetition (0 - n) nil for copy
                             create-player-fn ;; need to pass in to avoid circular dependency with player.clj
@@ -122,6 +124,8 @@
              ]
       :or {next-melody-fn get-next-mult-melody max-num-mult-loops nil}}]
   (MultiplyingLoop. max-num-mult-loops
+                    0
+                    100
                     (if max-num-mult-loops true false)
                     (if max-num-mult-loops 0 nil)
                     create-player-fn
