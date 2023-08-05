@@ -10,8 +10,10 @@
 
   {:name "strings-1"
    :loop-type :multiplying-loop
-   :max-num-mult-loops 4
    :instrument-name :string-sect
+   :max-num-mult-loops 4
+   :rep-to-start-multing 4
+   :loop-mult-probability 100
    :melody-info
    [{:pitch {:type :fixed
              :pitch-midi-note 69}

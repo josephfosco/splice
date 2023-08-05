@@ -32,10 +32,13 @@
    )
   )
 
-(defrecord MultiplyingLoop [max-num-mult-loops ;; will add this many loops - nil if loop copy
-                            num-mult-loops-started
-                            loop-mult-probability ;; percent probability that loop will mult this rep
-                            original-loop?  ;; true - first loop, false - loop copy
+(defrecord MultiplyingLoop [max-num-mult-loops     ;; will add this many loops - nil if loop copy
+                            rep-to-start-multing   ;; the repitition to create the
+                                                   ;;first multiplying loop
+                            num-mult-loops-started ;; num of mult-loops that have been started
+                            loop-mult-probability  ;; percent probability that loop will
+                                                   ;;mult this rep
+                            original-loop?         ;; true - first loop, false - loop copy
                             loop-repetition ;; number of this repetition (0 - n) nil for copy
                             create-player-fn ;; need to pass in to avoid circular dependency with player.clj
                             core-loop
@@ -76,6 +79,16 @@
      ))
   )
 
+(defn create-new-loop?
+  [loop-structr begining-of-loop loop-rep]
+  (println loop-structr)
+  (and begining-of-loop
+       (>= loop-rep (:rep-to-start-multing loop-structr))
+       (< (:num-mult-loops-started loop-structr) (:max-num-mult-loops loop-structr))
+       (< (rand-int 100) (:loop-mult-probability loop-structr))
+       )
+  )
+
 (defn get-next-mult-melody
   [player melody loop-structr next-melody-event-id event-time]
   (let [core-loop (:core-loop loop-structr)
@@ -90,23 +103,23 @@
                    (inc (:loop-repetition loop-structr))
                    (:loop-repetition loop-structr)
                    )
+        make-new-loop (create-new-loop? loop-structr begining-of-loop loop-rep)
+        ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
+        ;; record. This is placed in the core-loop of this multiplying-loop
         upd-loop-structr (assoc loop-structr
                                 :core-loop upd-core-loop-structr
                                 :loop-repetition loop-rep
+                                :num-mult-loops-started (if make-new-loop
+                                                          (inc (:num-mult-loops-started loop-structr))
+                                                          (:num-mult-loops-started loop-structr))
                                 )
         ]
-    ;; Will add max-num-mult-loops additional loops starting on the second rep of the loop
-    (when (and begining-of-loop
-               (> loop-rep 1)
-               (< loop-rep (+ 2 (:max-num-mult-loops loop-structr)))
-               )
+    (when make-new-loop
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
         (play-first-note new-player-id 0 0))
       )
 
-    ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
-    ;; record. This is placed in the core-loop of this multiplying-loop
     [
      upd-loop-structr
      melody-event
@@ -120,12 +133,19 @@
              next-melody-event-ndx
              next-melody-fn
              max-num-mult-loops
+             rep-to-start-multing
+             loop-mult-probability
              create-player-fn
              ]
-      :or {next-melody-fn get-next-mult-melody max-num-mult-loops nil}}]
+      :or {next-melody-fn get-next-mult-melody
+           max-num-mult-loops nil
+           rep-to-start-multing 2
+           loop-mult-probability 100}
+      }]
   (MultiplyingLoop. max-num-mult-loops
+                    rep-to-start-multing
                     0
-                    100
+                    loop-mult-probability
                     (if max-num-mult-loops true false)
                     (if max-num-mult-loops 0 nil)
                     create-player-fn

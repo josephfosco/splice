@@ -48,6 +48,9 @@
                             :melody-info
                             :name
                             :max-num-mult-loops
+                            :rep-to-start-multing
+                            :num-mult-loops-started
+                            :loop-mult-probability
                             )))
 
 (defn remove-synths-effects-busses
