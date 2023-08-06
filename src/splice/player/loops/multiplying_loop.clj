@@ -33,14 +33,15 @@
   )
 
 (defrecord MultiplyingLoop [max-num-mult-loops     ;; will add this many loops - nil if loop copy
-                            rep-to-start-multing   ;; the repitition to create the
-                                                   ;;first multiplying loop
+                            reps-before-multing    ;; num repititions before creating the
+                                                   ;;   first multiplying loop
                             num-mult-loops-started ;; num of mult-loops that have been started
                             loop-mult-probability  ;; percent probability that loop will
-                                                   ;;mult this rep
+                                                   ;;   mult this rep
                             original-loop?         ;; true - first loop, false - loop copy
-                            loop-repetition ;; number of this repetition (0 - n) nil for copy
-                            create-player-fn ;; need to pass in to avoid circular dependency with player.clj
+                            loop-repetition    ;; number of this repetition (0 - n) nil for copy
+                            create-player-fn   ;; need to pass in to avoid circular dependency
+                                               ;;   with player.clj
                             core-loop
                             ]
   LoopType
@@ -83,7 +84,7 @@
   [loop-structr begining-of-loop loop-rep]
   (println loop-structr)
   (and begining-of-loop
-       (>= loop-rep (:rep-to-start-multing loop-structr))
+       (> loop-rep (:reps-before-multing loop-structr))
        (< (:num-mult-loops-started loop-structr) (:max-num-mult-loops loop-structr))
        (< (rand-int 100) (:loop-mult-probability loop-structr))
        )
@@ -133,17 +134,17 @@
              next-melody-event-ndx
              next-melody-fn
              max-num-mult-loops
-             rep-to-start-multing
+             reps-before-multing
              loop-mult-probability
              create-player-fn
              ]
       :or {next-melody-fn get-next-mult-melody
            max-num-mult-loops nil
-           rep-to-start-multing 2
+           reps-before-multing 1
            loop-mult-probability 100}
       }]
   (MultiplyingLoop. max-num-mult-loops
-                    rep-to-start-multing
+                    reps-before-multing
                     0
                     loop-mult-probability
                     (if max-num-mult-loops true false)

@@ -12,8 +12,8 @@
    :loop-type :multiplying-loop
    :instrument-name :string-sect
    :max-num-mult-loops 4
-   :rep-to-start-multing 4
-   :loop-mult-probability 100
+   :reps-before-multing 3
+   :loop-mult-probability 10
    :melody-info
    [{:pitch {:type :fixed
              :pitch-midi-note 69}

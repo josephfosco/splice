@@ -44,7 +44,7 @@
                        :melody-info (:melody-info loop-settings)
                        :next-melody-event-ndx 0
                        :max-num-mult-loops (:max-num-mult-loops loop-settings)
-                       :rep-to-start-multing (:rep-to-start-multing loop-settings)
+                       :reps-before-multing (:reps-before-multing loop-settings)
                        :loop-mult-probability (:loop-mult-probability loop-settings)
                        :create-player-fn create-player
                        )

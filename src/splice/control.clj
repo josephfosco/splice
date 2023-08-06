@@ -48,7 +48,7 @@
                             :melody-info
                             :name
                             :max-num-mult-loops
-                            :rep-to-start-multing
+                            :reps-before-multing
                             :num-mult-loops-started
                             :loop-mult-probability
                             )))
