@@ -82,7 +82,6 @@
 
 (defn create-new-loop?
   [loop-structr begining-of-loop loop-rep]
-  (println loop-structr)
   (and begining-of-loop
        (> loop-rep (:reps-before-multing loop-structr))
        (< (:num-mult-loops-started loop-structr) (:max-num-mult-loops loop-structr))
@@ -139,14 +138,12 @@
              create-player-fn
              ]
       :or {next-melody-fn get-next-mult-melody
-           max-num-mult-loops nil
-           reps-before-multing 1
-           loop-mult-probability 100}
+           max-num-mult-loops nil}
       }]
   (MultiplyingLoop. max-num-mult-loops
-                    reps-before-multing
+                    (or reps-before-multing 1)
                     0
-                    loop-mult-probability
+                    (or loop-mult-probability 100)
                     (if max-num-mult-loops true false)
                     (if max-num-mult-loops 0 nil)
                     create-player-fn
