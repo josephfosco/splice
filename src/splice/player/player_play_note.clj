@@ -18,6 +18,7 @@
    [clojure.core.async :refer [>!! <! go timeout]]
    [sc-osc.sc :refer [sc-event
                       sc-next-id
+                      sc-now
                       sc-on-event
                       sc-oneshot-sync-event
                       sc-remove-event-handler
@@ -58,6 +59,7 @@
    [splice.sc.groups :refer [base-group-ids*]]
    [splice.sc.sc-constants :refer [tail]]
    [splice.util.log :as log]
+   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [get-setting]]
    [splice.util.util :refer [get-msg-channel]]
    ))
@@ -183,7 +185,7 @@
 
 (defn sched-release
   " This method is called whe supercollider sends a /n_go message indicating that
-  a new supercollider synth has been started. This call is set up at the at the top
+  a new supercollider synth has been started. This call is set up at the top
   of this file in init_player_play_note. If the melody event for this synth indicates
   that a gate-off does not need to be scheduled in supercollider
   (melody-event :note-off=true) than nothing is done. Otherwise, a gate-off event
@@ -233,7 +235,8 @@
                            tail
                            (:instrument-group-id @base-group-ids*)
                            "freq" (get-freq-from-melody-event melody-event)
-                           "vol" (* (get-volume-from-melody-event melody-event) (get-setting :volume-adjust))
+                           "vol" (* (get-volume-from-melody-event melody-event)
+                                    (get-setting :volume-adjust))
                            (get-instrument-settings-from-melody-event melody-event)))
     sc-synth-id
     )
@@ -276,19 +279,19 @@
   [player-id]
   (log/info "Stopping player-id: " player-id)
   (swap! num-players-stopped inc)
-  (if (= @num-players-stopped (get-setting :num-players))
-    (do
-      (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
-      ;; remove the ::go-key handler AFTER ALL players have stopped
-      ;; to make certain we do not miss sending any gate-off events
-      (sc-remove-event-handler ::go-key)
-      (sc-event :player-scheduling-stopped)
-      (reset! is-scheduling? true)
-      (reset! num-players-stopped 0))
-    (log/info @num-players-stopped
-              " out of "
-              (get-setting :num-players)
-              " players stopped" ))
+  (log/info @num-players-stopped
+            " out of "
+            (get-setting :number-of-players)
+            " players stopped" )
+  (when (= @num-players-stopped (get-setting :number-of-players))
+    (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
+    ;; remove the ::go-key handler AFTER ALL players have stopped
+    ;; to make certain we do not miss sending any gate-off events
+    (sc-remove-event-handler ::go-key)
+    (sc-event :player-scheduling-stopped)
+    (reset! is-scheduling? true)
+    (reset! num-players-stopped 0)
+    )
   )
 
 (declare sched-next-note)
@@ -354,3 +357,13 @@
       (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
           (play-next-note (get-player-id-from-melody-event melody-event) next-time))
       )))
+
+(defn play-first-note
+  [player-id min-time-offset max-time-offset]
+  (let [delay-millis (+ (random-int (* min-time-offset 1000)
+                                    (* max-time-offset 1000)))
+        note-time (+ (sc-now) delay-millis)
+        ]
+    (go (<! (timeout delay-millis))
+        (play-next-note player-id note-time)))
+  )

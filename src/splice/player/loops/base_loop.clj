@@ -1,4 +1,4 @@
-;    Copyright (C) 2018-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -19,16 +19,20 @@
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
+   [splice.player.loops.looptype :refer [LoopType]]
    )
   )
 
 (def ^:private  global-dur-mult-millis (atom nil))
 
+(defrecord BaseLoop [name next-melody-fn]
+  LoopType
+  (get-name [loop] (:name loop))
+  )
+
 (defn init-base-loop
   []
   (reset! global-dur-mult-millis nil))
-
-(defrecord BaseLoop [name next-melody-fn])
 
 (defn create-base-loop
   [& {:keys [name next-melody-fn]}]
@@ -41,10 +45,25 @@
   (:name (:base-loop loop-structr))
   )
 
+(defn get-loop-param
+  [loop-structr param]
+  (cond
+    (contains? loop-structr param) (param loop-structr)
+
+    ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
+    ;; recurse through it
+    ;; TODO this will not necessarily work if any it the loop-structr contains more
+    ;;      than 1 LoopType
+    (satisfies? LoopType loop-structr)
+    (some #(get-loop-param % param) (filter record? (vals loop-structr)))
+
+    :else nil)
+  )
+
 (defn get-melody-fn
   [loop-structr]
-  (:next-melody-fn (:base-loop loop-structr))
- )
+  (get-loop-param loop-structr :next-melody-fn)
+  )
 
 (defn get-global-dur-mult-millis
   []
@@ -87,13 +106,15 @@
   ;; Throw an error if the pitch-freq or pitch-midi-note is nil or missing when pitch :type
   ;; is not :rest
   ;; TODO This validation should occur when the loop file is loaded possibly in control/validate-player-settings
+  (when (= (:type pitch-info) nil)
+    (throw (Throwable. (str "Missing :pitch-type")))
+    )
   (if (and (not= (:type pitch-info) :rest)
            (nil? (:pitch-freq pitch-info))
            (nil? (:pitch-midi-note pitch-info))
            (nil? (:pitches pitch-info)))
     (throw (Throwable. (str "Missing :pitch-freq, :pitch-midi-note or :pitches when "
                             ":pitch-type is :fixed or :variable")))
-
     )
   (condp = (:type pitch-info)
     :fixed (or (:pitch-freq pitch-info)

@@ -63,9 +63,9 @@
   "Returns an updated player and a melody-event"
   [ensemble player melody player-id event-time]
 
-  (log/data (str player-id) " PLAYER: " (pr-str player) " MELODY: " melody)
+  (log/data (str player-id) " player-utils.clj get-next-melody-event \n    PLAYER: " (pr-str player) "\n    MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
-        [upd-loop-structr melody-event ]
+        [upd-loop-structr melody-event]
         ((get-melody-fn loop-structr) player
                                       melody
                                       loop-structr

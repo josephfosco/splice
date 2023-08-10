@@ -22,7 +22,6 @@
                       sc-free-id
                       sc-send-msg
                       sc-next-id
-                      sc-now
                       sc-oneshot-sync-event
                       sc-reset-counter!
                       sc-uuid
@@ -31,14 +30,13 @@
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
-   [splice.player.player-play-note :refer [init-player-play-note play-next-note]]
+   [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
    [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
-   [splice.util.random :refer [random-int]]
    [splice.util.settings :refer [load-settings get-setting set-setting!]]
-   [splice.util.util :refer [close-msg-channel start-msg-channel]]
+   [splice.util.util :refer [close-msg-channel compute-volume-adjust start-msg-channel]]
   ))
 
 (def ^:private splice-status (atom ::stopped))
@@ -49,6 +47,10 @@
                             :loop-type
                             :melody-info
                             :name
+                            :max-num-mult-loops
+                            :reps-before-multing
+                            :num-mult-loops-started
+                            :loop-mult-probability
                             )))
 
 (defn remove-synths-effects-busses
@@ -101,12 +103,13 @@
 
 (defn validate-loop-keys
   [loop-settings]
+  ;; TODO validate loop keys based on type of loop
   (flatten
    (for [loop loop-settings]
      (let [loop-keys (keys loop)]
        (for [loop-key loop-keys
              :when (not (contains? valid-loop-keys loop-key))]
-         (str "Invalid loop key " loop-key " in player-settings")
+         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
          )
        )
      ))
@@ -139,7 +142,7 @@
         (throw (Throwable. "Validation error(s) in player loops"))
         )
       (doall (map new-player
-                  (range (get-setting :num-players))
+                  (range (get-setting :number-of-players))
                   (:loops player-settings)))
       ))
  )
@@ -226,27 +229,18 @@
       )
     ))
 
-(defn- play-first-note
-  [player-id min-time-offset max-time-offset]
-  (let [delay-millis (+ (random-int (* min-time-offset 1000)
-                                    (* max-time-offset 1000)))
-        note-time (+ (sc-now) delay-millis)
-        ]
-    (go (<! (timeout delay-millis))
-        (play-next-note player-id note-time)))
-  )
-
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
   [min-start-offset max-start-offset]
-  (log/info "********** Start-playing ****************")
-  (dotimes [id (get-setting :num-players)]
+  (log/info "********** start-playing ****************")
+  (dotimes [id (get-setting :number-of-players)]
     (play-first-note id min-start-offset max-start-offset))
   )
 
 (defn- reserve-root-node-val
   []
-  (set-setting! :root-group_ (sc-next-id :node))
+  (dosync
+   (set-setting! :root-group_ (sc-next-id :node)))
   (log/error (get-setting :root-group_))
   (when (not= (get-setting :root-group_) 0)
     (throw (Throwable.
@@ -272,8 +266,8 @@
       (reserve-root-node-val)
       (init-control)
       (let [player-settings (load-settings loops)
-            number-of-players (set-setting! :num-players
-                                            (count (:loops player-settings)))
+            number-of-players (dosync (set-setting! :number-of-players
+                                                     (count (:loops player-settings))))
             initial-players (init-players player-settings)
             init-melodies (map init-melody (range number-of-players))
             init-msgs (for [x (range number-of-players)] [])
@@ -282,7 +276,8 @@
         (load-sc-synthdefs (:loops player-settings))
         (if-let [effects (get player-settings :main-bus-effects)]
           (init-main-bus-effects effects))
-        (set-setting! :volume-adjust (min (/ 32 number-of-players) 1))
+        (dosync
+         (set-setting! :volume-adjust (compute-volume-adjust number-of-players)))
         (init-splice initial-players init-melodies init-msgs)
         (start-playing (or (:min-start-offset player-settings) 0)
                        (or (:max-start-offset player-settings) 0))

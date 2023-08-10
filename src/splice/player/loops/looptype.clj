@@ -1,4 +1,4 @@
-;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -13,12 +13,8 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+(ns splice.player.loops.looptype)
 
-{:log-level :info
- ;; ensemble density is printed as a info level log msg
- ;; print-ensemble-density manages when the ensemble density is logged
- ;;  :always     - prints ensemble density eachtime it is calculated
- ;;  : on-chenge - prints ensembly density only if the new calculated
- ;;                value is different than the previous value
- :print-ensemble-density :on-change  ;; :always or :on-change
- }
+(defprotocol LoopType
+  (get-name [loop])
+  )

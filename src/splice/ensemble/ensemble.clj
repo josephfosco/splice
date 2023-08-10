@@ -22,10 +22,10 @@
    )
   )
 
-(def ^:private ensemble (atom nil))
+(def ^:private ensemble (ref nil))
 ;; TODO document what player-msgs is doing.
 ;; I am not sure anything is ever being put in here
-(def ^:private player-msgs (atom nil))
+(def ^:private player-msgs (ref nil))
 
 (defn get-ensemble
   []
@@ -50,17 +50,39 @@
   ((:players ensemble) player-id)
   )
 
-(defn player-and-melody-update
+(defn add-msgs-for-new-player
+  [player-msgs]
+  (conj player-msgs [])
+  )
+
+(defn- player-and-melody-update
   [ens player melody player-id]
-  (assoc ens
-         :players (assoc (:players ens) player-id player)
-         :melodies (assoc (:melodies ens) player-id melody)
-         )
+  ;; adds new player and melody it player-id is = number of players otherwise
+  ;; it replaces the player and melody at the index of player-id
+
+  ;; This function can only be called if a transaction has already been
+  ;; established using dosync.  A transaction could be added here to make certain,
+  ;; but at this point it is not necessary
+
+  ;; TODO might want to make this multi variant and not pass in player-id when adding a player
+  (if (= player-id (count (:players ens)))
+    (do
+      (alter player-msgs add-msgs-for-new-player)
+      (assoc ens
+             :players (conj (:players ens) player)
+             :melodies (conj (:melodies ens) melody)
+             )
+      )
+    (assoc ens
+           :players (assoc (:players ens) player-id player)
+           :melodies (assoc (:melodies ens) player-id melody)
+           ))
   )
 
 (defn update-player-and-melody
   [player melody player-id]
-  (swap! ensemble player-and-melody-update player melody player-id)
+  (dosync
+   (alter ensemble player-and-melody-update player melody player-id))
   )
 
 (defn replace-melody-event-note-off
@@ -75,8 +97,6 @@
         ]
     (assoc ens :melodies upd-melodies)
     ))
-
-
 
 (defn update-melody-note-off-for-player-id
   [player-id melody-event-id note-off-val]
@@ -100,25 +120,34 @@
         (let [melody-event-ndx (first ndx-and-id)
               melody-event (nth melody melody-event-ndx)
               ]
-          (swap! ensemble replace-melody-event-note-off player-id
-                                                        melody-event
-                                                        melody-event-id
-                                                        melody-event-ndx
-                                                        note-off-val)
+          (dosync
+           (alter ensemble replace-melody-event-note-off player-id
+                                                         melody-event
+                                                         melody-event-id
+                                                         melody-event-ndx
+                                                         note-off-val))
         )))
   ))
 
 (defn reset-msgs-for-player-id
   [msgs player-id]
-  (assoc msgs player-id [])
+  ;; sets the msgs for player-id to [] only if player-msgs hasn't changed and returns the reset
+  ;;  value of player-msgs
+  ;; if it has changed, player-msgs is not modified and this fn returns false
+  (dosync
+   (if (= msgs @player-msgs)
+     (do
+       (ref-set player-msgs (assoc msgs player-id []))
+       @player-msgs
+       )
+     false
+     ))
   )
 
 (defn try-to-clear-msgs-for-player-id
   [player-id]
   (let [msgs @player-msgs]
-    (if (compare-and-set! player-msgs
-                          msgs
-                          (reset-msgs-for-player-id msgs player-id))
+    (if (reset-msgs-for-player-id msgs player-id)
       msgs
       (do
         (log/warn "*** Couldn't clear msgs for player " player-id " - Retrying .... ***")
@@ -132,30 +161,32 @@
   (let [cur-msgs
         (first
          (remove nil?
-                 (repeatedly (partial
-                              try-to-clear-msgs-for-player-id
-                              player-id))))]
-    [@ensemble (cur-msgs player-id)]
+                 (repeatedly (fn [] (try-to-clear-msgs-for-player-id player-id)))))]
+    [@ensemble (get cur-msgs player-id)]
     )
   )
 
 (defn clear-ensemble
   [event]
   (log/info "clearing ensemble....")
-  (reset! ensemble nil))
+  (dosync
+   (ref-set ensemble nil))
+  )
 
 (defn init-ensemble
   [init-players init-melodies init-msgs]
   (sc-oneshot-sync-event :reset clear-ensemble (sc-uuid))
-  (reset!
-   ensemble
-   {:players
-    (into [] init-players)
-    :melodies
-    (into [] init-melodies)
-    }
+  (dosync
+   (ref-set
+    ensemble
+    {:players
+     (into [] init-players)
+     :melodies
+     (into [] init-melodies)
+     }
+    )
+   (ref-set player-msgs (into [] init-msgs))
    )
-  (reset! player-msgs (into [] init-msgs))
   @ensemble
   )
 

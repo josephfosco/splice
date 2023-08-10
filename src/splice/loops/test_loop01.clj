@@ -2,7 +2,7 @@
  :max-start-offset 20
 
  :loops
- [{:name "loop-1"
+ [{:name "loop1"
    :loop-type :loop
    :instrument-name :tri-wave-sus
    :melody-info

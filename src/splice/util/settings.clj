@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -37,13 +37,25 @@
 (declare settings)
 (defn get-setting
   [key]
+  ;; TODO DO I need ensure here - or somewhere????????
   (key @settings)
   )
 
 (defn set-setting!
   [key val]
-  (swap! settings assoc key val)
+  ;; TODO look into this. It is not entirely thread safe. If val is computed based on the
+  ;;      current or prior value of key, it is possible that another thread ahs changed
+  ;;      the value of the key before this changes it. In ths case it is possible that that
+  ;;      val may no longer be correct.
+  (dosync
+   (alter settings assoc key val))
   val
   )
 
-(def settings (atom (load-settings "src/splice/config/init_settings.clj")))
+(defn update-settings!
+  [fn & args]
+  (dosync
+   (alter settings fn args))
+  )
+
+(def settings (ref (load-settings "src/splice/config/init_settings.clj")))
