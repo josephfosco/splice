@@ -17,4 +17,6 @@
 
 (defprotocol LoopType
   (get-name [loop])
+  (get-loop-repetition [loop])
+  (set-loop-repetition [loop loop-rep])
   )

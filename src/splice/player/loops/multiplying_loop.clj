@@ -22,7 +22,10 @@
                                      get-next-melody-event-ndx
                                      get-next-melody
                                      ]]
-   [splice.player.loops.looptype :refer [LoopType get-name]]
+   [splice.player.loops.looptype :refer [LoopType get-name
+                                         get-loop-repetition
+                                         set-loop-repetition
+                                         ]]
    [splice.player.player-play-note :refer [play-first-note play-next-note]]
    [splice.player.player-utils :refer [get-player-instrument-info]]
    [splice.melody.melody-event :refer [create-rest-event]]
@@ -39,13 +42,14 @@
                             loop-mult-probability  ;; percent probability that loop will
                                                    ;;   mult this rep
                             original-loop?         ;; true - first loop, false - loop copy
-                            loop-repetition    ;; number of this repetition (0 - n) nil for copy
                             create-player-fn   ;; need to pass in to avoid circular dependency
                                                ;;   with player.clj
                             core-loop
                             ]
   LoopType
   (get-name [loop] (get-name (:core-loop loop)))
+  (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
+  (set-loop-repetition [loop loop-rep] (set-loop-repetition (:core-loop loop) loop-rep))
   )
 
 (defn build-new-loop-structr
@@ -89,6 +93,18 @@
        )
   )
 
+(defn- update-loop-structr
+  [loop-structr new-core-loop loop-rep make-new-loop]
+  (let [upd-core-loop (set-loop-repetition new-core-loop loop-rep)]
+       (assoc loop-structr
+              :core-loop upd-core-loop
+              ;; FIX FIX FIX  :loop-repetition loop-rep
+              :num-mult-loops-started (if make-new-loop
+                                        (inc (:num-mult-loops-started loop-structr))
+                                        (:num-mult-loops-started loop-structr))
+              ))
+  )
+
 (defn get-next-mult-melody
   [player melody loop-structr next-melody-event-id event-time]
   (let [core-loop (:core-loop loop-structr)
@@ -100,19 +116,16 @@
         (get-next-melody player melody core-loop next-melody-event-id event-time)
         loop-rep (if (and (:original-loop? loop-structr)
                           begining-of-loop)
-                   (inc (:loop-repetition loop-structr))
-                   (:loop-repetition loop-structr)
+                   (inc (get-loop-repetition loop-structr))
+                   (get-loop-repetition loop-structr)
                    )
         make-new-loop (create-new-loop? loop-structr begining-of-loop loop-rep)
         ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
         ;; record. This is placed in the core-loop of this multiplying-loop
-        upd-loop-structr (assoc loop-structr
-                                :core-loop upd-core-loop-structr
-                                :loop-repetition loop-rep
-                                :num-mult-loops-started (if make-new-loop
-                                                          (inc (:num-mult-loops-started loop-structr))
-                                                          (:num-mult-loops-started loop-structr))
-                                )
+        upd-loop-structr (update-loop-structr loop-structr
+                                              upd-core-loop-structr
+                                              loop-rep
+                                              make-new-loop)
         ]
     (when make-new-loop
       (let [new-player-id (add-player player upd-loop-structr)]
@@ -145,7 +158,6 @@
                     0
                     (or loop-mult-probability 100)
                     (if max-num-mult-loops true false)
-                    (if max-num-mult-loops 0 nil)
                     create-player-fn
                     (create-loop :name name
                                  :melody-info melody-info

@@ -22,8 +22,14 @@
 
 
 -------- BUGS/ERRORS --------
+- need to look at the ensemble implementation. If dosync is implemented correctly in
+  player-play-note/play-next-note (at top of fn) the entire ensemble will be locked everytime
+  any player wants to play a note. It should be implemented so only a specific player and/or
+  melody is locked at a time. If we do not use a dosync in play-next-note it could be possible
+  for multiple threads to update a specific player, for example, and some of the changes
+  will get overwritten with old data.
 - If splice-stop occurs while checking the prior event note off, it can enter an infinite
-recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
+  recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
 - If splice-stop is run when splice is not playing, splice cannot start again
 - There seem to be clicks or static in the rhodes-piano.sc instruments
 

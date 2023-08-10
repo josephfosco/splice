@@ -22,7 +22,10 @@
                                           get-loop-pitch
                                           get-loop-volume
                                           ]]
-   [splice.player.loops.looptype :refer [LoopType get-name]]
+   [splice.player.loops.looptype :refer [LoopType
+                                         get-name
+                                         get-loop-repetition
+                                         set-loop-repetition]]
    [splice.player.player-utils :refer [get-player-id
                                        get-player-instrument-info]]
    )
@@ -34,6 +37,8 @@
                  ]
   LoopType
   (get-name [loop] (get-name (:core-loop loop)))
+  (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
+  (set-loop-repetition [loop loop-rep] (set-loop-repetition (:core-loop loop) loop-rep))
   )
 
 (defn get-melody-info

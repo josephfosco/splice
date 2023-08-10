@@ -19,15 +19,24 @@
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
-   [splice.player.loops.looptype :refer [LoopType]]
+   [splice.player.loops.looptype :refer [LoopType
+                                         get-name
+                                         get-loop-repetition
+                                         set-loop-repetition
+                                         ]]
    )
   )
 
 (def ^:private  global-dur-mult-millis (atom nil))
 
-(defrecord BaseLoop [name next-melody-fn]
+(defrecord BaseLoop [name
+                     next-melody-fn
+                     loop-repetition   ;; number of this repetition (0 - n) nil for copy
+                     ]
   LoopType
   (get-name [loop] (:name loop))
+  (get-loop-repetition [loop] (:loop-repetition loop))
+  (set-loop-repetition [loop loop-rep] (assoc loop :loop-repetition loop-rep))
   )
 
 (defn init-base-loop
@@ -36,7 +45,9 @@
 
 (defn create-base-loop
   [& {:keys [name next-melody-fn]}]
-  (BaseLoop. name next-melody-fn
+  (BaseLoop. name
+             next-melody-fn
+             0
              )
   )
 
