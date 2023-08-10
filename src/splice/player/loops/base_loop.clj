@@ -77,7 +77,7 @@
 
 (defn get-loop-dur-info
   [dur-info]
-  (let [dur-info
+  (let [melody-dur-info
         (condp = (:type dur-info)
           :fixed (create-dur-info
                   :dur-millis (:dur-millis dur-info)
@@ -95,8 +95,8 @@
           :variable-pct nil
           )]
     (if-let [mult (get-global-dur-mult-millis)]
-      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info dur-info) mult))
-      dur-info
+      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-info) mult))
+      melody-dur-info
       )
     )
   )

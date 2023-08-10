@@ -18,8 +18,8 @@
             StreamHandler Formatter LogRecord])
   )
 
-(def ^:private LOG-LEVELS {:data2 Level/FINEST
-                           :data  Level/FINER
+(def ^:private LOG-LEVELS {:data  Level/FINEST
+                           :trace Level/FINER
                            :debug Level/FINE
                            :info  Level/INFO
                            :warn  Level/WARNING
@@ -41,7 +41,7 @@
   `(str (format "%-15s" (last (clojure.string/split (str ~*ns*) #"\." 2))) " - " ~function-name "  " (str ~@msg))
  )
 (defn set-log-level!
-  "Set the log level. Valid levels are :data2, :data, :debug, :info,
+  "Set the log level. Valid levels are :data, :trace, :debug, :info,
    :warn  or :error"
   [level]
   (assert (contains? LOG-LEVELS level))
@@ -53,14 +53,14 @@
   (reset! PRINT_LOG_LEVEL (if val true false))
   )
 
-(defn data2
-  [& msg]
-  (.log LOGGER Level/FINEST (apply str (if @PRINT_LOG_LEVEL "DATA2: ") msg))
-  )
-
 (defn data
   [& msg]
-  (.log LOGGER Level/FINER (apply str (if @PRINT_LOG_LEVEL "DATA:  ") msg))
+  (.log LOGGER Level/FINEST (apply str (if @PRINT_LOG_LEVEL "DATA: ") msg))
+  )
+
+(defn trace
+  [& msg]
+  (.log LOGGER Level/FINER (apply str (if @PRINT_LOG_LEVEL "TRACE:  ") msg))
   )
 
 (defn debug

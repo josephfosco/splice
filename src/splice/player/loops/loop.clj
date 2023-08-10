@@ -70,7 +70,6 @@
                     #(mod (inc %1)
                           (count (:melody-info loop-structr))) start-ndx)
                :when (let [play-prob (:play-prob ((:melody-info loop-structr) ndx))]
-                       (println ndx)
                        (if play-prob
                          (play-event? play-prob)
                          ndx
