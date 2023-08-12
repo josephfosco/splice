@@ -49,7 +49,9 @@
   LoopType
   (get-name [loop] (get-name (:core-loop loop)))
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
-  (set-loop-repetition [loop loop-rep] (set-loop-repetition (:core-loop loop) loop-rep))
+  (set-loop-repetition
+    [loop loop-rep]
+    (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
 (defn build-new-loop-structr
@@ -98,7 +100,6 @@
   (let [upd-core-loop (set-loop-repetition new-core-loop loop-rep)]
        (assoc loop-structr
               :core-loop upd-core-loop
-              ;; FIX FIX FIX  :loop-repetition loop-rep
               :num-mult-loops-started (if make-new-loop
                                         (inc (:num-mult-loops-started loop-structr))
                                         (:num-mult-loops-started loop-structr))

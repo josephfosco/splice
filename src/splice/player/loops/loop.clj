@@ -38,7 +38,9 @@
   LoopType
   (get-name [loop] (get-name (:core-loop loop)))
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
-  (set-loop-repetition [loop loop-rep] (set-loop-repetition (:core-loop loop) loop-rep))
+  (set-loop-repetition
+    [loop loop-rep]
+    (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
 (defn get-melody-info
