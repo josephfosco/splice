@@ -15,7 +15,7 @@
 
 (ns splice.player.player-play-note
   (:require
-   [clojure.core.async :refer [>!! <! go timeout]]
+   [clojure.core.async :refer [>!! <! alts! chan go put! timeout]]
    [sc-osc.sc :refer [sc-event
                       sc-next-id
                       sc-now
@@ -66,6 +66,7 @@
 
 (def ^:private is-scheduling? (atom true))
 (def ^:private num-players-stopped (atom 0))
+(defonce ^:private control-chan (chan)) ; Control channel to cansel pending melody-events
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
@@ -79,11 +80,18 @@
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
+(defn cancel-pending-melody-events
+  []
+  (repeatedly (get-setting :number-of-players) (put! control-chan :cancel))
+  )
+
+
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
   (log/info "stopping player scheduling....")
-  (reset! is-scheduling? false)
+  (cancel-pending-melody-events)
+  ;; (reset! is-scheduling? false)
   )
 
 (defn is-playing?
@@ -266,7 +274,7 @@
       (when (= :new synth-type)  ;; Do not add :prior to synth-map
         (swap! synth-melody-map assoc sc-synth-id full-melody-event))
 
-      (log/info "play-melody-event: " (pr-str full-melody-event))
+      (log/debug "play-melody-event: " (pr-str full-melody-event))
       full-melody-event
       )
     ))
@@ -353,17 +361,66 @@
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
     (let [event-time (get-event-time-from-melody-event melody-event)
           next-time (+ event-time (get-dur-millis-from-dur-info d-info))
+          timeout-ms (- (get-dur-millis-from-dur-info d-info)
+                        (- (System/currentTimeMillis) event-time))
+          next-melody-event-chan (timeout timeout-ms)
           ]
-      (go (<! (timeout (- (get-dur-millis-from-dur-info d-info) (- (System/currentTimeMillis) event-time))))
-          (play-next-note (get-player-id-from-melody-event melody-event) next-time))
-      )))
+      (go
+        (let [result (alts! [next-melody-event-chan control-chan])]
+          (if (= (first result) control-chan)
+            (log/warn "Stopping next-melody-event thread for player-id: "
+                      (get-player-id-from-melody-event melody-event))
+            (play-next-note (get-player-id-from-melody-event melody-event) next-time)))
+        ))
+    ))
 
 (defn play-first-note
   [player-id min-time-offset max-time-offset]
   (let [delay-millis (+ (random-int (* min-time-offset 1000)
                                     (* max-time-offset 1000)))
         note-time (+ (sc-now) delay-millis)
+        next-melody-event-chan (timeout delay-millis)
         ]
-    (go (<! (timeout delay-millis))
-        (play-next-note player-id note-time)))
-  )
+    (go
+      (let [result (alts! [next-melody-event-chan control-chan])]
+        (if (= (first result) control-chan)
+          (log/warn "Stopping next-melody-event thread for player-id: " player-id)
+          (play-next-note player-id note-time)))
+      )
+    ))
+
+
+
+;; (ns cancel-timeout-example
+;;   (:require [clojure.core.async :as async]))
+
+;; (defn play-next-note [player-id next-time]
+;;   ;; Simulated function to play the next musical note
+;;   (println (str "Playing note for player " player-id " at time " next-time)))
+
+;; (defn cancel-timeout [control-chan]
+;;   ;; Function to cancel the timeout
+;;   (async/put! control-chan :cancel))
+
+;; (defn main []
+;;   (let [control-chan (async/chan) ; Control channel for cancellation
+;;         timeout-ms 5000             ; Timeout duration in milliseconds
+;;         timeout-chan (async/timeout timeout-ms)]
+
+;;     ;; Start a separate thread to cancel the timeout after 2000 ms
+;;     (Thread. (fn []
+;;                (Thread/sleep 2000)
+;;                (cancel-timeout control-chan)))
+
+;;     (go
+;;       (let [result (async/alts!! [timeout-chan control-chan])]
+;;         (if (= (first result) control-chan)
+;;           (println "Timeout cancelled")
+;;           (do
+;;             (println "Timeout elapsed")
+;;             (play-next-note "player-1" (System/currentTimeMillis))))))
+
+;;     ;; Allow some time for the asynchronous operations to complete
+;;     (Thread/sleep 6000)))
+
+;; (main)

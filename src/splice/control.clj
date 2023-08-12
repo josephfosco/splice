@@ -232,25 +232,26 @@
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
   [min-start-offset max-start-offset]
-  (log/info "********** start-playing ****************")
+  (log/info "control.clj ********** start-playing ****************")
   (dotimes [id (get-setting :number-of-players)]
     (play-first-note id min-start-offset max-start-offset))
   )
 
 (defn- reserve-root-node-val
   []
-  (dosync
-   (set-setting! :root-group_ (sc-next-id :node)))
-  (log/error (get-setting :root-group_))
-  (when (not= (get-setting :root-group_) 0)
-    (throw (Throwable.
-            (str "root-group_ NOT 0\n"
-                 "root-group_ must be 0 in the :node table because supercollider\n"
-                 "sets the root node to zero and this cannot be changed\n"
-                 "Somehow sc-next-id or sc_osc.counters/next-id was called before"
-                 ":root-group_ was assigned an id in control/reserve-root-node-val"
-                 )
-            )))
+  (let [root-node-id (sc-next-id :node)]
+    (dosync
+     (set-setting! :root-group_ root-node-id))
+    (when (not= (get-setting :root-group_) 0)
+      (log/error "root-node-it = " root-node-id)
+      (throw (Throwable.
+              (str "root-group_ NOT 0\n"
+                   "root-group_ must be 0 in the :node table because supercollider\n"
+                   "sets the root node to zero and this cannot be changed\n"
+                   "Somehow sc-next-id or sc_osc.counters/next-id was called before"
+                   ":root-group_ was assigned an id in control/reserve-root-node-val"
+                   )
+              ))))
   )
 
 (defn start-splice
