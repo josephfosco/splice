@@ -66,10 +66,20 @@
 
 (def ^:private is-scheduling? (atom true))
 (def ^:private num-players-stopped (atom 0))
-(defonce ^:private control-chan (chan)) ; Control channel to cansel pending melody-events
+(defonce ^:private control-chan (chan))  ; Control channel to cansel pending melody-events
+(defonce ^:private response-chan (chan)) ; Channel to receive msgs acknowledging processing of
+                                         ;   cancel msgs
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
+
+(defn process-response-msg
+  []
+  (go
+      (let [message (<! response-chan)]
+        (println "Received message from response-channel: " message)
+        ))
+  )
 
 (declare sched-release)
 (declare stop-scheduling)
@@ -77,29 +87,40 @@
   []
   (swap! synth-melody-map empty)
   (sc-on-event "/n_go" sched-release ::go-key)
+  (process-response-msg)
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
+  )
+
+(defn make-cancel-msg
+  []
+  {:content :cancel
+   :player-id nil
+   :status :pending}
   )
 
 (defn cancel-pending-melody-events
   []
-  (repeatedly (get-setting :number-of-players) (put! control-chan :cancel))
+  (println "CONTROL-CHAN ********************:"  control-chan )
+  (dorun
+      (repeatedly
+       (get-setting :number-of-players)
+       (put! control-chan (make-cancel-msg))))
   )
-
 
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
-  (log/info "stopping player scheduling....")
+  (reset! is-scheduling? false)
+  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player scheduling....")
   (cancel-pending-melody-events)
-  ;; (reset! is-scheduling? false)
-  )
-
-(defn is-playing?
- "Returns:
-   true - if player is playing now
-   false - if player is not playing now
- "
- [player]
+  (println "*** removing ::go-key handler")
+  (sc-remove-event-handler ::go-key)
+  ;; (println "*** sending :player-scheduling-stopped msg")
+  ;; (sc-event :player-scheduling-stopped)
+  ;; (println "*** resetting is-scheduling? to true")
+  ;; (reset! is-scheduling? true)
+  (println "*** num-players-stopped to 0" )
+  (reset! num-players-stopped 0)
   )
 
 (defn update-melody-with-event
@@ -367,8 +388,9 @@
           ]
       (go
         (let [result (alts! [next-melody-event-chan control-chan])]
-          (if (= (first result) control-chan)
-            (log/warn "Stopping next-melody-event thread for player-id: "
+        (println "sched-next-note result: " result)
+          (if (= (second result) control-chan)
+            (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping next-melody-event thread for player-id: "
                       (get-player-id-from-melody-event melody-event))
             (play-next-note (get-player-id-from-melody-event melody-event) next-time)))
         ))
@@ -383,8 +405,9 @@
         ]
     (go
       (let [result (alts! [next-melody-event-chan control-chan])]
-        (if (= (first result) control-chan)
-          (log/warn "Stopping next-melody-event thread for player-id: " player-id)
+        (println "play-first-note result: " result)
+        (if (= (second result) control-chan)
+          (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping first next-melody-event thread for player-id: " player-id)
           (play-next-note player-id note-time)))
       )
     ))

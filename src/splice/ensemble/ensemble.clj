@@ -168,7 +168,7 @@
 
 (defn clear-ensemble
   [event]
-  (log/info "clearing ensemble....")
+  (println "** SHUTDOWN ** ensembie.clj/clear-ensemble - clearing ensemble....")
   (dosync
    (ref-set ensemble nil))
   )
