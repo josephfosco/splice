@@ -65,7 +65,7 @@
    ))
 
 (def ^:private is-scheduling? (atom true))
-(def ^:private num-players-stopped (atom 0))
+;; (def ^:private num-players-stopped (atom 0))
 (defonce ^:private control-chan (chan))  ; Control channel to cansel pending melody-events
 (defonce ^:private response-chan (chan)) ; Channel to receive msgs acknowledging processing of
                                          ;   cancel msgs
@@ -86,6 +86,9 @@
 (defn init-player-play-note
   []
   (swap! synth-melody-map empty)
+  ;; The ::go-key is not removed when splice is stopped. This is ok becaue if we start again
+  ;; it will not add another handler, instead, the existing one will be replaced with this
+  ;; identical one.
   (sc-on-event "/n_go" sched-release ::go-key)
   (process-response-msg)
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
@@ -100,27 +103,21 @@
 
 (defn cancel-pending-melody-events
   []
-  (println "CONTROL-CHAN ********************:"  control-chan )
-  (dorun
+  (doall
       (repeatedly
        (get-setting :number-of-players)
-       (put! control-chan (make-cancel-msg))))
+       #(put! control-chan (make-cancel-msg))))
   )
 
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
   (reset! is-scheduling? false)
-  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player scheduling....")
+  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player schedulingv for" (get-setting :number-of-players) "players....")
   (cancel-pending-melody-events)
-  (println "*** removing ::go-key handler")
-  (sc-remove-event-handler ::go-key)
-  ;; (println "*** sending :player-scheduling-stopped msg")
-  ;; (sc-event :player-scheduling-stopped)
-  ;; (println "*** resetting is-scheduling? to true")
-  ;; (reset! is-scheduling? true)
-  (println "*** num-players-stopped to 0" )
-  (reset! num-players-stopped 0)
+  (sc-event :player-scheduling-stopped)
+  (reset! is-scheduling? true)
+;;   (reset! num-players-stopped 0)
   )
 
 (defn update-melody-with-event
@@ -300,28 +297,28 @@
       )
     ))
 
-(defn track-stopped-players
-  "Tracks the number of players stopped (not being scheduled). When all players have
-  been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
-  to allow scheduling to start again.
-  "
-  [player-id]
-  (log/info "Stopping player-id: " player-id)
-  (swap! num-players-stopped inc)
-  (log/info @num-players-stopped
-            " out of "
-            (get-setting :number-of-players)
-            " players stopped" )
-  (when (= @num-players-stopped (get-setting :number-of-players))
-    (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
-    ;; remove the ::go-key handler AFTER ALL players have stopped
-    ;; to make certain we do not miss sending any gate-off events
-    (sc-remove-event-handler ::go-key)
-    (sc-event :player-scheduling-stopped)
-    (reset! is-scheduling? true)
-    (reset! num-players-stopped 0)
-    )
-  )
+;; (defn track-stopped-players
+;;   "Tracks the number of players stopped (not being scheduled). When all players have
+;;   been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
+;;   to allow scheduling to start again.
+;;   "
+;;   [player-id]
+;;   (log/info "Stopping player-id: " player-id)
+;;   (swap! num-players-stopped inc)
+;;   (log/info @num-players-stopped
+;;             " out of "
+;;             (get-setting :number-of-players)
+;;             " players stopped" )
+;;   (when (= @num-players-stopped (get-setting :number-of-players))
+;;     (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
+;;     ;; remove the ::go-key handler AFTER ALL players have stopped
+;;     ;; to make certain we do not miss sending any gate-off events
+;;     (sc-remove-event-handler ::go-key)
+;;     (sc-event :player-scheduling-stopped)
+;;     (reset! is-scheduling? true)
+;;     (reset! num-players-stopped 0)
+;;     )
+;;   )
 
 (declare sched-next-note)
 (defn play-next-note
@@ -366,14 +363,15 @@
                                 :time (System/currentTimeMillis)})
         (log/debug "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event) "\n\n\n")
         )
-      (do
-        (when (> play-time (System/currentTimeMillis))
-          ;; This means the last note played might not have started playing, or might
-          ;; have scheduled a gate-off in supercollider. In that case, wait
-          ;; until the synth has stopped and been removed in supercollider before
-          ;; marking the player as stopped.
-          (Thread/sleep (- play-time (System/currentTimeMillis))))
-        (track-stopped-players player-id)))
+      ;; (do
+      ;;   (when (> play-time (System/currentTimeMillis))
+      ;;     ;; This means the last note played might not have started playing, or might
+      ;;     ;; have scheduled a gate-off in supercollider. In that case, wait
+      ;;     ;; until the synth has stopped and been removed in supercollider before
+      ;;     ;; marking the player as stopped.
+      ;;     (Thread/sleep (- play-time (System/currentTimeMillis))))
+      ;;   (track-stopped-players player-id))
+      )
     )
   )
 
@@ -388,7 +386,6 @@
           ]
       (go
         (let [result (alts! [next-melody-event-chan control-chan])]
-        (println "sched-next-note result: " result)
           (if (= (second result) control-chan)
             (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping next-melody-event thread for player-id: "
                       (get-player-id-from-melody-event melody-event))
@@ -405,7 +402,6 @@
         ]
     (go
       (let [result (alts! [next-melody-event-chan control-chan])]
-        (println "play-first-note result: " result)
         (if (= (second result) control-chan)
           (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping first next-melody-event thread for player-id: " player-id)
           (play-next-note player-id note-time)))
