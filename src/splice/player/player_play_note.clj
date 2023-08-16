@@ -65,20 +65,41 @@
    ))
 
 (def ^:private is-scheduling? (atom true))
-;; (def ^:private num-players-stopped (atom 0))
-(defonce ^:private control-chan (chan))  ; Control channel to cansel pending melody-events
-(defonce ^:private response-chan (chan)) ; Channel to receive msgs acknowledging processing of
-                                         ;   cancel msgs
+(def ^:private num-players-stopped (atom 0))
+(defonce ^:private control-chan (chan 100))  ; Control channel to cansel pending melody-events
+(defonce ^:private response-chan (chan)) ; Channel to receive msgs acknowledging processing
+                                             ;   of cancel msgs
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
 
+(defn make-cancel-msg
+  []
+  {:content :cancel
+   :player-id nil
+   :status :pending}
+  )
+
+(defn cancel-pending-melody-event
+  []
+  ;; (doall
+  ;;     (repeatedly
+  ;;      (get-setting :number-of-players)
+  ;;      #(put! control-chan (make-cancel-msg))))
+  (put! control-chan (make-cancel-msg))
+  )
+
 (defn process-response-msg
   []
   (go
-      (let [message (<! response-chan)]
-        (println "Received message from response-channel: " message)
-        ))
+    (let [message (<! response-chan)]
+      (println "Received message from response-channel: " message)
+      ;; (swap! num-players-stopped inc)
+      ;; (println "num-players-stopped:" @num-players-stopped)
+      ))
+  (when (< @num-players-stopped (get-setting :number-of-players))
+    (cancel-pending-melody-event)
+    )
   )
 
 (declare sched-release)
@@ -94,30 +115,15 @@
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
-(defn make-cancel-msg
-  []
-  {:content :cancel
-   :player-id nil
-   :status :pending}
-  )
-
-(defn cancel-pending-melody-events
-  []
-  (doall
-      (repeatedly
-       (get-setting :number-of-players)
-       #(put! control-chan (make-cancel-msg))))
-  )
-
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
   (reset! is-scheduling? false)
   (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player schedulingv for" (get-setting :number-of-players) "players....")
-  (cancel-pending-melody-events)
-  (sc-event :player-scheduling-stopped)
-  (reset! is-scheduling? true)
-;;   (reset! num-players-stopped 0)
+  (cancel-pending-melody-event)
+  ;; (sc-event :player-scheduling-stopped)
+  ;; (reset! is-scheduling? true)
+  ;; (reset! num-players-stopped 0)
   )
 
 (defn update-melody-with-event
@@ -297,28 +303,28 @@
       )
     ))
 
-;; (defn track-stopped-players
-;;   "Tracks the number of players stopped (not being scheduled). When all players have
-;;   been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
-;;   to allow scheduling to start again.
-;;   "
-;;   [player-id]
-;;   (log/info "Stopping player-id: " player-id)
-;;   (swap! num-players-stopped inc)
-;;   (log/info @num-players-stopped
-;;             " out of "
-;;             (get-setting :number-of-players)
-;;             " players stopped" )
-;;   (when (= @num-players-stopped (get-setting :number-of-players))
-;;     (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
-;;     ;; remove the ::go-key handler AFTER ALL players have stopped
-;;     ;; to make certain we do not miss sending any gate-off events
-;;     (sc-remove-event-handler ::go-key)
-;;     (sc-event :player-scheduling-stopped)
-;;     (reset! is-scheduling? true)
-;;     (reset! num-players-stopped 0)
-;;     )
-;;   )
+(defn track-stopped-players
+  "Tracks the number of players stopped (not being scheduled). When all players have
+  been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
+  to allow scheduling to start again.
+  "
+  [player-id]
+  (log/info "Stopping player-id: " player-id)
+  (swap! num-players-stopped inc)
+  (log/info @num-players-stopped
+            " out of "
+            (get-setting :number-of-players)
+            " players stopped" )
+  (when (= @num-players-stopped (get-setting :number-of-players))
+    (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
+    ;; remove the ::go-key handler AFTER ALL players have stopped
+    ;; to make certain we do not miss sending any gate-off events
+    ;; (sc-remove-event-handler ::go-key)
+    (sc-event :player-scheduling-stopped)
+    (reset! is-scheduling? true)
+    (reset! num-players-stopped 0)
+    )
+  )
 
 (declare sched-next-note)
 (defn play-next-note
@@ -363,14 +369,14 @@
                                 :time (System/currentTimeMillis)})
         (log/debug "end:   " player-id  " melody-event: " (:melody-event-id upd-melody-event) "\n\n\n")
         )
-      ;; (do
-      ;;   (when (> play-time (System/currentTimeMillis))
-      ;;     ;; This means the last note played might not have started playing, or might
-      ;;     ;; have scheduled a gate-off in supercollider. In that case, wait
-      ;;     ;; until the synth has stopped and been removed in supercollider before
-      ;;     ;; marking the player as stopped.
-      ;;     (Thread/sleep (- play-time (System/currentTimeMillis))))
-      ;;   (track-stopped-players player-id))
+      (do
+        (when (> play-time (System/currentTimeMillis))
+          ;; This means the last note played might not have started playing, or might
+          ;; have scheduled a gate-off in supercollider. In that case, wait
+          ;; until the synth has stopped and been removed in supercollider before
+          ;; marking the player as stopped.
+          (Thread/sleep (- play-time (System/currentTimeMillis))))
+        (track-stopped-players player-id))
       )
     )
   )
@@ -383,12 +389,17 @@
           timeout-ms (- (get-dur-millis-from-dur-info d-info)
                         (- (System/currentTimeMillis) event-time))
           next-melody-event-chan (timeout timeout-ms)
+          player-id (get-player-id-from-melody-event melody-event)
           ]
       (go
         (let [result (alts! [next-melody-event-chan control-chan])]
           (if (= (second result) control-chan)
-            (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping next-melody-event thread for player-id: "
-                      (get-player-id-from-melody-event melody-event))
+            (do
+              (println "*** SHUTDOWN *** player-play-note.clj/sched-next-note -"
+                       "Stopping next-melody-event thread for player-id:"
+                       player-id)
+              (put! response-chan (assoc (first result) :status :processed :player-id player-id))
+              )
             (play-next-note (get-player-id-from-melody-event melody-event) next-time)))
         ))
     ))
@@ -403,43 +414,12 @@
     (go
       (let [result (alts! [next-melody-event-chan control-chan])]
         (if (= (second result) control-chan)
-          (println "*** SHUTDOWN *** player-play-note.clj/play-first-note - Stopping first next-melody-event thread for player-id: " player-id)
+          (do
+            (println "*** SHUTDOWN *** player-play-note.clj/play-first-note -"
+                     "Stopping first next-melody-event thread for player-id:"
+                     player-id)
+            (put! response-chan (assoc (first result) :status :processed :player-id player-id))
+            )
           (play-next-note player-id note-time)))
       )
     ))
-
-
-
-;; (ns cancel-timeout-example
-;;   (:require [clojure.core.async :as async]))
-
-;; (defn play-next-note [player-id next-time]
-;;   ;; Simulated function to play the next musical note
-;;   (println (str "Playing note for player " player-id " at time " next-time)))
-
-;; (defn cancel-timeout [control-chan]
-;;   ;; Function to cancel the timeout
-;;   (async/put! control-chan :cancel))
-
-;; (defn main []
-;;   (let [control-chan (async/chan) ; Control channel for cancellation
-;;         timeout-ms 5000             ; Timeout duration in milliseconds
-;;         timeout-chan (async/timeout timeout-ms)]
-
-;;     ;; Start a separate thread to cancel the timeout after 2000 ms
-;;     (Thread. (fn []
-;;                (Thread/sleep 2000)
-;;                (cancel-timeout control-chan)))
-
-;;     (go
-;;       (let [result (async/alts!! [timeout-chan control-chan])]
-;;         (if (= (first result) control-chan)
-;;           (println "Timeout cancelled")
-;;           (do
-;;             (println "Timeout elapsed")
-;;             (play-next-note "player-1" (System/currentTimeMillis))))))
-
-;;     ;; Allow some time for the asynchronous operations to complete
-;;     (Thread/sleep 6000)))
-
-;; (main)
