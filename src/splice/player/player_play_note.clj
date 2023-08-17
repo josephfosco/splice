@@ -93,9 +93,13 @@
 
   (if (< @num-players-stopped (get-setting :number-of-players))
     (do
+      (println (sc-send-msg "/g_queryTree" 2 0))
       (take! response-chan process-response-msg)
       (cancel-pending-melody-event))
     (do
+      (println "*****************************************************************")
+      ;; should return nil
+      (println (sc-send-msg "/g_queryTree" 2 0))
       (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
                "stopped player schedulingv for"
                (get-setting :number-of-players)
