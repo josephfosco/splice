@@ -15,7 +15,7 @@
 
 (ns splice.player.player-play-note
   (:require
-   [clojure.core.async :refer [>!! <! alts! chan go put! timeout]]
+   [clojure.core.async :refer [>!! <! alts! chan go put! take! timeout]]
    [sc-osc.sc :refer [sc-event
                       sc-next-id
                       sc-now
@@ -66,9 +66,9 @@
 
 (def ^:private is-scheduling? (atom true))
 (def ^:private num-players-stopped (atom 0))
-(defonce ^:private control-chan (chan 100))  ; Control channel to cansel pending melody-events
-(defonce ^:private response-chan (chan)) ; Channel to receive msgs acknowledging processing
-                                             ;   of cancel msgs
+(def ^:private control-chan (chan 100))  ; Control channel to cansel pending melody-events
+(def ^:private response-chan (chan))     ; Channel to receive msgs acknowledging processing
+                                         ;   of cancel msgs
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
@@ -90,14 +90,13 @@
   )
 
 (defn process-response-msg
-  []
-  (go
-    (let [message (<! response-chan)]
-      (println "Received message from response-channel: " message)
-      ;; (swap! num-players-stopped inc)
-      ;; (println "num-players-stopped:" @num-players-stopped)
-      ))
+  [msg]
+  (println "Received message from response-channel: " msg)
+  (swap! num-players-stopped inc)
+  (println "num-players-stopped:" @num-players-stopped)
+
   (when (< @num-players-stopped (get-setting :number-of-players))
+    (take! response-chan process-response-msg)
     (cancel-pending-melody-event)
     )
   )
@@ -111,14 +110,14 @@
   ;; it will not add another handler, instead, the existing one will be replaced with this
   ;; identical one.
   (sc-on-event "/n_go" sched-release ::go-key)
-  (process-response-msg)
+  (take! response-chan process-response-msg)
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
   )
 
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
-  (reset! is-scheduling? false)
+  ;; (reset! is-scheduling? false)
   (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player schedulingv for" (get-setting :number-of-players) "players....")
   (cancel-pending-melody-event)
   ;; (sc-event :player-scheduling-stopped)

@@ -1,3 +1,4 @@
+- Only print recur messages if it recurs more than 2 times
 - Look at use of >!! in player_play_note.clj
 - multiplying-loop - Be able to have a variable number of multiplying-loops
 - Clean up branches
