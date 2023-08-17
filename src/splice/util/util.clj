@@ -61,7 +61,8 @@
 
 (defn close-msg-channel
   [event]
-  (log/info "closing msg-channel....")
+  (println "*** SHUTDOWN *** util.clj/close-msg-channel"
+           "closing msg-channel....")
   (close! @msgs-in-channel)
   (drain-chan @msgs-in-channel)
   (reset! msgs-in-channel nil)

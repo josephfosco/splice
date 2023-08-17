@@ -56,7 +56,8 @@
 (defn remove-synths-effects-busses
   "Removes and frees all synths, effects, and main effect busses"
   []
-  (log/info "freeing all synths, effects, and main effect busses....")
+  (println "***SHUTDOWN *** control.clj/remove-synths-effects-busses"
+           "freeing all synths, effects, and main effect busses....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_deepFree"
                          (:splice-group-id @base-group-ids*))
@@ -72,7 +73,8 @@
 
 (defn reset-control
   [event]
-  (log/info "resetting control....")
+  (println "*** SHUTDOWN *** control.clj/reset-control"
+           "resetting control....")
 
   (remove-synths-effects-busses)
   ;; delete :node counters so when starting again it will start at 0 for root_goup_

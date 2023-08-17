@@ -82,10 +82,6 @@
 
 (defn cancel-pending-melody-event
   []
-  ;; (doall
-  ;;     (repeatedly
-  ;;      (get-setting :number-of-players)
-  ;;      #(put! control-chan (make-cancel-msg))))
   (put! control-chan (make-cancel-msg))
   )
 
@@ -95,9 +91,19 @@
   (swap! num-players-stopped inc)
   (println "num-players-stopped:" @num-players-stopped)
 
-  (when (< @num-players-stopped (get-setting :number-of-players))
-    (take! response-chan process-response-msg)
-    (cancel-pending-melody-event)
+  (if (< @num-players-stopped (get-setting :number-of-players))
+    (do
+      (take! response-chan process-response-msg)
+      (cancel-pending-melody-event))
+    (do
+      (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
+               "stopped player schedulingv for"
+               (get-setting :number-of-players)
+               "players....")
+      (sc-event :player-scheduling-stopped)
+      (reset! is-scheduling? true)
+      (reset! num-players-stopped 0)
+      )
     )
   )
 
@@ -118,7 +124,10 @@
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
   ;; (reset! is-scheduling? false)
-  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling - stopping player schedulingv for" (get-setting :number-of-players) "players....")
+  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
+           "stopping player schedulingv for"
+           (get-setting :number-of-players)
+           "players....")
   (cancel-pending-melody-event)
   ;; (sc-event :player-scheduling-stopped)
   ;; (reset! is-scheduling? true)

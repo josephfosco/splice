@@ -179,7 +179,8 @@
   ;; call update-ensemble-status event every STATUS-UPDATE-MILLIS
   (go-loop []
     (if @stop-processing-status-mgs
-      (log/info "ensemble_status message loop stopped.")
+      (println "*** SHUTDOWN *** ensemble_status.clj/start-ensemble-status -"
+               "ensemble_status message loop stopped.")
       (do
         (<! (timeout STATUS-UPDATE-MILLIS))
         (update-ensemble-status)
