@@ -16,7 +16,8 @@
 (ns splice.player.player-play-note
   (:require
    [clojure.core.async :refer [>!! <! alts! chan go put! take! timeout]]
-   [sc-osc.sc :refer [sc-event
+   [sc-osc.sc :refer [sc-deref!
+                      sc-event
                       sc-next-id
                       sc-now
                       sc-on-event
@@ -93,7 +94,22 @@
 
   (if (< @num-players-stopped (get-setting :number-of-players))
     (do
-      (println (sc-send-msg "/g_queryTree" 2 0))
+      (let [p (promise)
+            key (sc-uuid)
+            res (sc-oneshot-sync-event "/g_queryTree.reply"
+                                       (fn [info]
+                                         (deliver p info)
+                                         :sc-osc/remove-handler)
+                                       key)
+         query_vals (do (sc-send-msg "/g_queryTree" 2 0)
+                        (:args (sc-deref! p
+                                          (str "attempting to get response from queryTree in SHUTDOWN "))))
+            ]
+        (println "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        (println "query_vals: " query_vals)
+
+        )
+
       (take! response-chan process-response-msg)
       (cancel-pending-melody-event))
     (do
@@ -104,7 +120,7 @@
                "stopped player schedulingv for"
                (get-setting :number-of-players)
                "players....")
-      (sc-event :player-scheduling-stopped)
+      ;; (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
       (reset! num-players-stopped 0)
       )
@@ -133,9 +149,6 @@
            (get-setting :number-of-players)
            "players....")
   (cancel-pending-melody-event)
-  ;; (sc-event :player-scheduling-stopped)
-  ;; (reset! is-scheduling? true)
-  ;; (reset! num-players-stopped 0)
   )
 
 (defn update-melody-with-event
