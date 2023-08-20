@@ -86,41 +86,75 @@
   (put! control-chan (make-cancel-msg))
   )
 
+(defn check-for-empty-instruent-group
+  []
+  (let [p (promise)
+        key (sc-uuid)
+        res (sc-oneshot-sync-event "/g_queryTree.reply"
+                                   (fn [info]
+                                     (deliver p info)
+                                     :sc-osc/remove-handler)
+                                   key)
+        query-vals (do (sc-send-msg "/g_queryTree" 2 0)
+                       (:args (sc-deref! p
+                                         (str "attempting to get response from queryTree in SHUTDOWN "))))
+        ]
+    (println "################################################################################")
+    (println "query-vals: " query-vals)
+    (println (nth query-vals 2))
+    query-vals
+    )
+  )
+
 (defn process-response-msg
   [msg]
   (println "Received message from response-channel: " msg)
   (swap! num-players-stopped inc)
   (println "num-players-stopped:" @num-players-stopped)
+  (let [p (promise)
+        key (sc-uuid)
+        res (sc-oneshot-sync-event "/g_queryTree.reply"
+                                   (fn [info]
+                                     (deliver p info)
+                                     :sc-osc/remove-handler)
+                                   key)
+        query_vals (do (sc-send-msg "/g_queryTree" 2 0)
+                       (:args (sc-deref! p
+                                         (str "attempting to get response from queryTree in SHUTDOWN "))))
+        ]
+    (println "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    (println "query_vals: " query_vals)
+    )
 
-  (if (< @num-players-stopped (get-setting :number-of-players))
+  (cond
+    (< @num-players-stopped (get-setting :number-of-players))
     (do
-      (let [p (promise)
-            key (sc-uuid)
-            res (sc-oneshot-sync-event "/g_queryTree.reply"
-                                       (fn [info]
-                                         (deliver p info)
-                                         :sc-osc/remove-handler)
-                                       key)
-         query_vals (do (sc-send-msg "/g_queryTree" 2 0)
-                        (:args (sc-deref! p
-                                          (str "attempting to get response from queryTree in SHUTDOWN "))))
-            ]
-        (println "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        (println "query_vals: " query_vals)
-
-        )
-
       (take! response-chan process-response-msg)
-      (cancel-pending-melody-event))
+      (cancel-pending-melody-event)
+      )
+    (= @num-players-stopped (get-setting :number-of-players))
     (do
       (println "*****************************************************************")
-      ;; should return nil
-      (println (sc-send-msg "/g_queryTree" 2 0))
       (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
                "stopped player schedulingv for"
                (get-setting :number-of-players)
                "players....")
-      ;; (sc-event :player-scheduling-stopped)
+
+      (println "################################################################################")
+      (let [recursion-counter (atom 0)]
+        (loop []
+          (if (not= 0 (nth (check-for-empty-instruent-group) 2))
+            (do
+              (Thread/sleep 2000)
+              (if (> (swap! recursion-counter inc) 10)
+                (log/warn (str"player-play-note.clj/process-response-msg - "
+                              "Recuring " @recursion-counter " times waiting for instrument "
+                              "groups to clear")))
+              (recur)
+              )))
+        )
+
+      (sc-event :player-scheduling-stopped)
       (reset! is-scheduling? true)
       (reset! num-players-stopped 0)
       )
