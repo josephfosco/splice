@@ -57,7 +57,7 @@
                                        get-loop-name
                                        get-next-melody-event
                                        NEXT-METHOD]]
-   [splice.sc.groups :refer [base-group-ids*]]
+   [splice.sc.groups :refer [get-instrument-group-id]]
    [splice.sc.sc-constants :refer [tail]]
    [splice.util.log :as log]
    [splice.util.random :refer [random-int]]
@@ -94,11 +94,13 @@
                                      (deliver p info)
                                      :sc-osc/remove-handler)
                                    key)
-        query-vals (do (sc-send-msg "/g_queryTree" 2 0)
+        query-vals (do (sc-send-msg "/g_queryTree"
+                                    (get-instrument-group-id)
+                                    0)
                        (:args (sc-deref! p
                                          (str "attempting to get response from queryTree in SHUTDOWN "))))
         ]
-    ;; returns the number of items in the group
+    ;; returns the number of items in the instrument group
     (nth query-vals 2)
     )
   )
@@ -300,7 +302,7 @@
                             (get-instrument-info-from-melody-event melody-event))
                            sc-synth-id
                            tail
-                           (:instrument-group-id @base-group-ids*)
+                           (get-instrument-group-id)
                            "freq" (get-freq-from-melody-event melody-event)
                            "vol" (* (get-volume-from-melody-event melody-event)
                                     (get-setting :volume-adjust))
@@ -337,29 +339,6 @@
       full-melody-event
       )
     ))
-
-;; (defn track-stopped-players
-;;   "Tracks the number of players stopped (not being scheduled). When all players have
-;;   been stopped is-scheduling is reset to true and num-players-stopped is reset to 0
-;;   to allow scheduling to start again.
-;;   "
-;;   [player-id]
-;;   (log/info "Stopping player-id: " player-id)
-;;   (swap! num-players-stopped inc)
-;;   (log/info @num-players-stopped
-;;             " out of "
-;;             (get-setting :number-of-players)
-;;             " players stopped" )
-;;   (when (= @num-players-stopped (get-setting :number-of-players))
-;;     (log/info "\n\n\n------ ALL PLAYERS STOPPED!")
-;;     ;; remove the ::go-key handler AFTER ALL players have stopped
-;;     ;; to make certain we do not miss sending any gate-off events
-;;     ;; (sc-remove-event-handler ::go-key)
-;;     (sc-event :player-scheduling-stopped)
-;;     (reset! is-scheduling? true)
-;;     (reset! num-players-stopped 0)
-;;     )
-;;   )
 
 (declare sched-next-note)
 (defn play-next-note

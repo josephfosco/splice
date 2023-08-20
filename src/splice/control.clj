@@ -31,7 +31,13 @@
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
-   [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
+   [splice.sc.groups :refer [get-instrument-group-id
+                             get-main-fx-group-id
+                             get-post-fx-group-id
+                             get-pre-fx-group-id
+                             get-splice-group-id
+                             setup-base-groups
+                             ]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
@@ -60,7 +66,7 @@
            "freeing all synths, effects, and main effect busses....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_deepFree"
-                         (:splice-group-id @base-group-ids*))
+                         (get-splice-group-id))
                        "while freeing all synthes and effects")
   (when @main-fx-bus-first-in-chan
     (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
@@ -176,7 +182,7 @@
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
                            head
-                           (:pre-fx-group-id @base-group-ids*)
+                           (get-pre-fx-group-id)
                            "in" 0.0
                            "out" (float @main-fx-bus-first-in-chan))
                          "while starting up the main effect send")
@@ -186,7 +192,7 @@
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
                            head
-                           (:post-fx-group-id @base-group-ids*)
+                           (get-post-fx-group-id)
                            "in" (float @main-fx-bus-first-out-chan)
                            "out" 0.0)
                          "while starting up the main effect return")
@@ -200,7 +206,7 @@
                                                   "reverb-2ch"
                                                   (sc-next-id :node)
                                                   tail
-                                                  (:main-fx-group-id @base-group-ids*)
+                                                  (get-main-fx-group-id)
                                                   "in" (float @main-fx-bus-first-in-chan)
                                                   "out" (float @main-fx-bus-first-out-chan)
                                                   (second effect))
