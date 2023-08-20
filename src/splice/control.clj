@@ -211,7 +211,6 @@
                                                   "out" (float @main-fx-bus-first-out-chan)
                                                   (second effect))
                                           "while starting the main reverb-2ch effect"))
-
                    )))
     ))
 

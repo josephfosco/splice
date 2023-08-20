@@ -66,12 +66,45 @@
    ))
 
 (def ^:private num-players-stopped (atom 0))
-(def ^:private control-chan (chan 100))  ; Control channel to cansel pending melody-events
-(def ^:private response-chan (chan))     ; Channel to receive msgs acknowledging processing
-                                         ;   of cancel msgs
+(def ^:private cancel-control-chan (chan))  ; Control channel to cansel pending melody-events
+(def ^:private cancel-response-chan (chan)) ; Channel to receive msgs acknowledging processing
+                                            ;   of cancel msgs
 
 (def NEXT-NOTE-PROCESS-MILLIS 200)
 (def synth-melody-map (atom {}))
+
+
+;; **** SPLICE SHUTDOWN PROCESS ****
+;; The following 5 methods (mae-cancel-msg, cancel-pending-melody-event,
+;; check-ivstrument-group, and process-cancel-response-msg, stop-scheduling)
+;; are used in shutting down splice.
+;; 1- On init, player-play-note will register a one-shot-sync-event to call
+;;    stop-scheduling when a :stop-player-scheduling ecent is posted. Also,
+;;    it executes a take! to park on the cancel-response-chan and listening for a msg
+;;    on the cancel-response-chan to call process-cancel-msg if a msg is received
+;; 2- :stop-player-scheduing is posted when splice-stop or splice-pause are executed
+;;    from the repl (main.clj)
+;; 3- stop-scheduling calls cansel-pending-melody-event which calls make-cancel-msg
+;;    and it places this msg on the cancel-control-chan
+;; 4- Every time a next note is scheduled, the go block is listening to the
+;;    cancel-control-chan as well as the timeout. If it receives a msg on the
+;;    cancel-control-chan the timeout is cancelled. Also, the cancel-msg is
+;;    updated and placed on the cancel-response-chsn.
+;; 5- The msg placed on the cancel-response-chan is picked up by the take! and
+;;    process-cancel-response-msg is called.
+;; 6- process-cancel-response-msg tracks the number of times it is called. If it
+;;    has not been called at least once for each player (recorded in settings
+;;    :number-of-players)
+;; 7- Each time process-cancel-response-msg is called it executes a take! on the
+;;    cancel-response-chan and then calls cancel-pending-melody-event to place a
+;;    new msg on the cancel-control-chan to stop another player.
+;; 8- This process is repeated from step 5 until all scheduled events for all players
+;;    have been cancelled
+;; 9 - When all scheduled events have been cancelled, process-cancel-response-msg
+;;     checks supercollider to make certain there are no synths playing (using the OSC
+;;     /g_gueryTree command. The cpommand is set up to check the instrument-group
+;;     when it returns 0 as the number of synths in the group it is ok to complete
+;;     the shutdown porcess by posting a :player-scheduling-stopped msg
 
 (defn make-cancel-msg
   []
@@ -82,10 +115,10 @@
 
 (defn cancel-pending-melody-event
   []
-  (put! control-chan (make-cancel-msg))
+  (put! cancel-control-chan (make-cancel-msg))
   )
 
-(defn check-for-empty-instruent-group
+(defn check-instruent-group
   []
   (let [p (promise)
         key (sc-uuid)
@@ -105,29 +138,29 @@
     )
   )
 
-(defn process-response-msg
+(defn process-cancel-response-msg
   [msg]
   (swap! num-players-stopped inc)
   (cond
     (< @num-players-stopped (get-setting :number-of-players))
     (do
-      (take! response-chan process-response-msg)
+      (take! cancel-response-chan process-cancel-response-msg)
       (cancel-pending-melody-event)
       )
     (= @num-players-stopped (get-setting :number-of-players))
     (do
-      (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
+      (println "** SHUTDOWN ** player-play-note.clj/process-cancel-response-msg -"
                "stopped player schedulingv for"
                (get-setting :number-of-players)
                "players....")
 
       (let [recursion-counter (atom 0)]
         (loop []
-          (if (not= 0 (check-for-empty-instruent-group))
+          (if (not= 0 (check-instruent-group))
             (do
               (Thread/sleep 2000)
               (if (> (swap! recursion-counter inc) 10)
-                (log/warn (str"player-play-note.clj/process-response-msg - "
+                (log/warn (str"player-play-note.clj/process-cancel-response-msg - "
                               "Recuring " @recursion-counter " times waiting for instrument "
                               "groups to clear")))
               (recur)
@@ -140,8 +173,17 @@
     )
   )
 
+(defn stop-scheduling
+  " sets a flag to stop sched-next-note scheduling notes"
+  [event]
+  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
+           "stopping player scheduling for"
+           (get-setting :number-of-players)
+           "players....")
+  (cancel-pending-melody-event)
+  )
+
 (declare sched-release)
-(declare stop-scheduling)
 (defn init-player-play-note
   []
   (swap! synth-melody-map empty)
@@ -149,18 +191,8 @@
   ;; it will not add another handler, instead, the existing one will be replaced with this
   ;; identical one.
   (sc-on-event "/n_go" sched-release ::go-key)
-  (take! response-chan process-response-msg)
+  (take! cancel-response-chan process-cancel-response-msg)
   (sc-oneshot-sync-event :stop-player-scheduling stop-scheduling (sc-uuid))
-  )
-
-(defn stop-scheduling
-  " sets a flag to stop sched-next-note scheduling notes"
-  [event]
-  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
-           "stopping player schedulingv for"
-           (get-setting :number-of-players)
-           "players....")
-  (cancel-pending-melody-event)
   )
 
 (defn update-melody-with-event
@@ -386,13 +418,13 @@
           player-id (get-player-id-from-melody-event melody-event)
           ]
       (go
-        (let [result (alts! [next-melody-event-chan control-chan])]
-          (if (= (second result) control-chan)
+        (let [result (alts! [next-melody-event-chan cancel-control-chan])]
+          (if (= (second result) cancel-control-chan)
             (do
               (println "*** SHUTDOWN *** player-play-note.clj/sched-next-note -"
                        "Stopping next-melody-event thread for player-id:"
                        player-id)
-              (put! response-chan (assoc (first result) :status :processed :player-id player-id))
+              (put! cancel-response-chan (assoc (first result) :status :processed :player-id player-id))
               )
             (play-next-note (get-player-id-from-melody-event melody-event) next-time)))
         ))
@@ -406,13 +438,13 @@
         next-melody-event-chan (timeout delay-millis)
         ]
     (go
-      (let [result (alts! [next-melody-event-chan control-chan])]
-        (if (= (second result) control-chan)
+      (let [result (alts! [next-melody-event-chan cancel-control-chan])]
+        (if (= (second result) cancel-control-chan)
           (do
             (println "*** SHUTDOWN *** player-play-note.clj/play-first-note -"
                      "Stopping first next-melody-event thread for player-id:"
                      player-id)
-            (put! response-chan (assoc (first result) :status :processed :player-id player-id))
+            (put! cancel-response-chan (assoc (first result) :status :processed :player-id player-id))
             )
           (play-next-note player-id note-time)))
       )
