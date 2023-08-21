@@ -62,7 +62,7 @@
 (defn remove-synths-effects-busses
   "Removes and frees all synths, effects, and main effect busses"
   []
-  (println "***SHUTDOWN *** control.clj/remove-synths-effects-busses"
+  (println "*** SHUTDOWN *** control.clj/remove-synths-effects-busses"
            "freeing all synths, effects, and main effect busses....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_deepFree"

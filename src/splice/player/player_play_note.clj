@@ -149,7 +149,7 @@
       )
     (= @num-players-stopped (get-setting :number-of-players))
     (do
-      (println "** SHUTDOWN ** player-play-note.clj/process-cancel-response-msg -"
+      (println "*** SHUTDOWN *** player-play-note.clj/process-cancel-response-msg -"
                "stopped player schedulingv for"
                (get-setting :number-of-players)
                "players....")
@@ -176,7 +176,7 @@
 (defn stop-scheduling
   " sets a flag to stop sched-next-note scheduling notes"
   [event]
-  (println "** SHUTDOWN ** player-play-note.clj/stop-scheduling -"
+  (println "*** SHUTDOWN *** player-play-note.clj/stop-scheduling -"
            "stopping player scheduling for"
            (get-setting :number-of-players)
            "players....")
@@ -236,16 +236,22 @@
                                   (- (get-melody-event-id-from-melody-event melody-event) 1))
          prior-melody-event (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
          cur-melody-event melody-event
+         recur-count 0
          ]
     (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
              (get-sc-synth-id-from-melody-event prior-melody-event))
       (do
-        (Thread/sleep NEXT-NOTE-PROCESS-MILLIS)
-        (log/warn "%%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: " player-id " %%%%%%%%")
+        (println "recur-count: " recur-count "player-ud: " player-id)
+        (Thread/sleep (/ NEXT-NOTE-PROCESS-MILLIS 2.5))
+        (when (> recur-count 0)
+          (log/warn "player_play_note.clj/check-prior-event-note-off - "
+                    "%%%%%%%% ABOUT TO RECUR time number " recur-count
+                    " for player-id: " player-id " %%%%%%%%"))
         (recur player-id
                prior-melody-event-ndx
                (nth (get-melody-for-player-id player-id) prior-melody-event-ndx)
-               cur-melody-event))
+               cur-melody-event
+               (inc recur-count)))
       ;; If the note-off for the prior-melody-event is true, then a gate-off event
       ;; has already been scheduled for the prior-melody-event. If it is false, we need to
       ;; check if the current event is a different instrument than the prior event

@@ -100,7 +100,8 @@
 
 (defn update-melody-note-off-for-player-id
   [player-id melody-event-id note-off-val]
-  (let [melody (get-melody-for-player-id player-id)
+  (let [recur-count (atom 0)
+        melody (get-melody-for-player-id player-id)
         ; get the index of and melody-event-id of the event to be to replaced
         ndx-and-id (->> melody
                         (map :melody-event-id)
@@ -114,7 +115,11 @@
       ;; to be updated.
       (do
         (Thread/sleep 100)
-        (log/warn "%%%%%%%% ABOUT TO RECUR update-melody-note-off-for-player-id player-id: " player-id " %%%%%%%%")
+        (reset! recur-count (inc @recur-count))
+        (when (> @recur-count 2)
+            (log/warn "ensemble.clj/update-melody-note-off-for-player-id - "
+                      "%%%%%%%% ABOUT TO RECUR time number " @recur-count
+                      " for player-id: " player-id " %%%%%%%%"))
         (recur player-id melody-event-id note-off-val))
       (do
         (let [melody-event-ndx (first ndx-and-id)
@@ -168,7 +173,7 @@
 
 (defn clear-ensemble
   [event]
-  (println "** SHUTDOWN ** ensembie.clj/clear-ensemble - clearing ensemble....")
+  (println "*** SHUTDOWN *** ensembie.clj/clear-ensemble - clearing ensemble....")
   (dosync
    (ref-set ensemble nil))
   )
