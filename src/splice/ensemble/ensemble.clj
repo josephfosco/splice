@@ -99,40 +99,43 @@
     ))
 
 (defn update-melody-note-off-for-player-id
-  [player-id melody-event-id note-off-val]
-  (let [recur-count (atom 0)
-        melody (get-melody-for-player-id player-id)
-        ; get the index of and melody-event-id of the event to be to replaced
-        ndx-and-id (->> melody
-                        (map :melody-event-id)
-                        (map-indexed vector)
-                        (filter #(= (second %) melody-event-id))
-                        (map first))
-        ]
-    (if (= [] ndx-and-id)
-      ;; This will occur if for some reason the synth has started before the event
-      ;; has been added to the players melody. In that case wait a bit for the melody
-      ;; to be updated.
-      (do
-        (Thread/sleep 100)
-        (reset! recur-count (inc @recur-count))
-        (when (> @recur-count 2)
+  [arg-player-id arg-melody-event-id arg-note-off-val]
+  (loop [player-id arg-player-id
+         melody-event-id arg-melody-event-id
+         note-off-val arg-note-off-val
+         recur-count 0
+          ]
+      (let [melody (get-melody-for-player-id player-id)
+            ; get the index of and melody-event-id of the event to be to replaced
+            ndx-and-id (->> melody
+                            (map :melody-event-id)
+                            (map-indexed vector)
+                            (filter #(= (second %) melody-event-id))
+                            (map first))
+            ]
+        (if (= [] ndx-and-id)
+          ;; This will occur if for some reason the synth has started before the event
+          ;; has been added to the players melody. In that case wait a bit for the melody
+          ;; to be updated.
+          (do
+            (Thread/sleep 100)
+            ;; Print a warning msg everytime this recurs
             (log/warn "ensemble.clj/update-melody-note-off-for-player-id - "
-                      "%%%%%%%% ABOUT TO RECUR time number " @recur-count
-                      " for player-id: " player-id " %%%%%%%%"))
-        (recur player-id melody-event-id note-off-val))
-      (do
-        (let [melody-event-ndx (first ndx-and-id)
-              melody-event (nth melody melody-event-ndx)
-              ]
-          (dosync
-           (alter ensemble replace-melody-event-note-off player-id
-                                                         melody-event
-                                                         melody-event-id
-                                                         melody-event-ndx
-                                                         note-off-val))
+                      "%%%%%%%% ABOUT TO RECUR number " (inc recur-count)
+                      " for player-id: " player-id " %%%%%%%%")
+            (recur player-id melody-event-id note-off-val (inc recur-count)))
+          (do
+            (let [melody-event-ndx (first ndx-and-id)
+                  melody-event (nth melody melody-event-ndx)
+                  ]
+              (dosync
+               (alter ensemble replace-melody-event-note-off player-id
+                      melody-event
+                      melody-event-id
+                      melody-event-ndx
+                      note-off-val))
+              )))
         )))
-  ))
 
 (defn reset-msgs-for-player-id
   [msgs player-id]

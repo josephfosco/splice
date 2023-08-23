@@ -1,7 +1,11 @@
-- Only print recur messages if it recurs more than 2 times
+- Give each loop created by multiplying loops a unique name
 - Look at use of >!! in player_play_note.clj
 - multiplying-loop - set a delay before new loop is started
 - multiplying-loop - Be able to have a variable number of multiplying-loops
+- It seems if start-splice is run with :osc-debug true whenever you start again
+  without exiting and restarting clojure, :osc-debug will always be true, even if
+  :osc-debug is explicitly set to false
+- Occasionally get msg "Couldn't clear msgs for player - Retrying" look into why
 - Clean up branches
 - Make all directory paths relative. Set a base path in settings and concatenate anything
   additional on to this base.
@@ -35,17 +39,12 @@
   recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
 - If splice-stop is run when splice is not playing, splice cannot start again
 - There seem to be clicks or static in the rhodes-piano.sc instruments
+- Look into all the late messages in the supercollider terminal
 
 -------- STOPPING SPLICE --------
-- Speed up shutdown by finding a way to stop already scheduled supercollider OSC events
 - Create a fade-out function that brings the value of volume-adjust down to 0 over a short
   amount of time
 - Should Supercollider be stopped?
-- perhaps instead of scheduling a final rest event to stop all notes, it might be
-  possible to stop scheduling and then check the last melody event for each player, and
-  if there is an sc-instrument-id and note-off is not true then schedule a note off for
-  that sc-instrument-id for right now. This will still not stop the last notes that were
-  scheduled calling play-next-note (while is-scheduling? is false).
 - Can a splice-pause be created that will pick up where it left off? How will the times
   (event-time, play-time) be effected. Also, since all notes should be stopped, checking
   for prior-note-off should not be done.

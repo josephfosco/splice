@@ -241,11 +241,11 @@
     (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
              (get-sc-synth-id-from-melody-event prior-melody-event))
       (do
-        (println "recur-count: " recur-count "player-ud: " player-id)
-        (Thread/sleep (/ NEXT-NOTE-PROCESS-MILLIS 2.5))
+        (Thread/sleep (/ NEXT-NOTE-PROCESS-MILLIS 2))
+        ;; Print a warning msg if this recurs more than once
         (when (> recur-count 0)
           (log/warn "player_play_note.clj/check-prior-event-note-off - "
-                    "%%%%%%%% ABOUT TO RECUR time number " recur-count
+                    "%%%%%%%% ABOUT TO RECUR number " (inc recur-count)
                     " for player-id: " player-id " %%%%%%%%"))
         (recur player-id
                prior-melody-event-ndx
