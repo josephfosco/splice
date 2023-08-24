@@ -10,22 +10,43 @@
      :dampening - high freq dampening (0 - 1 defaults to 0.2)
     )
   }
+}
  
- :loops - array of 1 or more maps of loops to play 
- [
+ :loops - [array of 1 or more maps of loops to play]
+ 
+:loop-type loop
   {:name - loop name 
-   :loop-type Required options for type :loop. Plays :melody-info in a loop 
-   :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
-   :melody-info - an array of melody elemants to play
-   [
+  :loop-type Required options for type :loop. Plays :melody-info in a loop 
+  :instrument-name an instrument name from src/splice/instr/instrument.clj - all-instruments
+  :melody-info - an array of melody elemants to play
+  [
     {:pitch - Required - Map containing pitch information for this note
      :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: ("attack" 4.0 "release" 3.0)
     }
-   ]
-  }
- ]
+  ]
+}
+
+:loop-type multiplying-loop
+  This loop will create a new loop (based on the paramaters when created) on every repetition 
+    of the loop (when the loop starts from the begining)
+    
+  everything from :loop-type loop plus
+  {:max-num-mult-loops - after creating this many loops, no new loops will be creted - 
+                           defaults to 1
+   :reps-before-multing - will not start creating new loops until the original loop has played
+                            this many times - 
+   :num-mult-loops-started - the number of new loops created. This is managed internally
+   :loop-mult-probability - percent probability that a new loop will will be created when 
+                              possible - defaults to 100
+   :original-loop? - indicates that this is the original loop, not a copy - THIS PARAM IS NOT 
+                       used yet
+   :create-player-fn - the function to create a new player for a new loop that is being
+                         created 
+   :min-new-loop-delay - the minimum number of millis to wait before creating a new loop. 
+   :max-new-loop-delay - the maximum number of millis to wait before creating a new loop. 
+   :core-loop - the core loop that this loop is based on, currently is a loop
 }
 
 :pitch

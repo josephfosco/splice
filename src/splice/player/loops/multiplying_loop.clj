@@ -42,8 +42,12 @@
                             loop-mult-probability  ;; percent probability that loop will
                                                    ;;   mult this rep
                             original-loop?         ;; true - first loop, false - loop copy
-                            create-player-fn   ;; need to pass in to avoid circular dependency
-                                               ;;   with player.clj
+                            create-player-fn     ;; need to pass in to avoid circular dependency
+                                                 ;;   with player.clj
+                            min-new-loop-delay   ;; the minimum number of millis to wait
+                                                 ;;   before creating a new loop.
+                            max-new-loop-delay   ;; the maximum number of millis to wait
+                                                 ;;   before creating a new loop.
                             core-loop
                             ]
   LoopType
@@ -59,7 +63,7 @@
   ;; Building a Loop record structure here because the loop we are creating will not
   ;; multiply. The original multiplying-loop will multiply as Loop(s).
 
-  {:name (get-name loop)
+  {:name (str (get-name loop) "-R" (get-loop-repetition loop))
    :loop-type :loop
    :instrument-name instrument-name
    :melody-info (get-melody-info (:core-loop loop))
@@ -131,7 +135,10 @@
     (when make-new-loop
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
-        (play-first-note new-player-id 0 0))
+        (play-first-note new-player-id
+                         (:min-new-loop-delay loop-structr)
+                         (:max-new-loop-delay loop-structr)
+                         ))
       )
 
     [
@@ -146,13 +153,18 @@
              melody-info
              next-melody-event-ndx
              next-melody-fn
+             min-new-loop-delay
+             max-new-loop-delay
              max-num-mult-loops
              reps-before-multing
              loop-mult-probability
              create-player-fn
              ]
       :or {next-melody-fn get-next-mult-melody
-           max-num-mult-loops nil}
+           min-new-loop-delay 0
+           max-new-loop-delay 0
+           max-num-mult-loops nil
+           }
       }]
   (MultiplyingLoop. max-num-mult-loops
                     (or reps-before-multing 1)
@@ -160,6 +172,8 @@
                     (or loop-mult-probability 100)
                     (if max-num-mult-loops true false)
                     create-player-fn
+                    min-new-loop-delay
+                    max-new-loop-delay
                     (create-loop :name name
                                  :melody-info melody-info
                                  :next-melody-event-ndx next-melody-event-ndx
