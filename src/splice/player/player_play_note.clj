@@ -437,9 +437,8 @@
     ))
 
 (defn play-first-note
-  [player-id min-time-offset max-time-offset]
-  (let [delay-millis (+ (random-int (* min-time-offset 1000)
-                                    (* max-time-offset 1000)))
+  [player-id min-time-offset-ms max-time-offset-ms]
+  (let [delay-millis (random-int min-time-offset-ms max-time-offset-ms)
         note-time (+ (sc-now) delay-millis)
         next-melody-event-chan (timeout delay-millis)
         ]

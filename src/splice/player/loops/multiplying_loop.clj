@@ -42,12 +42,12 @@
                             loop-mult-probability  ;; percent probability that loop will
                                                    ;;   mult this rep
                             original-loop?         ;; true - first loop, false - loop copy
-                            create-player-fn     ;; need to pass in to avoid circular dependency
-                                                 ;;   with player.clj
-                            min-new-loop-delay   ;; the minimum number of millis to wait
-                                                 ;;   before creating a new loop.
-                            max-new-loop-delay   ;; the maximum number of millis to wait
-                                                 ;;   before creating a new loop.
+                            create-player-fn       ;; need to pass in to avoid circular dependency
+                                                   ;;   with player.clj
+                            min-new-loop-delay-ms  ;; the minimum number of millis to wait
+                                                   ;;   before creating a new loop.
+                            max-new-loop-delay-ms  ;; the maximum number of millis to wait
+                                                   ;;   before creating a new loop.
                             core-loop
                             ]
   LoopType
@@ -136,8 +136,8 @@
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
         (play-first-note new-player-id
-                         (:min-new-loop-delay loop-structr)
-                         (:max-new-loop-delay loop-structr)
+                         (:min-new-loop-delay-ms loop-structr)
+                         (:max-new-loop-delay-ms loop-structr)
                          ))
       )
 
@@ -153,16 +153,16 @@
              melody-info
              next-melody-event-ndx
              next-melody-fn
-             min-new-loop-delay
-             max-new-loop-delay
+             min-new-loop-delay-ms
+             max-new-loop-delay-ms
              max-num-mult-loops
              reps-before-multing
              loop-mult-probability
              create-player-fn
              ]
       :or {next-melody-fn get-next-mult-melody
-           min-new-loop-delay 0
-           max-new-loop-delay 0
+           min-new-loop-delay-ms 0
+           max-new-loop-delay-ms 0
            max-num-mult-loops nil
            }
       }]
@@ -172,8 +172,8 @@
                     (or loop-mult-probability 100)
                     (if max-num-mult-loops true false)
                     create-player-fn
-                    min-new-loop-delay
-                    max-new-loop-delay
+                    (or min-new-loop-delay-ms 0)
+                    (or max-new-loop-delay-ms 0)
                     (create-loop :name name
                                  :melody-info melody-info
                                  :next-melody-event-ndx next-melody-event-ndx

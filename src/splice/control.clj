@@ -53,6 +53,8 @@
                             :loop-type
                             :melody-info
                             :name
+                            :min-new-loop-delay-ms
+                            :max-new-loop-delay-ms
                             :max-num-mult-loops
                             :reps-before-multing
                             :num-mult-loops-started
@@ -238,10 +240,10 @@
 
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
-  [min-start-offset max-start-offset]
+  [min-start-offset-ms max-start-offset-ms]
   (log/info "control.clj ********** start-playing ****************")
   (dotimes [id (get-setting :number-of-players)]
-    (play-first-note id min-start-offset max-start-offset))
+    (play-first-note id min-start-offset-ms max-start-offset-ms))
   )
 
 (defn- reserve-root-node-val
@@ -287,8 +289,8 @@
         (dosync
          (set-setting! :volume-adjust (compute-volume-adjust number-of-players)))
         (init-splice initial-players init-melodies init-msgs)
-        (start-playing (or (:min-start-offset player-settings) 0)
-                       (or (:max-start-offset player-settings) 0))
+        (start-playing (or (:min-start-offset-ms player-settings) 0)
+                       (or (:max-start-offset-ms player-settings) 0))
         (reset! splice-status ::playing)
         ))
     (log/warn "******* CAN NOT START - SPLICE IS NOT STOPPED *******")
