@@ -28,6 +28,7 @@
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
+   [splice.loops.loops :refer [validate-and-adjust-loop]]
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
@@ -151,9 +152,13 @@
           (log/error error-msg))
         (throw (Throwable. "Validation error(s) in player loops"))
         )
-      (doall (map new-player
-                  (range (get-setting :number-of-players))
-                  (:loops player-settings)))
+      ;; (doall (map new-player
+      ;;             (range (get-setting :number-of-players))
+      ;;             (validate-and-adjust-loop
+      ;;              (:loops player-settings))))
+      (println "3333333333 init-players "
+       (doall (map validate-and-adjust-loop
+                   (:loops player-settings))))
       ))
  )
 
