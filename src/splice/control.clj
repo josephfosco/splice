@@ -144,7 +144,7 @@
 
 (defn init-players
   [player-settings]
-  (log/info "******* init-players ********")
+  (log/info "control.clj/init-players *************** init-players ***************")
   (let [errors (validate-player-settings player-settings)]
     (if (not= 0 (count errors))
       (do
@@ -152,13 +152,11 @@
           (log/error error-msg))
         (throw (Throwable. "Validation error(s) in player loops"))
         )
-      ;; (doall (map new-player
-      ;;             (range (get-setting :number-of-players))
-      ;;             (validate-and-adjust-loop
-      ;;              (:loops player-settings))))
-      (println "3333333333 init-players "
-       (doall (map validate-and-adjust-loop
-                   (:loops player-settings))))
+      (doall (map new-player
+                  (range (get-setting :number-of-players))
+                  (doall (validate-and-adjust-loop
+                          (:loops player-settings)))
+                  ))
       ))
  )
 

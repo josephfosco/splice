@@ -60,7 +60,7 @@
   (:next-melody-event-ndx loop-structr)
   )
 
-(defn compute-next-melody-event-ndx
+(defn- compute-next-melody-event-ndx
   "Returns the next loop-event index to use starting at start-ndx
    checks each loop-events :play-prob (play probability) if it exists
   "

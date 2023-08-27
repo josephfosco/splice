@@ -20,11 +20,10 @@
    )
   )
 
-(defn- convert-midi-hz
+(defn- convert-midi-to-hz
   [loop-event]
-  (println "22222222222222 convert-midi-hz " loop-event)
-  (if (contains? :pitch-midi-note (:pitch loop-event))
-    (let [new-pitch-map (assoc (dissoc :pitch-midi-note (:pitch loop-event))
+  (if (contains? (:pitch loop-event) :pitch-midi-note )
+    (let [new-pitch-map (assoc (dissoc (:pitch loop-event) :pitch-midi-note)
                                :pitch-freq
                                (midi->hz (:pitch-midi-note (:pitch loop-event))))
           ]
@@ -36,11 +35,8 @@
 
 (defn validate-and-adjust-loop
   [loop]
-  (println "1111111111111 validate-and-adjust-loop " loop)
-  (let [new-melody-info (map convert-midi-hz
-                             (range (count (:melody-info loop)))
-                             (:melody-info loop))
+  (let [new-melody-info (doall (map convert-midi-to-hz loop))
         ]
-    (assoc loop :melody-info new-melody-info)
+    new-melody-info
     )
   )

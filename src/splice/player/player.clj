@@ -63,6 +63,7 @@
   [& {:keys [id loop-settings]}]
   (log/info (str "player/create-player - Creating player " id))
   (when (nil? (:instrument-name loop-settings))
+    (log/error "player.clj/create-player loop-settings: " loop-settings)
     (throw (Throwable. "Missing :instrument-name in loop")))
   (Player. id
            (build-loop-structr loop-settings)
