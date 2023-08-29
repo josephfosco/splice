@@ -50,18 +50,6 @@
 (def main-fx-bus-first-in-chan (atom nil))
 (def main-fx-bus-first-out-chan (atom nil))
 
-(def valid-loop-keys (set '(:instrument-name
-                            :loop-type
-                            :melody-info
-                            :name
-                            :min-new-loop-delay-ms
-                            :max-new-loop-delay-ms
-                            :max-num-mult-loops
-                            :reps-before-multing
-                            :num-mult-loops-started
-                            :loop-mult-probability
-                            )))
-
 (defn remove-synths-effects-busses
   "Removes and frees all synths, effects, and main effect busses"
   []
@@ -112,31 +100,6 @@
   (start-ensemble-status)
   )
 
-(defn validate-loop-keys
-  [loop-settings]
-  ;; TODO validate loop keys based on type of loop
-  (flatten
-   (for [loop loop-settings]
-     (let [loop-keys (keys loop)]
-       (for [loop-key loop-keys
-             :when (not (contains? valid-loop-keys loop-key))]
-         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
-         )
-       )
-     ))
-  )
-
-(defn validate-player-settings
-  [player-settings]
-  (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
-    (cond-> '()
-      (< (count (:loops player-settings)) 1)
-      (conj ":loops not found in player-settings file")
-      (not= (count loop-key-msgs) 0)
-      ((partial reduce conj) loop-key-msgs)
-      )
-    ))
-
 (defn new-player
   [player-id loop-setting]
   (create-player :id player-id :loop-settings loop-setting)
@@ -145,20 +108,12 @@
 (defn init-players
   [player-settings]
   (log/info "control.clj/init-players *************** init-players ***************")
-  (let [errors (validate-player-settings player-settings)]
-    (if (not= 0 (count errors))
-      (do
-        (doseq [error-msg errors]
-          (log/error error-msg))
-        (throw (Throwable. "Validation error(s) in player loops"))
-        )
-      (doall (map new-player
-                  (range (get-setting :number-of-players))
-                  (doall (validate-and-adjust-loop
-                          (:loops player-settings)))
-                  ))
-      ))
- )
+  (doall (map new-player
+              (range (get-setting :number-of-players))
+              (doall (validate-and-adjust-loop
+                      player-settings))
+              ))
+  )
 
 (defn init-melody
   [player-id]

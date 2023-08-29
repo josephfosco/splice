@@ -16,9 +16,47 @@
 (ns splice.loops.loops
   (:require
    [splice.music.music :refer [midi->hz]]
+   [splice.util.log :as log]
    [splice.util.settings :refer [get-setting set-setting! update-settings!]]
    )
   )
+
+(def valid-loop-keys (set '(:instrument-name
+                            :loop-type
+                            :melody-info
+                            :name
+                            :min-new-loop-delay-ms
+                            :max-new-loop-delay-ms
+                            :max-num-mult-loops
+                            :reps-before-multing
+                            :num-mult-loops-started
+                            :loop-mult-probability
+                            )))
+
+(defn- validate-loop-keys
+  [loop-settings]
+  ;; TODO validate loop keys based on type of loop
+  (flatten
+   (for [loop loop-settings]
+     (let [loop-keys (keys loop)]
+       (for [loop-key loop-keys
+             :when (not (contains? valid-loop-keys loop-key))]
+         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
+         )
+       )
+     ))
+  )
+
+(defn- validate-player-settings
+  [player-settings]
+  (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
+    (cond-> '()
+      (< (count (:loops player-settings)) 1)
+      (conj ":loops not found in player-settings file")
+      (not= (count loop-key-msgs) 0)
+      ((partial reduce conj) loop-key-msgs)
+      )
+    ))
 
 (defn- convert-midi-to-hz
   [loop-event]
@@ -34,9 +72,16 @@
   )
 
 (defn validate-and-adjust-loop
-  [loop]
-  (let [new-melody-info (doall (map convert-midi-to-hz loop))
-        ]
-    new-melody-info
+  [loops]
+  ;; Validate loops then convert any loop events that specify pitch by midi-not-num to
+  ;; specify pitch by frequency
+  (let [errors (validate-player-settings loops)]
+    (if (not= 0 (count errors))
+      (do
+        (doseq [error-msg errors]
+          (log/error error-msg))
+        (throw (Throwable. "Validation error(s) in player loops"))
+        )
+      (doall (map convert-midi-to-hz (:loops loops)))
+      ))
     )
-  )
