@@ -112,6 +112,28 @@
     )
   )
 
+(defn- get-base-pitch
+  [pitch-info]
+  ;; Pitches that are originally specified as :pitch-midi-note are now converted to
+  ;; :pitch-freq when the player(s) are created. At this point it should NEVER be
+  ;; necessary to convert midi-note-num to freq, Do  not want to validate at this
+  ;; point to keep processing to an absolute minimum.
+
+  (condp = (:type pitch-info)
+    :fixed (or (:pitch-freq pitch-info)
+               (if-let [note-no (:pitch-midi-note pitch-info)]
+                 (midi->hz note-no)
+                 )
+               )
+    :variable (let [pitch (rand-nth (:pitches pitch-info))]
+                (if (and pitch (= :midi-note (:pitch-type pitch-info)))
+                  (midi->hz pitch)
+                  pitch) ;; :pitch-type = :freq or pitch is nil (rest)
+                )
+    :rest nil
+    )
+  )
+
 (defn get-loop-pitch
   [pitch-info]
   ;; Throw an error if the pitch-freq or pitch-midi-note is nil or missing when pitch :type
@@ -127,18 +149,8 @@
     (throw (Throwable. (str "Missing :pitch-freq, :pitch-midi-note or :pitches when "
                             ":pitch-type is :fixed or :variable")))
     )
-  (condp = (:type pitch-info)
-    :fixed (or (:pitch-freq pitch-info)
-               (if-let [note-no (:pitch-midi-note pitch-info)]
-                 (midi->hz note-no)
-                 )
-               )
-    :variable (let [pitch (rand-nth (:pitches pitch-info))]
-                (if (and pitch (= :midi-note (:pitch-type pitch-info)))
-                  (midi->hz pitch)
-                  pitch) ;; :pitch-type = :freq or pitch is nil (rest)
-                )
-    :rest nil
+  (let [base-pitch (get-base-pitch pitch-info)]
+    base-pitch
     )
   )
 

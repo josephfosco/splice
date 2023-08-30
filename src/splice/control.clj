@@ -28,7 +28,7 @@
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
-   [splice.loops.loops :refer [validate-and-adjust-loop]]
+   [splice.loops.loops :refer [validate-and-adjust-loops]]
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
@@ -102,6 +102,7 @@
 
 (defn new-player
   [player-id loop-setting]
+  (println "new-player loop-setting: " loop-setting)
   (create-player :id player-id :loop-settings loop-setting)
   )
 
@@ -110,7 +111,7 @@
   (log/info "control.clj/init-players *************** init-players ***************")
   (doall (map new-player
               (range (get-setting :number-of-players))
-              (doall (validate-and-adjust-loop
+              (doall (validate-and-adjust-loops
                       player-settings))
               ))
   )
