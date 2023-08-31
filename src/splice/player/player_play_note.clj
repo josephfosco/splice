@@ -381,7 +381,7 @@
 (declare sched-next-note)
 (defn play-next-note
   [player-id sched-time]
-  (log/info "--- start player-id: " player-id "---")
+  (log/info "player-play-note.clj/play-next-note --- start player-id: " player-id "---")
   (let [event-time sched-time
         play-time (+ sched-time NEXT-NOTE-PROCESS-MILLIS)
         ;; TODO document why we are clearing messages here

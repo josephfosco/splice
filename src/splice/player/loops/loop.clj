@@ -69,37 +69,54 @@
   ;; If there is a play-prob, for the next melody-info event it will check if it
   ;; should play the event based on the play-prob. If it should it will return that
   ;; ndx, otherwise it will continue trying with the next ndx until it finds the event
-  ;; ndx it should play. If there is no play-prob for the event, it will rutrun the next
+  ;; ndx it should play. If there is no play-prob for the event, it will ruturn the next
   ;; event ndx.
-  (first
-   (take 1
-         (for [ndx (iterate
-                    #(mod (inc %1)
-                          (count (:melody-info loop-structr))) start-ndx)
-               :when (let [play-prob (:play-prob ((:melody-info loop-structr) ndx))]
-                       (if play-prob
-                         (play-event? play-prob)
-                         ndx
-                         ))
-               ]
-           ndx)
-         ))
-  )
+  (println "compute-next-melody-event-ndx start-ndx: " start-ndx "\nloop-structr: " loop-structr)
+
+  (let [result (first
+                (for [ndx (iterate
+                           #(mod (inc %1)
+                                 (count (:melody-info loop-structr)))
+                           start-ndx)
+                      :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
+                              (if play-prob
+                                (play-event? play-prob)
+                                ndx))]
+                  ndx))]
+    (if (nil? result)
+      start-ndx
+      result)
+
+  ;; (first
+  ;;  (take 1
+  ;;        (for [ndx (iterate
+  ;;                   #(mod (inc %1)
+  ;;                         (count (:melody-info loop-structr)))
+  ;;                   start-ndx)
+  ;;              :when (let [play-prob (:play-prob (nth((:melody-info loop-structr) ndx)))]
+  ;;                      (if play-prob
+  ;;                        (play-event? play-prob)
+  ;;                        ndx
+  ;;                        ))
+  ;;              ]
+  ;;          ndx)
+  ;;        ))
+  ))
 
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event. loop-structr must be a Loop record."
   [player melody loop-structr next-id event-time]
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
-                                            (:next-melody-event-ndx loop-structr))
+                                                  (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
         instrument-info (get-player-instrument-info player)
         ;; frequency can be nil when pitch-type is variable and one or more entries in
         ;; the pitch vector is nil, and the nil value is chosen
         frequency (get-loop-pitch (:pitch melody-info))
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
-                        true
-                        nil)
+                         true
+                         nil)
         melody-event (create-melody-event
                       :melody-event-id next-id
                       :freq frequency

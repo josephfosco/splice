@@ -200,7 +200,7 @@
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
   [min-start-offset-ms max-start-offset-ms]
-  (log/info "control.clj ********** start-playing ****************")
+  (log/info "control.clj/start-playing ********** start-playing ****************")
   (dotimes [id (get-setting :number-of-players)]
     (play-first-note id min-start-offset-ms max-start-offset-ms))
   )
@@ -241,6 +241,7 @@
             init-melodies (map init-melody (range number-of-players))
             init-msgs (for [x (range number-of-players)] [])
             ]
+        (println "start-splice initial-players: " initial-players)
         (setup-base-groups)
         (load-sc-synthdefs (:loops player-settings))
         (if-let [effects (get player-settings :main-bus-effects)]
