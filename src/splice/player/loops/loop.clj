@@ -73,40 +73,45 @@
   ;; event ndx.
   (println "compute-next-melody-event-ndx start-ndx: " start-ndx "\nloop-structr: " loop-structr)
 
-  (let [result (first
-                (for [ndx (iterate
-                           #(mod (inc %1)
-                                 (count (:melody-info loop-structr)))
-                           start-ndx)
-                      :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
-                              (if play-prob
-                                (play-event? play-prob)
-                                ndx))]
-                  ndx))]
-    (if (nil? result)
-      start-ndx
-      result)
+  ;; (let [result (first
+  ;;               (for [ndx (iterate
+  ;;                          #(mod (inc %1)
+  ;;                                (count (:melody-info loop-structr)))
+  ;;                          start-ndx)
+  ;;                     :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
+  ;;                             (if play-prob
+  ;;                               (play-event? play-prob)
+  ;;                               ndx))]
+  ;;                 ndx))]
+  ;;   result
+  ;;   )
 
-  ;; (first
-  ;;  (take 1
-  ;;        (for [ndx (iterate
-  ;;                   #(mod (inc %1)
-  ;;                         (count (:melody-info loop-structr)))
-  ;;                   start-ndx)
-  ;;              :when (let [play-prob (:play-prob (nth((:melody-info loop-structr) ndx)))]
-  ;;                      (if play-prob
-  ;;                        (play-event? play-prob)
-  ;;                        ndx
-  ;;                        ))
-  ;;              ]
-  ;;          ndx)
-  ;;        ))
-  ))
+  (first
+   (take 1
+         (for [ndx (iterate
+                    #(mod (inc %1)
+                          (count (:melody-info loop-structr)))
+                    start-ndx)
+               :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
+                       (if play-prob
+                         (play-event? play-prob)
+                         ndx
+                         ))
+               ]
+           ndx)
+         ))
+  )
 
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event. loop-structr must be a Loop record."
   [player melody loop-structr next-id event-time]
+  (println "#########################################################################################")
+  (println "#########################################################################################")
+  (println "#########################################################################################")
+  (println "#########################################################################################")
+  (println "get-next-melody player: " player)
+  (Thread/sleep 3000)
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                                   (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
