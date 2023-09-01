@@ -50,6 +50,7 @@
 
 (defn play-event?
   [play-prob]
+  (println "************* play-event?  ********************************" play-prob)
   (if (< (rand-int 100) play-prob)
     true
     false)
@@ -87,19 +88,18 @@
   ;;   )
 
   (first
-   (take 1
-         (for [ndx (iterate
-                    #(mod (inc %1)
-                          (count (:melody-info loop-structr)))
-                    start-ndx)
-               :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
-                       (if play-prob
-                         (play-event? play-prob)
-                         ndx
-                         ))
-               ]
-           ndx)
-         ))
+   (for [ndx (iterate
+              #(mod (inc %1)
+                    (count (:melody-info loop-structr)))
+              start-ndx)
+         :when (let [play-prob (:play-prob (:melody-info loop-structr) ndx)]
+                 (if play-prob
+                   (play-event? play-prob)
+                   ndx
+                   ))
+         ]
+     ndx)
+         )
   )
 
 (defn get-next-melody
@@ -110,10 +110,12 @@
   (println "#########################################################################################")
   (println "#########################################################################################")
   (println "#########################################################################################")
-  (println "get-next-melody player: " player)
-  (Thread/sleep 3000)
+  (println "get-next-melody loop-structr: " loop-structr)
+  (println "#########################################################################################")
+  (println "melody-info: "(:melody-info loop-structr))
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                                   (:next-melody-event-ndx loop-structr))
+        xxx (println "melody-ndx: " melody-ndx)
         melody-info ((:melody-info loop-structr) melody-ndx)
         instrument-info (get-player-instrument-info player)
         ;; frequency can be nil when pitch-type is variable and one or more entries in

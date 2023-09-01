@@ -60,17 +60,19 @@
 
 (defn- convert-midi-to-hz
   [loop]
+  (println "midi-hz loop-before: " loop)
   (let [new-melody-info
-        (for [melody-event (:melody-info loop)]
-          (if (contains? (:pitch melody-event) :pitch-midi-note )
-            (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitch-midi-note)
-                                       :pitch-freq
-                                       (midi->hz (:pitch-midi-note (:pitch melody-event))))
-                  ]
-              (assoc melody-event :pitch new-pitch-map)
-              )
-            melody-event
-            ))]
+        (vec
+         (for [melody-event (:melody-info loop)]
+           (if (contains? (:pitch melody-event) :pitch-midi-note )
+             (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitch-midi-note)
+                                        :pitch-freq
+                                        (midi->hz (:pitch-midi-note (:pitch melody-event))))
+                   ]
+               (assoc melody-event :pitch new-pitch-map)
+               )
+             melody-event
+             )))]
     (assoc loop :melody-info new-melody-info)
     )
   )
