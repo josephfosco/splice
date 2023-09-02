@@ -99,21 +99,20 @@
   ;;  }
 
   {:name "strings-1"
-   :loop-type :multiply-loop
+   :loop-type :loop
    :instrument-name :string-sect
    :melody-info
-   [{:pitch {:type :fixed-pitch
-             :pitch-midi-note 69}
+   [{:pitch {:type :variable
+             :pitch-midi-note [69 81]}
      :dur {:type :variable-millis
-           :min-millis 7000
-           :max-millis 13500
+           :min-millis 1000
+           :max-millis 2500
            }
      :volume {:type fixed
-              :level 0.2}
+              :level 0.7}
      :instrument-settings (:attack 4.0 :release 3.0)
      }
-    {:pitch {:type :fixed-pitch
-             :pitch-freq nil}
+    {:pitch {:type :rest }
      :dur {:type :fixed
            :dur-millis 14000}
      }

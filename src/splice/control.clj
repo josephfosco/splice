@@ -240,7 +240,6 @@
             init-melodies (map init-melody (range number-of-players))
             init-msgs (for [x (range number-of-players)] [])
             ]
-        (println "start-splice initial-players: " initial-players)
         (setup-base-groups)
         (load-sc-synthdefs (:loops player-settings))
         (if-let [effects (get player-settings :main-bus-effects)]

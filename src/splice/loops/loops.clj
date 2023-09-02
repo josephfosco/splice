@@ -64,11 +64,14 @@
         (vec
          (for [melody-event (:melody-info loop)]
            (if (contains? (:pitch melody-event) :pitch-midi-note )
-             (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitch-midi-note)
-                                        :pitch-freq
-                                        (midi->hz (:pitch-midi-note (:pitch melody-event))))
-                   ]
-               (assoc melody-event :pitch new-pitch-map)
+             (if (= (type (:pitch-midi-note (:pitch melody-event))) java.lang.Long)
+               (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitch-midi-note)
+                                          :pitch-freq
+                                          (midi->hz (:pitch-midi-note (:pitch melody-event))))
+                     ]
+                 (assoc melody-event :pitch new-pitch-map)
+                 )
+               melody-event
                )
              melody-event
              )))]

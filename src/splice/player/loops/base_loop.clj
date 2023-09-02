@@ -120,11 +120,13 @@
   ;; point to keep processing to an absolute minimum.
 
   (condp = (:type pitch-info)
-    :fixed (or (:pitch-freq pitch-info)
-               (if-let [note-no (:pitch-midi-note pitch-info)]
-                 (midi->hz note-no)
-                 )
-               )
+    ;; :fixed (or (:pitch-freq pitch-info)
+    ;;            (if-let [note-no (:pitch-midi-note pitch-info)]
+    ;;              (midi->hz note-no)
+    ;;              )
+    ;;            )
+    :fixed (:pitch-freq pitch-info)
+
     :variable (let [pitch (rand-nth (:pitches pitch-info))]
                 (if (and pitch (= :midi-note (:pitch-type pitch-info)))
                   (midi->hz pitch)
