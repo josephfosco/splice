@@ -60,7 +60,6 @@
 
 (defn- convert-midi-to-hz
   [loop]
-  (println "midi-hz loop-before: " loop)
   (let [new-melody-info
         (vec
          (for [melody-event (:melody-info loop)]

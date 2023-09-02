@@ -102,7 +102,6 @@
 
 (defn new-player
   [player-id loop-setting]
-  (println "new-player loop-setting: " loop-setting)
   (create-player :id player-id :loop-settings loop-setting)
   )
 
