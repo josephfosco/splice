@@ -49,10 +49,11 @@
 
 (defn- validate-player-settings
   [player-settings]
+  (println "player-settings: " player-settings)
   (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
     (cond-> '()
       (< (count (:loops player-settings)) 1)
-      (conj ":loops not found in player-settings file")
+      (conj "loops.clj/validate-player-settings - :loops not found in player-settings file")
       (not= (count loop-key-msgs) 0)
       ((partial reduce conj) loop-key-msgs)
       )

@@ -149,8 +149,8 @@
       )
     (= @num-players-stopped (get-setting :number-of-players))
     (do
-      (println "*** SHUTDOWN *** player-play-note.clj/process-cancel-response-msg -"
-               "stopped player schedulingv for"
+      (println "*** SHUTDOWN *** player-play-note.clj/process-cancel-response-msg - "
+               "stopped player scheduling for"
                (get-setting :number-of-players)
                "players....")
 
@@ -398,11 +398,12 @@
                                             play-time)
         upd-melody (update-melody-with-event melody upd-melody-event)
         ]
-    (log/debug player-id " "
-             (get-loop-name player) " "
-             (if (get-freq-from-melody-event upd-melody-event)
-               ""
-               "REST"))
+    (log/debug "player-play-note/play-next-note - "
+               "player-id: " player-id " "
+               (get-loop-name player) " "
+               (if (get-freq-from-melody-event upd-melody-event)
+                 ""
+                 "REST"))
     (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (sched-next-note upd-melody-event)

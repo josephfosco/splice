@@ -103,18 +103,19 @@
    :instrument-name :string-sect
    :melody-info
    [{:pitch {:type :variable
-             :pitch-midi-note [69 81]}
+             :pitch-type :midi-note
+             :pitches [69 81]}
      :dur {:type :variable-millis
            :min-millis 1000
            :max-millis 2500
            }
-     :volume {:type fixed
+     :volume {:type :fixed
               :level 0.7}
      :instrument-settings (:attack 4.0 :release 3.0)
      }
     {:pitch {:type :rest }
      :dur {:type :fixed
-           :dur-millis 14000}
+           :dur-millis 2000}
      }
     ]
    }

@@ -29,7 +29,7 @@
       (binding [*read-eval* false]
         (read (java.io.PushbackReader. r))))
     (catch java.io.FileNotFoundException e
-      (log/warn (str "File: " filename " is missing...."))
+      (log/error (str "File: " filename " is missing...."))
       {})
     )
   )
