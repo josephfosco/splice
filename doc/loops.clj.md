@@ -25,7 +25,7 @@
     {:pitch - Required - Map containing pitch information for this note
      :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
-     :instrument-settings - Optional A list of keys and values of settings for this instrument. Example: ("attack" 4.0 "release" 3.0)
+     :instrument-settings - Optional - a list of keys and values of settings for this instrument. Example: ("attack" 4.0 "release" 3.0)
     }
   ]
 }

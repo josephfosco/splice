@@ -1,3 +1,11 @@
+;; DO NOT CHANGE
+;; DO NOT CHANGE
+;; DO NOT CHANGE
+;; DO NOT CHANGE
+;; DO NOT CHANGE
+;; DO NOT CHANGE
+;; NEEDED TO TEST ERROR IN CLEARING INSTRUMENT GROUPS WHEN SHUTTING DOWN
+
 {:min-start-offset 1
  :max-start-offset 24
 
@@ -111,7 +119,7 @@
            }
      :volume {:type :fixed
               :level 0.7}
-     :instrument-settings (:attack 4.0 :release 3.0)
+     :instrument-settings ("attack" 0.5 "release" 0.2)
      }
     {:pitch {:type :rest }
      :dur {:type :fixed

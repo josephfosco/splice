@@ -49,7 +49,6 @@
 
 (defn- validate-player-settings
   [player-settings]
-  (println "player-settings: " player-settings)
   (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
     (cond-> '()
       (< (count (:loops player-settings)) 1)
@@ -64,15 +63,30 @@
   (let [new-melody-info
         (vec
          (for [melody-event (:melody-info loop)]
-           (if (contains? (:pitch melody-event) :pitch-midi-note )
-             (if (= (type (:pitch-midi-note (:pitch melody-event))) java.lang.Long)
+           (if (or (contains? (:pitch melody-event) :pitch-midi-note)
+                   (contains? (:pitch melody-event) :pitch-type))
+             ;; a single pitch
+             (if (= (:type (:pitch melody-event)) :fixed)
                (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitch-midi-note)
                                           :pitch-freq
                                           (midi->hz (:pitch-midi-note (:pitch melody-event))))
                      ]
                  (assoc melody-event :pitch new-pitch-map)
                  )
-               melody-event
+               ;; a vector of pitches
+               (let [new-pitch-map (assoc (dissoc (:pitch melody-event) :pitches)
+                                          :pitch-type
+                                          :freq
+                                          :pitches
+                                          (vec
+                                           (for [midi-note (:pitches (:pitch melody-event))]
+                                             (if (= midi-note nil)
+                                               midi-note
+                                               (midi->hz midi-note))
+                                             )))
+                     ]
+                 (assoc melody-event :pitch new-pitch-map)
+                 )
                )
              melody-event
              )))]

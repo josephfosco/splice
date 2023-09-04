@@ -1,8 +1,14 @@
 - Look at use of >!! in player_play_note.clj
-- multiplying-loop - set a delay before new loop is started
 - multiplying-loop - Be able to have a variable number of multiplying-loops
+- multiplying-loop - It might be possible to start a new loop at the exact same time as the
+  original loop if you send both commands to supercollider in the same bundle
 - Occasionally get msg "Couldn't clear msgs for player - Retrying" look into why
 - Clean up branches
+- Currently in a score in the :pitch map if it is a single pitch the pitch has the key
+  :pitch-freq or "pitch-midi-note. It it is variable (with multiple keys there is a key
+  :pitch-type which is either :midi-note or :freq and a key :pitches. Perhaps this should
+  be standardized to always be like variable pitches. Each :pitch map will have the keys
+  :type (:fixed | :variable |:rest) :pitch-type (:midi-note | :freq) and :pitch or :pitches.
 - Make all directory paths relative. Set a base path in settings and concatenate anything
   additional on to this base.
 - Set log settings (dir and level) for sc-osc
@@ -25,6 +31,10 @@
 
 
 -------- BUGS/ERRORS --------
+- Sometime player-play-note.clj/process-cancel-response-msg will get into an infinite
+  loop recurring (Recuring x times waiting for instrument groups to clear) currently
+  happens with loops1 in test-scores sith 4 sec attack and 3 sec release. Also, happens
+  occasionally with splice-compositions/compositions/0000-initial-loops.clj.
 - need to look at the ensemble implementation. If dosync is implemented correctly in
   player-play-note/play-next-note (at top of fn) the entire ensemble will be locked everytime
   any player wants to play a note. It should be implemented so only a specific player and/or
