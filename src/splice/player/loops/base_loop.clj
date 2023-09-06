@@ -116,22 +116,12 @@
   [pitch-info]
   ;; Pitches that are originally specified as :pitch-midi-note are now converted to
   ;; :pitch-freq when the player(s) are created. At this point it should NEVER be
-  ;; necessary to convert midi-note-num to freq, Do  not want to validate at this
-  ;; point to keep processing to an absolute minimum.
+  ;; necessary to convert midi-note-num to freq.
 
   (condp = (:type pitch-info)
-    ;; :fixed (or (:pitch-freq pitch-info)
-    ;;            (if-let [note-no (:pitch-midi-note pitch-info)]
-    ;;              (midi->hz note-no)
-    ;;              )
-    ;;            )
     :fixed (:pitch-freq pitch-info)
 
-    :variable (let [pitch (rand-nth (:pitches pitch-info))]
-                (if (and pitch (= :midi-note (:pitch-type pitch-info)))
-                  (midi->hz pitch)
-                  pitch) ;; :pitch-type = :freq or pitch is nil (rest)
-                )
+    :variable (rand-nth (:pitches pitch-info))
 
     :rest nil
     )
