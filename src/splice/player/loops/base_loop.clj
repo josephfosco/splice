@@ -112,6 +112,13 @@
     )
   )
 
+(defn- get-pitch-variation
+  [pitch-info]
+  (let [total-pitch-var (+ (:pitch-var-max-inc pitch-info) (:pitch-var-max-dec pitch-info))]
+    )
+  0
+  )
+
 (defn- get-base-pitch
   [pitch-info]
   ;; Pitches that are originally specified as :pitch-midi-note are now converted to
@@ -128,7 +135,7 @@
   )
 
 (defn get-loop-pitch
-  [pitch-info]
+  [loop-structr pitch-info]
   ;; Throw an error if the pitch-freq or pitch-midi-note is nil or missing when pitch :type
   ;; is not :rest
   ;; TODO This validation should occur when the loop file is loaded possibly in control/validate-player-settings
@@ -143,7 +150,11 @@
                             ":pitch-type is :fixed or :variable")))
     )
   (let [base-pitch (get-base-pitch pitch-info)]
-    base-pitch
+    (if-let [first-pitch-var-rep (:pitch-var-first-rep pitch-info)]
+      (if (>= (get-loop-repetition loop-structr) first-pitch-var-rep)
+        (+ base-pitch get-pitch-variation pitch-info)
+        base-pitch)
+      )
     )
   )
 

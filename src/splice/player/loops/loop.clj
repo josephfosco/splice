@@ -72,19 +72,6 @@
   ;; ndx it should play. If there is no play-prob for the event, it will ruturn the next
   ;; event ndx.
 
-  ;; (let [result (first
-  ;;               (for [ndx (iterate
-  ;;                          #(mod (inc %1)
-  ;;                                (count (:melody-info loop-structr)))
-  ;;                          start-ndx)
-  ;;                     :when (let [play-prob (:play-prob (nth (:melody-info loop-structr) ndx))]
-  ;;                             (if play-prob
-  ;;                               (play-event? play-prob)
-  ;;                               ndx))]
-  ;;                 ndx))]
-  ;;   result
-  ;;   )
-
   (first
    (for [ndx (iterate
               #(mod (inc %1)
@@ -110,7 +97,7 @@
         instrument-info (get-player-instrument-info player)
         ;; frequency can be nil when pitch-type is variable and one or more entries in
         ;; the pitch vector is nil, and the nil value is chosen
-        frequency (get-loop-pitch (:pitch melody-info))
+        frequency (get-loop-pitch loop-structr (:pitch melody-info))
         event-note-off (if (false? (get-note-off-from-instrument-info instrument-info))
                          true
                          nil)

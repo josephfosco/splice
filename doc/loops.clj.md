@@ -26,6 +26,7 @@
      :dur - Required. Map containing duration info for this event.
      :volume - Required if pitch is not nil. volume of melody element 0 - 1.
      :instrument-settings - Optional - a list of keys and values of settings for this instrument. Example: ("attack" 4.0 "release" 3.0)
+     :play-prob - the probability that this event will play
     }
   ]
 }
@@ -57,8 +58,12 @@
     :type - :fixed | :variable | :rest
     :pitch-midi-note - This or :pitch-freq are required if :type == :fixed
     :pitch-freq - This or :pitch-midi-note are required if :type == :fixed
-    :pitch-type - Required if type == :variable.
-    :pitches - Required if :type == :variable.
+    :pitch-type - Required if type == :variable
+    :pitches - Required if :type == :variable
+    :pitch-var-first-rep - the first repitition that patch variation will possibly take place on
+    :pitch-var-prob - Optional, defaults to 100
+    :pitch-var-max-inc - The maximum number of cents the pitch can be adjusted up
+    :pitch-var-max-dec - The maximum number of cents the pitch can be adjusted down
   }
 
   :pitch-midi-note - The midi note number of the note to play
@@ -66,6 +71,10 @@
   :pitch-type - :midi-note | :freq
   :pitches - An array of integers representing midi-notes if :pitch-type == :midi-note or
              frequencies (Hz.) if :pitch-type ==:freq.
+   :pitch-var-first-rep - the first repitition that patch variation will possibly take place on
+   :pitch-var-prob - percent that the pitch will be adjusted defaults to 100
+   :pitch-var-max-inc - The maximum number of cents the pitch can be adjusted up
+   :pitch-var-max-dec - The maximum number of cents the pitch can be adjusted down
 ]
 
 :dur

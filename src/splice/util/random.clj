@@ -43,6 +43,13 @@
         (recur (inc i) (+ (weight-vector i) sum)))))
   )
 
+(defn random-probability-result
+  [prob]
+  (if (< (rand-int 100) prob)
+    true
+    false)
+  )
+
 (defn add-probabilities
   "Adds to probabilities in prob-vector. This function does not
    do any error checking. If multiple values are specified for
