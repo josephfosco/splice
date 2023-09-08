@@ -24,6 +24,7 @@
                                          get-loop-repetition
                                          set-loop-repetition
                                          ]]
+   [splice.util.random :refer [random-probability-result]]
    )
   )
 
@@ -112,11 +113,18 @@
     )
   )
 
+(defn- cents-to-frequency [cents base-frequency]
+  (* base-frequency (Math/pow 2.0 (/ cents 120.0))))
+
 (defn- get-pitch-variation
-  [pitch-info]
-  (let [total-pitch-var (+ (:pitch-var-max-inc pitch-info) (:pitch-var-max-dec pitch-info))]
-    )
-  0
+  [pitch-info base-frequency]
+  (let [var-prob (:pitch-var-prob pitch-info)]   ;; if var-prob nil defaults to 100%
+    (if (or (= nil var-prob) (random-probability-result var-prob))
+      (let [total-pitch-var (+ (:pitch-var-max-inc pitch-info) (:pitch-var-max-dec pitch-info))
+            pitch-var-cents (- (rand-int total-pitch-var) (:pitch-var-max-dec pitch-info))
+            ]
+        (cents-to-frequency pitch-var-cents base-frequency)
+        )))
   )
 
 (defn- get-base-pitch
@@ -152,7 +160,10 @@
   (let [base-pitch (get-base-pitch pitch-info)]
     (if-let [first-pitch-var-rep (:pitch-var-first-rep pitch-info)]
       (if (>= (get-loop-repetition loop-structr) first-pitch-var-rep)
-        (+ base-pitch get-pitch-variation pitch-info)
+        (do
+          (println "base-pitch: " base-pitch "pitch-var: " (get-pitch-variation pitch-info base-pitch))
+          (+ base-pitch (get-pitch-variation pitch-info base-pitch))
+          )
         base-pitch)
       )
     )
