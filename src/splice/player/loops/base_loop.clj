@@ -114,9 +114,10 @@
   )
 
 (defn- cents-to-frequency [cents base-frequency]
-  (* base-frequency (Math/pow 2.0 (/ cents 120.0))))
+  "Will return a new frequency cents above the base-frequency"
+  (* base-frequency (Math/pow 2.0 (/ cents 1200.0))))
 
-(defn- get-pitch-variation
+(defn- add-pitch-variation
   [pitch-info base-frequency]
   (let [var-prob (:pitch-var-prob pitch-info)]   ;; if var-prob nil defaults to 100%
     (if (or (= nil var-prob) (random-probability-result var-prob))
@@ -124,7 +125,9 @@
             pitch-var-cents (- (rand-int total-pitch-var) (:pitch-var-max-dec pitch-info))
             ]
         (cents-to-frequency pitch-var-cents base-frequency)
-        )))
+        )
+      base-frequency   ;; no pitch variation
+      ))
   )
 
 (defn- get-base-pitch
@@ -160,10 +163,7 @@
   (let [base-pitch (get-base-pitch pitch-info)]
     (if-let [first-pitch-var-rep (:pitch-var-first-rep pitch-info)]
       (if (>= (get-loop-repetition loop-structr) first-pitch-var-rep)
-        (do
-          (println "base-pitch: " base-pitch "pitch-var: " (get-pitch-variation pitch-info base-pitch))
-          (+ base-pitch (get-pitch-variation pitch-info base-pitch))
-          )
+        (add-pitch-variation pitch-info base-pitch)
         base-pitch)
       )
     )
