@@ -28,7 +28,7 @@
    )
   )
 
-(def ^:private  global-dur-mult-millis (atom nil))
+(def ^:private  global-dur-multiplier (atom nil))
 
 (defrecord BaseLoop [name
                      next-melody-fn
@@ -42,7 +42,7 @@
 
 (defn init-base-loop
   []
-  (reset! global-dur-mult-millis nil))
+  (reset! global-dur-multiplier nil))
 
 (defn create-base-loop
   [& {:keys [name next-melody-fn]}]
@@ -77,14 +77,14 @@
   (get-loop-param loop-structr :next-melody-fn)
   )
 
-(defn get-global-dur-mult-millis
+(defn get-global-dur-multiplier
   []
-  @global-dur-mult-millis
+  @global-dur-multiplier
   )
 
-(defn set-global-dur-mult-millis
+(defn set-global-dur-multiplier
   [mult]
-  (reset! global-dur-mult-millis mult)
+  (reset! global-dur-multiplier mult)
   )
 
 (defn get-loop-dur-info
@@ -106,25 +106,23 @@
                                   ))
           :variable-pct nil
           )]
-    (if-let [mult (get-global-dur-mult-millis)]
+    (if-let [mult (get-global-dur-multiplier)]
       (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-info) mult))
       melody-dur-info
       )
     )
   )
 
-(defn- cents-to-frequency [cents base-frequency]
-  "Will return a new frequency cents above the base-frequency"
-  (* base-frequency (Math/pow 2.0 (/ cents 1200.0))))
-
 (defn- add-pitch-variation
   [pitch-info base-frequency]
   (let [var-prob (:pitch-var-prob pitch-info)]   ;; if var-prob nil defaults to 100%
     (if (or (= nil var-prob) (random-probability-result var-prob))
-      (let [total-pitch-var (+ (:pitch-var-max-inc pitch-info) (:pitch-var-max-dec pitch-info))
-            pitch-var-cents (- (rand-int total-pitch-var) (:pitch-var-max-dec pitch-info))
+      (let [pitch-var-cents (- (rand-int (+ (:pitch-var-max-inc pitch-info)
+                                            (:pitch-var-max-dec pitch-info)))
+                               (:pitch-var-max-dec pitch-info))
             ]
-        (cents-to-frequency pitch-var-cents base-frequency)
+        ;; This adds pitch-var-sents to base-frequency
+        (* base-frequency (Math/pow 2.0 (/ pitch-var-cents 1200.0)))
         )
       base-frequency   ;; no pitch variation
       ))

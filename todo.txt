@@ -61,18 +61,23 @@
 --  FEATURES
 
 - Allow an initial delay param for each individual loop - overrides min/max-start-offset
-  for this loop only
+  for this loop only - this is already implemented for multiplying loops
+  (min/max-new-loop-delay-ms)
 - Create a loop param for number of times to repeat the loop.
 - Create a way to solo or mute a specific loop number. Perhaps create a function that sets a
   param in settings that can be checked each time a note is played.
+- Create  a param for each loop tht allows the loop to be transposed up or down
+- Create  a param for each loop tht allows the loop to be sped up or slowed down
 - Do I need an "active" indicator for each loop, or can this be accomplished with the
   solo and mute functions. This is to have some loops "inactive" (or maybe muted) to start
 - allow :never to settings.py print-ensemble-density
 - Create a "global multiplier" indicator. This will allow all times to be multiplied by some
   value (2x, 0.5x etc...). Would this valuable at a loop level so each loop could have its'
-  own multiplier value. Would it be good to have an "ignore global multiplier" setting for
-  each loop so that individual loop would not have its times multiplied? Would it be a good
-  idea to do the same thing with frequency?
+  own multiplier value.
+  This is partially implemented in base-loop.clj with global-dur-multiplier
+  Would it be good to have an "ignore global multiplier" setting for each loop so that
+  individual loop would not have its times multiplied?
+  Would it be a good idea to do the same thing with frequency?
 - Have the ability to sync specific events of one or more loops together
 - Ability to specify durations in beats
 - If beats can be specified as dur need to allow global-dur-mult to be set to beats

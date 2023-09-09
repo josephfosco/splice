@@ -36,6 +36,7 @@
 (defn- validate-loop-keys
   [loop-settings]
   ;; TODO validate loop keys based on type of loop
+  ;; TODO validate keys that are inside the :melody-info map
   (flatten
    (for [loop loop-settings]
      (let [loop-keys (keys loop)]
