@@ -71,10 +71,10 @@
   :pitch-type - :midi-note | :freq
   :pitches - An array of integers representing midi-notes if :pitch-type == :midi-note or
              frequencies (Hz.) if :pitch-type ==:freq.
-   :pitch-var-first-rep - the first repitition that patch variation will possibly take place on
-   :pitch-var-prob - percent that the pitch will be adjusted defaults to 100
-   :pitch-var-max-inc - The maximum number of cents the pitch can be adjusted up
-   :pitch-var-max-dec - The maximum number of cents the pitch can be adjusted down
+  :pitch-var-first-rep - the first repitition that patch variation will possibly take place on
+  :pitch-var-prob - percent that the pitch will be adjusted defaults to 100
+  :pitch-var-max-inc - The maximum number of cents the pitch can be adjusted up
+  :pitch-var-max-dec - The maximum number of cents the pitch can be adjusted down
 ]
 
 :dur
@@ -86,6 +86,10 @@
     :max-millis - Required if :type == :fixed or :variable-millis
     :inc-millis - Required if :type == :variable-inc-millis
     :dec-millis - Required if :type == :variable-inc-millis
+    :dur-var-first-rep - the first repitition that dur variation will possibly take place on
+    :dur-var-prob - Optional, percent that the dur will be adjusted. Defaults to 100
+    :dur-var-max-pct-inc - Optional, The maximum percent the duration can be increased default 0
+    :dur-var-max-pct-dec - Optional, The maximum percent the duration can be decreased default 0
   }
 
   :dur-millis - if type == :fixed, the duration of this loop event
@@ -94,6 +98,10 @@
   :max-millis - if :type == :variable-millis, the maximum duration of this event
   :inc-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be incremented
   :dec-millis - if :type == :variable-inc-millis, the maximum amount dur-millis can be decremented
+  :dur-var-first-rep - the first repitition that dur variation will possibly take place on
+  :dur-var-prob - Optional, percent that the dur will be adjusted. Defaults to 100
+  :dur-var-max-pct-inc - Optional, The maximum percent the duration can be increased default 0
+  :dur-var-max-pct-dec - Optional, The maximum percent the duration can be decreased default 0
 ]
 
 :volume

@@ -87,29 +87,60 @@
   (reset! global-dur-multiplier mult)
   )
 
-(defn get-loop-dur-info
+(defn- add-dur-variation
+  [dur-info melody-dur-info]
+  (let [var-prob (:dur-var-prob dur-info)]   ;; if var-prob nil defaults to 100%
+    (if (or (= nil var-prob) (random-probability-result var-prob))
+      (do
+        (println "add-dur-variation dur-info: " dur-info)
+        (let [dur-var-pct (- (rand-int (+ (:dur-var-max-pct-inc dur-info)
+                                          (:dur-var-max-pct-dec dur-info)))
+                             (:dur-var-max-dec dur-info))
+              melody-dur-with-var (* (:dur-millis melody-dur-info) (+ 1 (/ dur-var-pct 100)))
+              ]
+          ;; This creates a new dur-info record that is dur-var-ms different from the
+          ;; dur-millis in melody-dur-info
+          (create-dur-info :dur-millis melody-dur-with-var)
+          )
+        )
+      melody-dur-info   ;; no dur variation
+      ))
+  )
+
+(defn- get-base-dur-info
   [dur-info]
-  (let [melody-dur-info
-        (condp = (:type dur-info)
-          :fixed (create-dur-info
-                  :dur-millis (:dur-millis dur-info)
-                  :dur-beats (:dur-beats dur-info)
-                  )
-          :variable-millis (select-random-dur-info
-                            (:min-millis dur-info)
-                            (:max-millis dur-info)
-                            )
-          :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
-                                 (select-random-dur-info
-                                  (- base-dur (:dec-millis dur-info))
-                                  (+ base-dur (:inc-millis dur-info))
-                                  ))
-          :variable-pct nil
-          )]
+  (condp = (:type dur-info)
+    :fixed (create-dur-info
+            :dur-millis (:dur-millis dur-info)
+            :dur-beats (:dur-beats dur-info)
+            )
+    :variable-millis (select-random-dur-info
+                      (:min-millis dur-info)
+                      (:max-millis dur-info)
+                      )
+    :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
+                           (select-random-dur-info
+                            (- base-dur (:dec-millis dur-info))
+                            (+ base-dur (:inc-millis dur-info))
+                            ))
+    :variable-pct nil
+    )
+)
+
+(defn get-loop-dur-info
+  [loop-structr dur-info]
+  (let [melody-dur-info (get-base-dur-info dur-info)
+        melody-dur-with-var (if-let [first-dur-var-rep (:dur-var-first-rep dur-info)]
+                              (if (>= (get-loop-repetition loop-structr) first-dur-var-rep)
+                                  (add-dur-variation dur-info melody-dur-info)
+                                  melody-dur-info
+                                  )
+                              melody-dur-info
+                              )
+        ]
     (if-let [mult (get-global-dur-multiplier)]
-      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-info) mult))
-      melody-dur-info
-      )
+      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-with-var) mult))
+      melody-dur-with-var)
     )
   )
 
@@ -163,6 +194,7 @@
       (if (>= (get-loop-repetition loop-structr) first-pitch-var-rep)
         (add-pitch-variation pitch-info base-pitch)
         base-pitch)
+      base-pitch
       )
     )
   )

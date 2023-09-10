@@ -107,5 +107,7 @@
         (throw (Throwable. "Validation error(s) in player loops"))
         )
       (doall (map convert-midi-to-hz (:loops loops)))
+      ***** NEED TO CHECK IF :dur-var-max-pct-inc OR :dur-var-max-pct-dec ARE MISSING
+      ***** WHEN  : dur-var-first-rep IS PRESENT
       ))
     )

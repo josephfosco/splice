@@ -104,7 +104,7 @@
         melody-event (create-melody-event
                       :melody-event-id next-id
                       :freq frequency
-                      :dur-info (get-loop-dur-info (:dur melody-info))
+                      :dur-info (get-loop-dur-info loop-structr (:dur melody-info))
                       :volume (get-loop-volume (:volume melody-info))
                       :instrument-info instrument-info
                       :instrument-settings (:instrument-settings melody-info)
