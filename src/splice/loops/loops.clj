@@ -95,6 +95,29 @@
     )
   )
 
+(defn- add-dur-var-min-max-defaults
+  [loop]
+  (let [new-melody-info
+        (vec
+         (for [ melody-event (:melody-info loop) ]
+           (let [dur-info (:dur melody-info)
+                 full-dur-info (if (contains? dur-info :dur-var-first-rep)
+                                 (assoc dur-info
+                                        :dur-var-max-pct-inc
+                                        (or (:dur-var-max-pct-inc dur-info) 0)
+                                        :dur-var-max-pct-inc
+                                        (or (:dur-var-max-pct-dec dur-info) 0)
+                                        )
+                                 nil
+                                 )
+                 ]
+             )
+           ))
+        ]
+    (assoc loop :melody-info new-melody-info)
+    )
+  )
+
 (defn validate-and-adjust-loops
   [loops]
   ;; Validate loops then convert any loop events that specify pitch by midi-not-num to
@@ -106,8 +129,8 @@
           (log/error error-msg))
         (throw (Throwable. "Validation error(s) in player loops"))
         )
-      (doall (map convert-midi-to-hz (:loops loops)))
-      ***** NEED TO CHECK IF :dur-var-max-pct-inc OR :dur-var-max-pct-dec ARE MISSING
-      ***** WHEN  : dur-var-first-rep IS PRESENT
       ))
+  (let [hz-loops (doall (map convert-midi-to-hz (:loops loops)))]
+    (doall (map add-dur-var-min-max-defaults hz-loops))
     )
+  )

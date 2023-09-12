@@ -87,6 +87,8 @@
     :inc-millis - Required if :type == :variable-inc-millis
     :dec-millis - Required if :type == :variable-inc-millis
     :dur-var-first-rep - the first repitition that dur variation will possibly take place on
+                         the presence of this variable indicates that dur-var processing will
+                         occur
     :dur-var-prob - Optional, percent that the dur will be adjusted. Defaults to 100
     :dur-var-max-pct-inc - Optional, The maximum percent the duration can be increased default 0
     :dur-var-max-pct-dec - Optional, The maximum percent the duration can be decreased default 0
