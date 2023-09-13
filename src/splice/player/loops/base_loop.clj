@@ -92,10 +92,9 @@
   (let [var-prob (:dur-var-prob dur-info)]   ;; if var-prob nil defaults to 100%
     (if (or (= nil var-prob) (random-probability-result var-prob))
       (do
-        (println "add-dur-variation dur-info: " dur-info)
         (let [dur-var-pct (- (rand-int (+ (:dur-var-max-pct-inc dur-info)
                                           (:dur-var-max-pct-dec dur-info)))
-                             (:dur-var-max-dec dur-info))
+                             (:dur-var-max-pct-dec dur-info))
               melody-dur-with-var (* (:dur-millis melody-dur-info) (+ 1 (/ dur-var-pct 100)))
               ]
           ;; This creates a new dur-info record that is dur-var-ms different from the

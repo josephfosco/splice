@@ -63,7 +63,7 @@
   [loop]
   (let [new-melody-info
         (vec
-         (for [melody-event (:melody-info loop)]
+         (for [ melody-event (:melody-info loop) ]
            (if (or (contains? (:pitch melody-event) :pitch-midi-note)
                    (contains? (:pitch melody-event) :pitch-type))
              ;; a single pitch
@@ -100,17 +100,21 @@
   (let [new-melody-info
         (vec
          (for [ melody-event (:melody-info loop) ]
-           (let [dur-info (:dur melody-info)
+           (let [dur-info (:dur melody-event)
                  full-dur-info (if (contains? dur-info :dur-var-first-rep)
                                  (assoc dur-info
                                         :dur-var-max-pct-inc
                                         (or (:dur-var-max-pct-inc dur-info) 0)
-                                        :dur-var-max-pct-inc
+                                        :dur-var-max-pct-dec
                                         (or (:dur-var-max-pct-dec dur-info) 0)
                                         )
                                  nil
                                  )
                  ]
+             (if full-dur-info
+               (assoc melody-event :dur full-dur-info)
+               melody-event
+               )
              )
            ))
         ]
@@ -122,6 +126,10 @@
   [loops]
   ;; Validate loops then convert any loop events that specify pitch by midi-not-num to
   ;; specify pitch by frequency
+
+  ;; This could be done mor efficiently by not repeatedly going over the loops, however,
+  ;; since this currently is only run once when the loops are first loaded and before
+  ;; playing begins it is not critical it run as fast as possible.
   (let [errors (validate-player-settings loops)]
     (if (not= 0 (count errors))
       (do
