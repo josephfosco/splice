@@ -24,6 +24,7 @@
                                          get-loop-repetition
                                          set-loop-repetition
                                          ]]
+   [splice.util.log :as log]
    [splice.util.random :refer [random-probability-result]]
    )
   )
@@ -139,6 +140,7 @@
                               melody-dur-info
                               )
         ]
+    (log/trace "base_loop.clj/get-loop-dur-info - melody-dur-info: " (pr-str melody-dur-info))
     (if-let [mult (get-global-dur-multiplier)]
       (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-with-var) mult))
       melody-dur-with-var)
