@@ -99,7 +99,8 @@
               ]
           ;; This creates a new dur-info record that is dur-var-ms different from the
           ;; dur-millis in melody-dur-info
-          (create-dur-info :dur-millis melody-dur-with-var)
+          (create-dur-info :dur-millis melody-dur-with-var
+                           :dur-base-millis (:dur-base-millis melody-dur-info))
           )
         )
       melody-dur-info   ;; no dur variation
@@ -112,6 +113,7 @@
     :fixed (create-dur-info
             :dur-millis (:dur-millis dur-info)
             :dur-beats (:dur-beats dur-info)
+            :dur-base-milis (:dur-millis dur-info)
             )
     :variable-millis (select-random-dur-info
                       (:min-millis dur-info)

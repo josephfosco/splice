@@ -33,7 +33,9 @@
 
 (defn select-random-dur-info
   ([]
-   (DurInfo. (get-random-dur-millis) nil))
+   (let [base-dur (get-random-dur-millis min max)]
+     (DurInfo. base-dur nil base-dur)))
   ([min max]
-   (DurInfo. (get-random-dur-millis min max) nil))
+   (let [base-dur (get-random-dur-millis min max)]
+     (DurInfo. base-dur nil base-dur)))
   )

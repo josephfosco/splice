@@ -2,6 +2,9 @@
 - multiplying-loop - Be able to have a variable number of multiplying-loops
 - multiplying-loop - It might be possible to start a new loop at the exact same time as the
   original loop if you send both commands to supercollider in the same bundle
+- When creating multiplying-loop in player.clj only use required loop params for :melody-info.
+  I believe that currently all melody-info params are passed including multiplying-loop
+  params.
 - Occasionally get msg "Couldn't clear msgs for player - Retrying" look into why
 - Clean up branches
 - Currently in a score in the :pitch map if it is a single pitch the pitch has the key

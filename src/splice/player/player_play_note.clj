@@ -359,23 +359,24 @@
               ;; scheduled, and this note should be scheduled with the prior instrument.
               (not (false? (get-note-off-from-melody-event prior-melody-event))) :new
               :else :prior
-              )]
-    (let [[sc-synth-id note-off-val]
-          (cond (nil? synth-type) [nil :none]
-                (= synth-type :new) [(play-note-new-instrument melody-event play-time) :none]
-                :else (play-note-prior-instrument prior-melody-event melody-event play-time)
-                )
-          full-melody-event (set-play-info melody-event
-                                           sc-synth-id
-                                           play-time
-                                           note-off-val)
-          ]
-      (when (= :new synth-type)  ;; Do not add :prior to synth-map
-        (swap! synth-melody-map assoc sc-synth-id full-melody-event))
+              )
+        [sc-synth-id note-off-val]
+        (cond (nil? synth-type) [nil :none]
+              (= synth-type :new) [(play-note-new-instrument melody-event play-time) :none]
+              :else (play-note-prior-instrument prior-melody-event melody-event play-time)
+              )
+        full-melody-event (set-play-info melody-event
+                                         sc-synth-id
+                                         play-time
+                                         note-off-val)
+        ]
 
-      (log/debug "play-melody-event: " (pr-str full-melody-event))
-      full-melody-event
-      )
+    (when (= :new synth-type)  ;; Do not add :prior to synth-map
+      (swap! synth-melody-map assoc sc-synth-id full-melody-event))
+
+    (log/debug "play-melody-event: " (pr-str full-melody-event))
+    full-melody-event
+
     ))
 
 (declare sched-next-note)

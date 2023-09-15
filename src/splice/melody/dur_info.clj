@@ -15,12 +15,12 @@
 
 (ns splice.melody.dur-info)
 
-(defrecord DurInfo [dur-millis dur-beats])
+(defrecord DurInfo [dur-millis dur-beats dur-base-millis])
 
 (defn create-dur-info
-  [& {:keys [dur-millis dur-beats] :or
-      {dur-millis nil dur-beats nil}}]
-  (DurInfo. dur-millis dur-beats)
+  [& {:keys [dur-millis dur-beats dur-base-millis] :or
+      {dur-millis nil dur-beats nil dur-base-millis nil}}]
+  (DurInfo. dur-millis dur-beats dur-base-millis)
   )
 
 (defn get-dur-millis-from-dur-info
@@ -30,3 +30,7 @@
 (defn get-dur-beats-from-dur-info
   [dur-info]
   (:dur-beats dur-info))
+
+(defn get-dur-base-millis-from-dur-info
+  [dur-info]
+  (:dur-base-millis dur-info))
