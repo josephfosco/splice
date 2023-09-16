@@ -114,7 +114,7 @@
     :fixed (create-dur-info
             :dur-millis (:dur-millis dur-info)
             :dur-beats (:dur-beats dur-info)
-            :dur-base-milis (:dur-millis dur-info)
+            :dur-base-millis (:dur-millis dur-info)
             )
     :variable-millis (select-random-dur-info
                       (:min-millis dur-info)
@@ -140,7 +140,6 @@
                               melody-dur-info
                               )
         ]
-    (log/trace "base_loop.clj/get-loop-dur-info - melody-dur-info: " (pr-str melody-dur-info))
     (if-let [mult (get-global-dur-multiplier)]
       (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-with-var) mult))
       melody-dur-with-var)

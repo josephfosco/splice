@@ -75,7 +75,7 @@
   (dosync
    (let [new-num-players
          (set-setting! :number-of-players (inc (get-setting :number-of-players)))
-         new-player-id (dec new-num-players)
+         new-player-id (dec new-num-players)   ;; player-ids start from 0
          new-vol-adjust (compute-volume-adjust new-num-players)
          instrument-name (keyword (get-instrument-from-instrument-info
                                    (get-player-instrument-info player)))
