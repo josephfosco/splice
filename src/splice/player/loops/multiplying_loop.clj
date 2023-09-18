@@ -91,8 +91,8 @@
   )
 
 (defn create-new-loop?
-  [loop-structr begining-of-loop loop-rep]
-  (and begining-of-loop
+  [loop-structr begining-of-loop? loop-rep]
+  (and begining-of-loop?
        (> loop-rep (:reps-before-multing loop-structr))
        (< (:num-mult-loops-started loop-structr) (:max-num-mult-loops loop-structr))
        (< (rand-int 100) (:loop-mult-probability loop-structr))
@@ -100,39 +100,47 @@
   )
 
 (defn- update-loop-structr
-  [loop-structr new-core-loop loop-rep make-new-loop]
+  [loop-structr new-core-loop loop-rep make-new-loop?]
   (let [upd-core-loop (set-loop-repetition new-core-loop loop-rep)]
        (assoc loop-structr
               :core-loop upd-core-loop
-              :num-mult-loops-started (if make-new-loop
+              :num-mult-loops-started (if make-new-loop?
                                         (inc (:num-mult-loops-started loop-structr))
                                         (:num-mult-loops-started loop-structr))
               ))
   )
 
 (defn get-next-mult-melody
-  [player melody loop-structr next-melody-event-id event-time]
+  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps]
+      :or {inc-reps true}
+      }]
   (let [core-loop (:core-loop loop-structr)
         ;; if next-melody-event-ndx is 0, this melody event will be the start of the loop
-        begining-of-loop (= (get-next-melody-event-ndx core-loop) 0)
+        begining-of-loop? (= (get-next-melody-event-ndx core-loop) 0)
         ;; Since here core-loop is a Loop record and get-next-melody is in loop.clj,
         ;; just core-loop to get-next-melody
         [upd-core-loop-structr melody-event]
-        (get-next-melody player melody core-loop next-melody-event-id event-time)
-        loop-rep (if (and (:original-loop? loop-structr)
-                          begining-of-loop)
+        (get-next-melody :player player
+                         :melody melody
+                         :loop-structr core-loop
+                         :next-melody-event-id next-melody-event-id
+                         :event-time event-time
+                         :inc-reps false)
+        loop-rep (if (and inc-reps
+                          (:original-loop? loop-structr)
+                          begining-of-loop?)
                    (inc (get-loop-repetition loop-structr))
                    (get-loop-repetition loop-structr)
                    )
-        make-new-loop (create-new-loop? loop-structr begining-of-loop loop-rep)
+        make-new-loop? (create-new-loop? loop-structr begining-of-loop? loop-rep)
         ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
         ;; record. This is placed in the core-loop of this multiplying-loop
         upd-loop-structr (update-loop-structr loop-structr
                                               upd-core-loop-structr
                                               loop-rep
-                                              make-new-loop)
+                                              make-new-loop?)
         ]
-    (when make-new-loop
+    (when make-new-loop?
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
         (play-first-note new-player-id

@@ -90,7 +90,9 @@
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event. loop-structr must be a Loop record."
-  [player melody loop-structr next-id event-time]
+  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps]
+      :or {inc-reps true}
+      }]
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                                   (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
@@ -102,7 +104,7 @@
                          true
                          nil)
         melody-event (create-melody-event
-                      :melody-event-id next-id
+                      :melody-event-id next-melody-event-id
                       :freq frequency
                       :dur-info (get-loop-dur-info loop-structr (:dur melody-info))
                       :volume (get-loop-volume (:volume melody-info))
@@ -115,6 +117,11 @@
                                   nil
                                   event-note-off)
                       )
+        begining-of-loop? (= (get-next-melody-event-ndx loop-structr) 0)
+        loop-rep (if (and inc-reps begining-of-loop?)
+                   (inc (get-loop-repetition loop-structr))
+                   (get-loop-repetition loop-structr)
+                   )
         ]
     [
      ;; TODO Will probably need to figure out how to place this in the correct place

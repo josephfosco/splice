@@ -63,7 +63,7 @@
   (cond
     (contains? loop-structr param) (param loop-structr)
 
-    ;; If the loop-structr implements the LoopType protocol search for :next-melody-fn else
+    ;; If the loop-structr implements the LoopType protocol search for param else
     ;; recurse through it
     ;; TODO this will not necessarily work if any it the loop-structr contains more
     ;;      than 1 LoopType

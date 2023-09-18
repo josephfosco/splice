@@ -66,11 +66,11 @@
   (log/trace "player-utils.clj get-next-melody-event \n    PLAYER: " (pr-str player) "\n    MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
         [upd-loop-structr melody-event]
-        ((get-melody-fn loop-structr) player
-                                      melody
-                                      loop-structr
-                                      (get-next-melody-event-id melody)
-                                      event-time)
+        (( get-melody-fn loop-structr) :player player
+                                       :melody melody
+                                       :loop-structr loop-structr
+                                       :next-melody-event-id (get-next-melody-event-id melody)
+                                       :event-time event-time)
         ]
     [
      (assoc player :loop-structr upd-loop-structr)
