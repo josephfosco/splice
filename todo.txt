@@ -34,6 +34,8 @@
 
 
 -------- BUGS/ERRORS --------
+- If stop-splice is called too many times without restarting eventually it errors in
+  supercollider (the scsynth window) witth Too many connections
 - Sometime player-play-note.clj/process-cancel-response-msg will get into an infinite
   loop recurring (Recuring x times waiting for instrument groups to clear) currently
   happens with loops1 in test-scores sith 4 sec attack and 3 sec release. Also, happens

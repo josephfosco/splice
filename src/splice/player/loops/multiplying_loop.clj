@@ -55,6 +55,7 @@
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
   (set-loop-repetition
     [loop loop-rep]
+    (println "multiplying_loop.clj set-loop-repetition")
     (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
@@ -100,19 +101,26 @@
   )
 
 (defn- update-loop-structr
-  [loop-structr new-core-loop loop-rep make-new-loop?]
-  (let [upd-core-loop (set-loop-repetition new-core-loop loop-rep)]
-       (assoc loop-structr
-              :core-loop upd-core-loop
-              :num-mult-loops-started (if make-new-loop?
-                                        (inc (:num-mult-loops-started loop-structr))
-                                        (:num-mult-loops-started loop-structr))
-              ))
+  [loop-structr core-loop-structr loop-rep make-new-loop?]
+  (println "****************** multiplying_loop.clj update-loop-structr core-loop-structr:" core-loop-structr)
+  (if loop-rep
+    (assoc loop-structr
+           :core-loop (set-loop-repetition core-loop-structr loop-rep)
+           :num-mult-loops-started (if make-new-loop?
+                                     (inc (:num-mult-loops-started loop-structr))
+                                     (:num-mult-loops-started loop-structr))
+           )
+    (assoc loop-structr
+           :num-mult-loops-started (if make-new-loop?
+                                     (inc (:num-mult-loops-started loop-structr))
+                                     (:num-mult-loops-started loop-structr))
+           )
+    )
   )
 
 (defn get-next-mult-melody
-  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps]
-      :or {inc-reps true}
+  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps?]
+      :or {inc-reps? true}
       }]
   (let [core-loop (:core-loop loop-structr)
         ;; if next-melody-event-ndx is 0, this melody event will be the start of the loop
@@ -125,13 +133,15 @@
                          :loop-structr core-loop
                          :next-melody-event-id next-melody-event-id
                          :event-time event-time
-                         :inc-reps false)
-        loop-rep (if (and inc-reps
+                         :inc-reps? false)
+        loop-rep (if (and inc-reps?
                           (:original-loop? loop-structr)
                           begining-of-loop?)
                    (inc (get-loop-repetition loop-structr))
-                   (get-loop-repetition loop-structr)
+                   nil
                    )
+        ;;;;; *********************************************
+        ;; NEED number for loop-rep here !!!!!!!!
         make-new-loop? (create-new-loop? loop-structr begining-of-loop? loop-rep)
         ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
         ;; record. This is placed in the core-loop of this multiplying-loop
@@ -140,6 +150,9 @@
                                               loop-rep
                                               make-new-loop?)
         ]
+    (println "###############################################################################")
+    (println "upd-loop-structr: " upd-loop-structr)
+    (println "###############################################################################")
     (when make-new-loop?
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note

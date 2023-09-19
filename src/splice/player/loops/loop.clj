@@ -40,6 +40,7 @@
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
   (set-loop-repetition
     [loop loop-rep]
+    (println "loop.clj set-loop-repetition loop: " loop)
     (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
@@ -87,12 +88,27 @@
          )
   )
 
+(defn- update-loop-structr
+  [loop-structr melody-ndx loop-rep]
+  (println "****************** loop.clj update-loop-structr loop-structr:" loop-structr)
+  (if loop-rep
+    (assoc loop-structr :core-loop (set-loop-repetition loop-structr loop-rep)
+           :next-melody-event-ndx (mod (inc melody-ndx)
+                                       (count (:melody-info
+                                               loop-structr))))
+    (assoc loop-structr :next-melody-event-ndx (mod (inc melody-ndx)
+                                                    (count (:melody-info
+                                                            loop-structr))))
+    )
+    )
+
 (defn get-next-melody
   "Returns an updated loop structure with the :next-melody-event-ndx updated and
   a new melody-event. loop-structr must be a Loop record."
-  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps]
-      :or {inc-reps true}
+  [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps?]
+      :or {inc-reps? true}
       }]
+  (println "loop.clj get-next-melody inc-reps?: " inc-reps?)
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                                   (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)
@@ -118,17 +134,15 @@
                                   event-note-off)
                       )
         begining-of-loop? (= (get-next-melody-event-ndx loop-structr) 0)
-        loop-rep (if (and inc-reps begining-of-loop?)
+        loop-rep (if (and inc-reps? begining-of-loop?)
                    (inc (get-loop-repetition loop-structr))
-                   (get-loop-repetition loop-structr)
+                   nil
                    )
         ]
     [
      ;; TODO Will probably need to figure out how to place this in the correct place
      ;;      Also look for any other assoc in the loop files
-     (assoc loop-structr :next-melody-event-ndx (mod (inc melody-ndx)
-                                                     (count (:melody-info
-                                                             loop-structr))))
+     (update-loop-structr loop-structr melody-ndx loop-rep)
      melody-event
      ]
 

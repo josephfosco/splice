@@ -38,7 +38,9 @@
   LoopType
   (get-name [loop] (:name loop))
   (get-loop-repetition [loop] (:loop-repetition loop))
-  (set-loop-repetition [loop loop-rep] (assoc loop :loop-repetition loop-rep))
+  (set-loop-repetition [loop loop-rep]
+    (println "base_loop.clj set-loop-repetition")
+    (assoc loop :loop-repetition loop-rep))
   )
 
 (defn init-base-loop
