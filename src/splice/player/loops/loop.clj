@@ -40,7 +40,7 @@
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
   (set-loop-repetition
     [loop loop-rep]
-    (println "loop.clj set-loop-repetition loop: " loop)
+    ;; (println "************* loop.clj set-loop-repetition loop: " loop)
     (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
@@ -91,14 +91,20 @@
 (defn- update-loop-structr
   [loop-structr melody-ndx loop-rep]
   (println "****************** loop.clj update-loop-structr loop-structr:" loop-structr)
-  (if loop-rep
-    (assoc loop-structr :core-loop (set-loop-repetition loop-structr loop-rep)
-           :next-melody-event-ndx (mod (inc melody-ndx)
-                                       (count (:melody-info
-                                               loop-structr))))
-    (assoc loop-structr :next-melody-event-ndx (mod (inc melody-ndx)
-                                                    (count (:melody-info
-                                                            loop-structr))))
+  THIS IS WHERE THE PROBLEM HAPPENS
+  (let [new-loop-struct
+        (if loop-rep
+          (assoc loop-structr :core-loop (set-loop-repetition loop-structr loop-rep)
+                 :next-melody-event-ndx (mod (inc melody-ndx)
+                                             (count (:melody-info
+                                                     loop-structr))))
+          (assoc loop-structr :next-melody-event-ndx (mod (inc melody-ndx)
+                                                          (count (:melody-info
+                                                                  loop-structr))))
+          )
+        ]
+    (println "************ loop.clj update-loop-struct new-loop-struct: " new-loop-struct)
+    new-loop-struct
     )
     )
 
@@ -108,7 +114,6 @@
   [& {:keys [player melody loop-structr next-melody-event-id event-time inc-reps?]
       :or {inc-reps? true}
       }]
-  (println "loop.clj get-next-melody inc-reps?: " inc-reps?)
   (let [melody-ndx (compute-next-melody-event-ndx loop-structr
                                                   (:next-melody-event-ndx loop-structr))
         melody-info ((:melody-info loop-structr) melody-ndx)

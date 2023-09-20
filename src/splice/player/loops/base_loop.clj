@@ -39,7 +39,7 @@
   (get-name [loop] (:name loop))
   (get-loop-repetition [loop] (:loop-repetition loop))
   (set-loop-repetition [loop loop-rep]
-    (println "base_loop.clj set-loop-repetition")
+    ;; (println "************** base_loop.clj set-loop-repetition loop: " loop)
     (assoc loop :loop-repetition loop-rep))
   )
 

@@ -55,7 +55,7 @@
   (get-loop-repetition [loop] (get-loop-repetition (:core-loop loop)))
   (set-loop-repetition
     [loop loop-rep]
-    (println "multiplying_loop.clj set-loop-repetition")
+    ;;(println "multiplying_loop.clj set-loop-repetition")
     (assoc loop :core-loop (set-loop-repetition (:core-loop loop) loop-rep)))
   )
 
@@ -63,6 +63,9 @@
   [loop instrument-name]
   ;; Building a Loop record structure here because the loop we are creating will not
   ;; multiply. The original multiplying-loop will multiply as Loop(s).
+
+  (println "&&&&&&&&&&&&&&&&&& multiplying_loo.clj build-new-loop-structr loop: " loop)
+  (println "&&&&&&&&&&&&&&&&&& multiplying_loo.clj build-new-loop-structr melody-info: " (get-melody-info (:core-loop loop)))
 
   {:name (str (get-name loop) "-R" (get-loop-repetition loop))
    :loop-type :loop
@@ -73,6 +76,7 @@
 
 (defn add-player
   [player loop]
+  (println "************ multiplying_loop.clj add-player ")
   (dosync
    (let [new-num-players
          (set-setting! :number-of-players (inc (get-setting :number-of-players)))
@@ -85,6 +89,7 @@
                                                             instrument-name))
          new-melody (vector (create-rest-event new-player-id 0 0))
          ]
+     (println "************ multiplying_loop.clj add-player new-player: " new-player)
      (update-player-and-melody new-player new-melody new-player-id)
      (set-setting! :volume-adjust new-vol-adjust)
      new-player-id
@@ -102,7 +107,7 @@
 
 (defn- update-loop-structr
   [loop-structr core-loop-structr loop-rep make-new-loop?]
-  (println "****************** multiplying_loop.clj update-loop-structr core-loop-structr:" core-loop-structr)
+  ;; (println "****************** multiplying_loop.clj update-loop-structr core-loop-structr:" core-loop-structr)
   (if loop-rep
     (assoc loop-structr
            :core-loop (set-loop-repetition core-loop-structr loop-rep)
@@ -138,10 +143,8 @@
                           (:original-loop? loop-structr)
                           begining-of-loop?)
                    (inc (get-loop-repetition loop-structr))
-                   nil
+                   (get-loop-repetition loop-structr)
                    )
-        ;;;;; *********************************************
-        ;; NEED number for loop-rep here !!!!!!!!
         make-new-loop? (create-new-loop? loop-structr begining-of-loop? loop-rep)
         ;; since the Loop get-next-melody fn is being used, the returned upd-loop is a Loop
         ;; record. This is placed in the core-loop of this multiplying-loop
@@ -150,9 +153,9 @@
                                               loop-rep
                                               make-new-loop?)
         ]
-    (println "###############################################################################")
-    (println "upd-loop-structr: " upd-loop-structr)
-    (println "###############################################################################")
+    ;;(println "###############################################################################")
+    ;;(println "upd-loop-structr: " upd-loop-structr)
+    ;;(println "###############################################################################")
     (when make-new-loop?
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
