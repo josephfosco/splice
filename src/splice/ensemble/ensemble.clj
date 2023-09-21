@@ -81,7 +81,6 @@
 
 (defn update-player-and-melody
   [player melody player-id]
-  (println "************ ensemble.clj update-player-and-melody player: " player)
   (dosync
    (alter ensemble player-and-melody-update player melody player-id))
   )
