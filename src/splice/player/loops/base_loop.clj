@@ -109,29 +109,43 @@
   )
 
 (defn- get-base-dur-info
-  [dur-info]
+  [dur-info dur-var-ignore]
   (condp = (:type dur-info)
     :fixed (create-dur-info
             :dur-millis (:dur-millis dur-info)
             :dur-beats (:dur-beats dur-info)
             :dur-base-millis (:dur-millis dur-info)
+            :dur-var-ignore-for-nxt-note dur-var-ignore
             )
-    :variable-millis (select-random-dur-info
-                      (:min-millis dur-info)
-                      (:max-millis dur-info)
-                      )
-    :variable-inc-millis (let [base-dur (:dur-millis dur-info)]
-                           (select-random-dur-info
-                            (- base-dur (:dec-millis dur-info))
-                            (+ base-dur (:inc-millis dur-info))
-                            ))
+    :variable-millis (let [note-dur (select-random-dur-info
+                                     (:min-millis dur-info)
+                                     (:max-millis dur-info)
+                                     )
+                           ]
+                       (create-dur-info note-dur
+                                        nil
+                                        note-dur
+                                        dur-var-ignore
+                        ))
+    :variable-inc-millis (let [base-dur (:dur-millis dur-info)
+                               note-dur (select-random-dur-info
+                                         (- base-dur (:dec-millis dur-info))
+                                         (+ base-dur (:inc-millis dur-info))
+                                         )
+                               ]
+                           (create-dur-info note-dur
+                                            nil
+                                            note-dur
+                                            dur-var-ignore
+                            )              )
     :variable-pct nil
     )
 )
 
 (defn get-loop-dur-info
   [loop-structr dur-info]
-  (let [melody-dur-info (get-base-dur-info dur-info)
+  (println "base-loop.clj/get-loop-dur-info dur-info: " dur-info)
+  (let [melody-dur-info (get-base-dur-info dur-info (:dur-var-ignore-for-nxt-note dur-info))
         melody-dur-with-var (if-let [first-dur-var-rep (:dur-var-first-rep dur-info)]
                               (if (>= (get-loop-repetition loop-structr) first-dur-var-rep)
                                   (add-dur-variation dur-info melody-dur-info)

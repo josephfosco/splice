@@ -18,7 +18,6 @@
    [splice.ensemble.melody :refer [get-next-melody-event-id]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
-   [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
                                           get-base-loop-name]]
    [splice.util.log :as log]

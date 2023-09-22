@@ -38,7 +38,10 @@
                                      get-player
                                      update-melody-note-off-for-player-id
                                      update-player-and-melody]]
-   [splice.melody.dur-info :refer [get-dur-millis-from-dur-info]]
+   [splice.melody.dur-info :refer [get-dur-base-millis-from-dur-info
+                                   get-dur-var-ignore-for-nxt-note
+                                   get-dur-millis-from-dur-info
+                                   ]]
    [splice.melody.melody-event :refer [get-dur-info-from-melody-event
                                        get-dur-millis-from-melody-event
                                        get-event-time-from-melody-event
@@ -256,7 +259,7 @@
       ;; has already been scheduled for the prior-melody-event. If it is false, we need to
       ;; check if the current event is a different instrument than the prior event
       ;; (sc-synth-id different in events) or if the current event is a rest (freq=nil).
-       (if (and (false? (get-note-off-from-melody-event prior-melody-event))
+       (when (and (false? (get-note-off-from-melody-event prior-melody-event))
                 (or (nil? (get-freq-from-melody-event cur-melody-event))
                     (not=
                      (get-sc-synth-id-from-melody-event prior-melody-event)
@@ -418,9 +421,25 @@
 (defn sched-next-note
   [melody-event]
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
-    (let [event-time (get-event-time-from-melody-event melody-event)
-          next-time (+ event-time (get-dur-millis-from-dur-info d-info))
-          timeout-ms (- (get-dur-millis-from-dur-info d-info)
+    (println "player-play-note sched-next-note d-info: " d-info)
+    (let [base-dur (get-dur-base-millis-from-dur-info d-info)
+          note-dur (get-dur-millis-from-dur-info d-info)
+          event-time (get-event-time-from-melody-event melody-event)
+          ;; if note-dur and base-dur are not= then this note has some dur-var on it
+          ;; In that case, if :dur-var-ignore-for-nxt-note is true,  use the base-dur
+          ;; to determine whn the next note starts
+
+          ;;  note-dur/base-dur   | ignore | return
+          ;; ------- -------------|--------|-----------------------------
+          ;; note=dur = base-dur  |  NA    | either note-dur or base-dur
+          ;; note-dur != base-dur |  true  | base-dur
+          ;; note-dur != base-dur | false  | note-dur
+          next-time (+ event-time
+                       (if (and (not= note-dur base-dur)
+                                (get-dur-var-ignore-for-nxt-note (:dur-info melody-event)))
+                         base-dur
+                         note-dur))
+          timeout-ms (- note-dur
                         (- (System/currentTimeMillis) event-time))
           next-melody-event-chan (timeout timeout-ms)
           player-id (get-player-id-from-melody-event melody-event)
