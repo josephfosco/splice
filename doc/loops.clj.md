@@ -93,6 +93,7 @@
     :dur-var-max-pct-inc - Optional, The maximum percent the duration can be increased default 0
     :dur-var-max-pct-dec - Optional, The maximum percent the duration can be decreased default 0
     :dur-var-ignore-for-nxt-note - Optional true | false | nil
+    :dur-beats - NOT IMPLEMENTED
   }
 
   :dur-millis - if type == :fixed, the duration of this loop event
@@ -107,6 +108,7 @@
   :dur-var-max-pct-dec - Optional, The maximum percent the duration can be decreased default 0
   :dur-var-ignore-for-nxt-note - schedule the not after this as if this note had a duration
                                  that did not include a dur-var (use base-dur only for next note)
+  :dur-beats - NOT IMPLEMENTED
 ]
 
 :volume

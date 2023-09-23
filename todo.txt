@@ -63,6 +63,10 @@
   for prior-note-off should not be done.
 
 
+-------- LOOP FILE (SCORE) VALIDATIONS --------
+- If loop-type == :multiplying-loop, max-num-mult-loops must be non 0,
+  :loop-mult-probability must be non 0
+
 -------- LONG TERM --------
 
 --  FEATURES

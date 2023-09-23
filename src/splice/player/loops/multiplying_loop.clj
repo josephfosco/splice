@@ -145,6 +145,8 @@
                                               loop-rep
                                               make-new-loop?)
         ]
+    (println "multiplying_loop/get-next-mult-melody inc-reps? " inc-reps? " original-loop?: " (:original-loop? loop-structr)
+             " begining-of-loop: " begining-of-loop?)
     (when make-new-loop?
       (let [new-player-id (add-player player upd-loop-structr)]
         ;; need to wait till the dosync in add-player commits before calling play-first-note
@@ -183,7 +185,7 @@
                     (or reps-before-multing 1)
                     0
                     (or loop-mult-probability 100)
-                    (if max-num-mult-loops true false)
+                    true                            ;; original-loop?
                     create-player-fn
                     (or min-new-loop-delay-ms 0)
                     (or max-new-loop-delay-ms 0)

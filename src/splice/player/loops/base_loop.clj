@@ -15,7 +15,9 @@
 
 (ns splice.player.loops.base-loop
   (:require
-   [splice.melody.dur-info :refer [create-dur-info get-dur-millis-from-dur-info]]
+   [splice.melody.dur-info :refer [get-dur-base-millis-from-dur-info
+                                   create-dur-info
+                                   get-dur-millis-from-dur-info]]
    [splice.melody.volume :refer [select-random-volume]]
    [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.music.music :refer [midi->hz]]
@@ -90,6 +92,7 @@
 
 (defn- add-dur-variation
   [dur-info melody-dur-info]
+  (println "base_loop.clj/add-dur-variation dur-info: " dur-info)
   (let [var-prob (:dur-var-prob dur-info)]   ;; if var-prob nil defaults to 100%
     (if (or (= nil var-prob) (random-probability-result var-prob))
       (do
@@ -144,6 +147,7 @@
 
 (defn get-loop-dur-info
   [loop-structr dur-info]
+  (println "********** base_loop.clj/get-loop-dur-info dur-info: " dur-info)
   (let [melody-dur-info (get-base-dur-info dur-info)
         melody-dur-with-var (if-let [first-dur-var-rep (:dur-var-first-rep dur-info)]
                               (if (>= (get-loop-repetition loop-structr) first-dur-var-rep)
@@ -154,7 +158,14 @@
                               )
         ]
     (if-let [mult (get-global-dur-multiplier)]
-      (create-dur-info :dur-millis (* (get-dur-millis-from-dur-info melody-dur-with-var) mult))
+      (create-dur-info :dur-millis
+                       (* (get-dur-millis-from-dur-info melody-dur-with-var) mult)
+                       :dur-base-millis
+                       (* (get-dur-base-millis-from-dur-info melody-dur-with-var) mult)
+                       :dur-var-ignore-for-nxt-note
+                       (:dur-var-ignore-for-nxt-note melody-dur-with-var)
+                       )
+
       melody-dur-with-var)
     )
   )

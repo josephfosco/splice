@@ -408,6 +408,8 @@
                (if (get-freq-from-melody-event upd-melody-event)
                  ""
                  "REST"))
+    (println "$$$$$$$$ player_play_note.clj next-melody-event: " next-melody-event)
+    (println "$$$$$$$$ player_play_note.clj upd-melody-event: " upd-melody-event)
     (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (sched-next-note upd-melody-event)
@@ -443,6 +445,10 @@
           next-melody-event-chan (timeout timeout-ms)
           player-id (get-player-id-from-melody-event melody-event)
           ]
+      (println "************** player_play_note.clj/sched-next-note note-dur: " note-dur
+               " base-dur: " base-dur "ignore: " (get-dur-var-ignore-for-nxt-note (:dur-info melody-event)))
+      (println "************** player_play_note.clj/sched-next-note dur-info: " (:dur-info melody-event))
+      (println "************** player_play_note.clj/sched-next-note melody-event: " melody-event)
       (go
         (let [result (alts! [next-melody-event-chan cancel-control-chan])]
           (if (= (second result) cancel-control-chan)
