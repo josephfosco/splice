@@ -241,8 +241,8 @@
          cur-melody-event melody-event
          recur-count 0
          ]
-    (if (and (nil? (get-note-off-from-melody-event prior-melody-event))
-             (get-sc-synth-id-from-melody-event prior-melody-event))
+    (if (and (nil? (get-note-off-from-melody-event prior-melody-event)) ;; no note-off
+             (get-sc-synth-id-from-melody-event prior-melody-event))    ;; not a rest
       (do
         (Thread/sleep (/ NEXT-NOTE-PROCESS-MILLIS 2))
         ;; Print a warning msg if this recurs more than once
@@ -421,7 +421,6 @@
 (defn sched-next-note
   [melody-event]
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
-    (println "player-play-note sched-next-note d-info: " d-info)
     (let [base-dur (get-dur-base-millis-from-dur-info d-info)
           note-dur (get-dur-millis-from-dur-info d-info)
           event-time (get-event-time-from-melody-event melody-event)
