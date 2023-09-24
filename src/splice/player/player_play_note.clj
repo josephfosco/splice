@@ -408,8 +408,6 @@
                (if (get-freq-from-melody-event upd-melody-event)
                  ""
                  "REST"))
-    (println "$$$$$$$$ player_play_note.clj next-melody-event: " next-melody-event)
-    (println "$$$$$$$$ player_play_note.clj upd-melody-event: " upd-melody-event)
     (check-prior-event-note-off player-id upd-melody-event)
     (update-player-and-melody upd-player upd-melody player-id)
     (sched-next-note upd-melody-event)
@@ -425,6 +423,10 @@
   (when-let [d-info (get-dur-info-from-melody-event melody-event)]
     (let [base-dur (get-dur-base-millis-from-dur-info d-info)
           note-dur (get-dur-millis-from-dur-info d-info)
+          next-note-millis (if (and (not= note-dur base-dur)
+                                    (get-dur-var-ignore-for-nxt-note (:dur-info melody-event)))
+                             base-dur
+                             note-dur)
           event-time (get-event-time-from-melody-event melody-event)
           ;; if note-dur and base-dur are not= then this note has some dur-var on it
           ;; In that case, if :dur-var-ignore-for-nxt-note is true,  use the base-dur
@@ -435,20 +437,12 @@
           ;; note=dur = base-dur  |  NA    | either note-dur or base-dur
           ;; note-dur != base-dur |  true  | base-dur
           ;; note-dur != base-dur | false  | note-dur
-          next-time (+ event-time
-                       (if (and (not= note-dur base-dur)
-                                (get-dur-var-ignore-for-nxt-note (:dur-info melody-event)))
-                         base-dur
-                         note-dur))
-          timeout-ms (- note-dur
+          next-time (+ event-time next-note-millis)
+          timeout-ms (- next-note-millis
                         (- (System/currentTimeMillis) event-time))
           next-melody-event-chan (timeout timeout-ms)
           player-id (get-player-id-from-melody-event melody-event)
           ]
-      (println "************** player_play_note.clj/sched-next-note note-dur: " note-dur
-               " base-dur: " base-dur "ignore: " (get-dur-var-ignore-for-nxt-note (:dur-info melody-event)))
-      (println "************** player_play_note.clj/sched-next-note dur-info: " (:dur-info melody-event))
-      (println "************** player_play_note.clj/sched-next-note melody-event: " melody-event)
       (go
         (let [result (alts! [next-melody-event-chan cancel-control-chan])]
           (if (= (second result) cancel-control-chan)

@@ -92,7 +92,6 @@
 
 (defn- add-dur-variation
   [dur-info melody-dur-info]
-  (println "base_loop.clj/add-dur-variation dur-info: " dur-info)
   (let [var-prob (:dur-var-prob dur-info)]   ;; if var-prob nil defaults to 100%
     (if (or (= nil var-prob) (random-probability-result var-prob))
       (do
@@ -104,7 +103,8 @@
           ;; This creates a new dur-info record that is dur-var-ms different from the
           ;; dur-millis in melody-dur-info
           (create-dur-info :dur-millis melody-dur-with-var
-                           :dur-base-millis (:dur-base-millis melody-dur-info))
+                           :dur-base-millis (:dur-base-millis melody-dur-info)
+                           :dur-var-ignore-for-nxt-note (:dur-var-ignore-for-nxt-note melody-dur-info))
           )
         )
       melody-dur-info   ;; no dur variation
@@ -147,7 +147,6 @@
 
 (defn get-loop-dur-info
   [loop-structr dur-info]
-  (println "********** base_loop.clj/get-loop-dur-info dur-info: " dur-info)
   (let [melody-dur-info (get-base-dur-info dur-info)
         melody-dur-with-var (if-let [first-dur-var-rep (:dur-var-first-rep dur-info)]
                               (if (>= (get-loop-repetition loop-structr) first-dur-var-rep)

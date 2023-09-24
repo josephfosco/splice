@@ -43,8 +43,8 @@
                        :name (:name loop-settings)
                        :melody-info (:melody-info loop-settings)
                        :next-melody-event-ndx 0
-                       :min-new-loop-delay-ms (:min-new-loop-delay-ms loop-settings)
-                       :max-new-loop-delay-ms (:max-new-loop-delay-ms loop-settings)
+                       :min-new-mult-loop-delay-ms (:min-new-mult-loop-delay-ms loop-settings)
+                       :max-new-mult-loop-delay-ms (:max-new-mult-loop-delay-ms loop-settings)
                        :max-num-mult-loops (:max-num-mult-loops loop-settings)
                        :reps-before-multing (:reps-before-multing loop-settings)
                        :loop-mult-probability (:loop-mult-probability loop-settings)

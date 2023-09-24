@@ -47,8 +47,8 @@
                        used yet
    :create-player-fn - the function to create a new player for a new loop that is being
                          created 
-   :min-new-loop-delay-ms - the minimum number of millis to wait before creating a new loop. 
-   :max-new-loop-delay-ms - the maximum number of millis to wait before creating a new loop. 
+   :min-new-mult-loop-delay-ms - the minimum number of millis to wait before creating a new loop. 
+   :max-new-mult-loop-delay-ms - the maximum number of millis to wait before creating a new loop. 
    :core-loop - the core loop that this loop is based on, currently is a loop
 }
 

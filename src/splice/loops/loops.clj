@@ -25,8 +25,8 @@
                             :loop-type
                             :melody-info
                             :name
-                            :min-new-loop-delay-ms
-                            :max-new-loop-delay-ms
+                            :min-new-mult-loop-delay-ms
+                            :max-new-mult-loop-delay-ms
                             :max-num-mult-loops
                             :reps-before-multing
                             :num-mult-loops-started
@@ -42,7 +42,7 @@
      (let [loop-keys (keys loop)]
        (for [loop-key loop-keys
              :when (not (contains? valid-loop-keys loop-key))]
-         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
+         (str "loops.clj - validate-loop-keys - Invalid loop key " loop-key " in player-settings")
          )
        )
      ))
