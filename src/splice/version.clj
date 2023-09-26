@@ -16,9 +16,9 @@
 (ns splice.version)
 
 (def SPLICE-VERSION {:major 0
-                     :minor 2
-                     :patch 1
-                     :development true})
+                     :minor 3
+                     :patch 0
+                     :development false})
 
 (def SPLICE-VERSION-STR
   (let [version SPLICE-VERSION]
