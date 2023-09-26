@@ -4,9 +4,6 @@
 - multiplying-loop - Be able to have a variable number of multiplying-loops
 - multiplying-loop - It might be possible to start a new loop at the exact same time as the
   original loop if you send both commands to supercollider in the same bundle
-- When creating multiplying-loop in player.clj only use required loop params for :melody-info.
-  I believe that currently all melody-info params are passed including multiplying-loop
-  params.
 - Occasionally get msg "Couldn't clear msgs for player - Retrying" look into why
 - Clean up branches
 - Currently in a score in the :pitch map if it is a single pitch the pitch has the key
@@ -21,9 +18,7 @@
   the default settings file
 - Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-- Change println(s) to data2 level log statements - need to make sure
-  details print - not just Object IDs
-- check if I want to use blocking or unblocking channels in ensemble_status.clj
+- Check if I want to use blocking or unblocking channels in ensemble_status.clj
   currently I use blocking channels if I want to switch to unblocking channels, change
   (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 - If an instrument has a variable release, like woosh, it needs to be taken into account
@@ -38,7 +33,7 @@
 -------- BUGS/ERRORS --------
 - If stop-splice is called too many times without restarting eventually it errors in
   supercollider (the scsynth window) witth Too many connections
-- Sometime player-play-note.clj/process-cancel-response-msg will get into an infinite
+- Sometimes player-play-note.clj/process-cancel-response-msg will get into an infinite
   loop recurring (Recuring x times waiting for instrument groups to clear) currently
   happens with loops1 in test-scores sith 4 sec attack and 3 sec release. Also, happens
   occasionally with splice-compositions/compositions/0000-initial-loops.clj.
@@ -99,7 +94,7 @@
 
 - Can make all instruments use the Env function and have the length of the node set. If
   instruments are created like this, the program might need to send gote-off messages. Instead,
-  each wnvelope would end on its own after the desired length. Need to check if this could
+  each envelope would end on its own after the desired length. Need to check if this could
   work.
 - Make pan a standard third param for synths
 - Start up supercollider automatically.
