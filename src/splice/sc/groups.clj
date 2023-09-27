@@ -35,9 +35,35 @@
 
 (defonce base-group-ids* (atom empty-base-group-ids))
 
+(defn get-splice-group-id
+  []
+  (:splice-group-id @base-group-ids*)
+  )
+
+(defn get-instrument-group-id
+  []
+  (:instrument-group-id @base-group-ids*)
+  )
+
+(defn get-pre-fx-group-id
+  []
+  (:pre-fx-group-id @base-group-ids*)
+  )
+
+(defn get-post-fx-group-id
+  []
+  (:post-fx-group-id @base-group-ids*)
+  )
+
+(defn get-main-fx-group-id
+  []
+  (:main-fx-group-id @base-group-ids*)
+  )
+
 (defn remove-base-groups
   [event]
-  (log/info "removing all supercollider groups....")
+  (println "*** SHUTDOWN *** groups.clj/remove-base-groups"
+           "removing all supercollider groups....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_freeAll"
                          (get-setting :root-group_))
@@ -65,10 +91,10 @@
   ;; |  |  |  effect-group                    |  |  |
   ;; |  |  |                                  |  |  |
   ;; |  |  |  |----------------------------|  |  |  |
-  ;; |  |  |  |  pre-fx-group              |  |  \  |
+  ;; |  |  |  |  pre-fx-group              |  |  |  |
   ;; |  |  |  |----------------------------|  |  |  |
   ;; |  |  |                                  |  |  |
-  ;; |  |  |  |----------------------------|  |  \  |
+  ;; |  |  |  |----------------------------|  |  |  |
   ;; |  |  |  |  main-fx-group             |  |  |  |
   ;; |  |  |  |----------------------------|  |  |  |
   ;; |  |  |                                  |  |  |

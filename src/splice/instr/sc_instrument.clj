@@ -32,8 +32,6 @@
   )
 
 (defn get-release-millis-from-instrument
-  ""
-  ;; (*  (node-get-control sc-synth-id :release) 1000)
   ([sc-synth-id] (get-release-millis-from-instrument sc-synth-id nil))
   ([sc-synth-id matcher-fn]
    (let [p     (promise)

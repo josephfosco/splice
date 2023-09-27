@@ -13,8 +13,8 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-{:min-start-offset 1
- :max-start-offset 24
+{:min-start-offset-ms 1000
+ :max-start-offset-ms 24000
 
  :main-bus-effects
  {"reverb-2ch" ("vol" 0.8 "mix" 1.0 "room" 0.95)}

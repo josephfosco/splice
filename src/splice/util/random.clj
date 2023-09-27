@@ -1,4 +1,4 @@
-;    Copyright (C) 2013 - 2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2013 - 2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -41,6 +41,13 @@
       (if (< rand-num (+ (weight-vector i) sum))
         i
         (recur (inc i) (+ (weight-vector i) sum)))))
+  )
+
+(defn random-probability-result
+  [prob]
+  (if (< (rand-int 100) prob)
+    true
+    false)
   )
 
 (defn add-probabilities

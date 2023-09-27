@@ -49,8 +49,8 @@
   (log/set-log-level! (get-setting :log-level))
   (if (not= (sc-connection-status) :connected)
     (do
-      (sc-connect)
-      (sc-debug (get args :osc-debug false))))
+      (sc-connect)))
+  (sc-debug (get args :osc-debug false))
   (start-splice args)
 )
 

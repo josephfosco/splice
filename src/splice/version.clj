@@ -1,4 +1,4 @@
-;    Copyright (C) 2018, 2022  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018, 2022-2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
 (ns splice.version)
 
 (def SPLICE-VERSION {:major 0
-                     :minor 2
-                     :patch 1
-                     :development true})
+                     :minor 3
+                     :patch 0
+                     :development false})
 
 (def SPLICE-VERSION-STR
   (let [version SPLICE-VERSION]

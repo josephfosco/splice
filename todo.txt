@@ -1,5 +1,16 @@
+- Look at use of >!! in player_play_note.clj
+- Shpuld loop-repetitions be part of player instead of base-loop?
+- Should melody-info be part of base-loop instead of any higher loop structure like loop?
 - multiplying-loop - Be able to have a variable number of multiplying-loops
+- multiplying-loop - It might be possible to start a new loop at the exact same time as the
+  original loop if you send both commands to supercollider in the same bundle
+- Occasionally get msg "Couldn't clear msgs for player - Retrying" look into why
 - Clean up branches
+- Currently in a score in the :pitch map if it is a single pitch the pitch has the key
+  :pitch-freq or "pitch-midi-note. It it is variable (with multiple keys there is a key
+  :pitch-type which is either :midi-note or :freq and a key :pitches. Perhaps this should
+  be standardized to always be like variable pitches. Each :pitch map will have the keys
+  :type (:fixed | :variable |:rest) :pitch-type (:midi-note | :freq) and :pitch or :pitches.
 - Make all directory paths relative. Set a base path in settings and concatenate anything
   additional on to this base.
 - Set log settings (dir and level) for sc-osc
@@ -7,9 +18,7 @@
   the default settings file
 - Add midi functions from overtone/src/overtone/midi.clj
   and/or overtone/src/overtone/studio/midi.clj (possibly do this)
-- Change println(s) to data2 level log statements - need to make sure
-  details print - not just Object IDs
-- check if I want to use blocking or unblocking channels in ensemble_status.clj
+- Check if I want to use blocking or unblocking channels in ensemble_status.clj
   currently I use blocking channels if I want to switch to unblocking channels, change
   (chan (* 2 (get-setting :num-players))) to (chan (buffer(* 2 (get-setting :num-players))))
 - If an instrument has a variable release, like woosh, it needs to be taken into account
@@ -22,43 +31,60 @@
 
 
 -------- BUGS/ERRORS --------
+- If stop-splice is called too many times without restarting eventually it errors in
+  supercollider (the scsynth window) witth Too many connections
+- Sometimes player-play-note.clj/process-cancel-response-msg will get into an infinite
+  loop recurring (Recuring x times waiting for instrument groups to clear) currently
+  happens with loops1 in test-scores sith 4 sec attack and 3 sec release. Also, happens
+  occasionally with splice-compositions/compositions/0000-initial-loops.clj.
+- need to look at the ensemble implementation. If dosync is implemented correctly in
+  player-play-note/play-next-note (at top of fn) the entire ensemble will be locked everytime
+  any player wants to play a note. It should be implemented so only a specific player and/or
+  melody is locked at a time. If we do not use a dosync in play-next-note it could be possible
+  for multiple threads to update a specific player, for example, and some of the changes
+  will get overwritten with old data.
 - If splice-stop occurs while checking the prior event note off, it can enter an infinite
-recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
+  recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id: 0 %%%%%%%%
 - If splice-stop is run when splice is not playing, splice cannot start again
 - There seem to be clicks or static in the rhodes-piano.sc instruments
+- Look into all the late messages in the supercollider terminal
 
 -------- STOPPING SPLICE --------
-- Speed up shutdown by finding a way to stop already scheduled supercollider OSC events
 - Create a fade-out function that brings the value of volume-adjust down to 0 over a short
   amount of time
 - Should Supercollider be stopped?
-- perhaps instead of scheduling a final rest event to stop all notes, it might be
-  possible to stop scheduling and then check the last melody event for each player, and
-  if there is an sc-instrument-id and note-off is not true then schedule a note off for
-  that sc-instrument-id for right now. This will still not stop the last notes that were
-  scheduled calling play-next-note (while is-scheduling? is false).
 - Can a splice-pause be created that will pick up where it left off? How will the times
   (event-time, play-time) be effected. Also, since all notes should be stopped, checking
   for prior-note-off should not be done.
 
 
+-------- LOOP FILE (SCORE) VALIDATIONS --------
+- If loop-type == :multiplying-loop, max-num-mult-loops must be non 0,
+  :loop-mult-probability must be non 0
+
 -------- LONG TERM --------
 
 --  FEATURES
 
+- Allow a min/max time to delay before starting an individual loop
 - Allow an initial delay param for each individual loop - overrides min/max-start-offset
-  for this loop only
-- Create a loop param for number of times to repeat the loop.
+  for this loop only - this is already implemented for multiplying loops
+  (min/max-new-mult-loop-delay-ms)
+- Create a loop param for number of times to repeat the loop (max-number-of-repetitions.
 - Create a way to solo or mute a specific loop number. Perhaps create a function that sets a
   param in settings that can be checked each time a note is played.
+- Create  a param for each loop tht allows the loop to be transposed up or down
+- Create  a param for each loop tht allows the loop to be sped up or slowed down
 - Do I need an "active" indicator for each loop, or can this be accomplished with the
   solo and mute functions. This is to have some loops "inactive" (or maybe muted) to start
 - allow :never to settings.py print-ensemble-density
 - Create a "global multiplier" indicator. This will allow all times to be multiplied by some
   value (2x, 0.5x etc...). Would this valuable at a loop level so each loop could have its'
-  own multiplier value. Would it be good to have an "ignore global multiplier" setting for
-  each loop so that individual loop would not have its times multiplied? Would it be a good
-  idea to do the same thing with frequency?
+  own multiplier value.
+  This is partially implemented in base-loop.clj with global-dur-multiplier
+  Would it be good to have an "ignore global multiplier" setting for each loop so that
+  individual loop would not have its times multiplied?
+  Would it be a good idea to do the same thing with frequency?
 - Have the ability to sync specific events of one or more loops together
 - Ability to specify durations in beats
 - If beats can be specified as dur need to allow global-dur-mult to be set to beats
@@ -68,7 +94,7 @@ recur loop - WARN:  %%%%%%%% ABOUT TO RECUR check-prior-event-note-off player-id
 
 - Can make all instruments use the Env function and have the length of the node set. If
   instruments are created like this, the program might need to send gote-off messages. Instead,
-  each wnvelope would end on its own after the desired length. Need to check if this could
+  each envelope would end on its own after the desired length. Need to check if this could
   work.
 - Make pan a standard third param for synths
 - Start up supercollider automatically.

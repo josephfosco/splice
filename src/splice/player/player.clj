@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -43,6 +43,8 @@
                        :name (:name loop-settings)
                        :melody-info (:melody-info loop-settings)
                        :next-melody-event-ndx 0
+                       :min-new-mult-loop-delay-ms (:min-new-mult-loop-delay-ms loop-settings)
+                       :max-new-mult-loop-delay-ms (:max-new-mult-loop-delay-ms loop-settings)
                        :max-num-mult-loops (:max-num-mult-loops loop-settings)
                        :reps-before-multing (:reps-before-multing loop-settings)
                        :loop-mult-probability (:loop-mult-probability loop-settings)
@@ -61,6 +63,7 @@
   [& {:keys [id loop-settings]}]
   (log/info (str "player/create-player - Creating player " id))
   (when (nil? (:instrument-name loop-settings))
+    (log/error "player.clj/create-player loop-settings: " loop-settings)
     (throw (Throwable. "Missing :instrument-name in loop")))
   (Player. id
            (build-loop-structr loop-settings)

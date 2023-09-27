@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -33,7 +33,9 @@
 
 (defn select-random-dur-info
   ([]
-   (DurInfo. (get-random-dur-millis) nil))
+   (get-random-dur-millis)
+   )
   ([min max]
-   (DurInfo. (get-random-dur-millis min max) nil))
+   (get-random-dur-millis min max)
+   )
   )

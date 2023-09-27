@@ -28,10 +28,17 @@
                       sc-with-server-sync]]
    [splice.ensemble.ensemble :refer [clear-ensemble init-ensemble]]
    [splice.ensemble.ensemble-status :refer [start-ensemble-status stop-ensemble-status]]
+   [splice.loops.loops :refer [validate-and-adjust-loops]]
    [splice.player.loops.base-loop :refer [init-base-loop]]
    [splice.player.player :refer [create-player]]
    [splice.player.player-play-note :refer [init-player-play-note play-first-note play-next-note]]
-   [splice.sc.groups :refer [base-group-ids* setup-base-groups]]
+   [splice.sc.groups :refer [get-instrument-group-id
+                             get-main-fx-group-id
+                             get-post-fx-group-id
+                             get-pre-fx-group-id
+                             get-splice-group-id
+                             setup-base-groups
+                             ]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.sc.sc-constants :refer [head tail]]
    [splice.util.log :as log]
@@ -43,23 +50,14 @@
 (def main-fx-bus-first-in-chan (atom nil))
 (def main-fx-bus-first-out-chan (atom nil))
 
-(def valid-loop-keys (set '(:instrument-name
-                            :loop-type
-                            :melody-info
-                            :name
-                            :max-num-mult-loops
-                            :reps-before-multing
-                            :num-mult-loops-started
-                            :loop-mult-probability
-                            )))
-
 (defn remove-synths-effects-busses
   "Removes and frees all synths, effects, and main effect busses"
   []
-  (log/info "freeing all synths, effects, and main effect busses....")
+  (println "*** SHUTDOWN *** control.clj/remove-synths-effects-busses"
+           "freeing all synths, effects, and main effect busses....")
   (sc-with-server-sync #(sc-send-msg
                          "/g_deepFree"
-                         (:splice-group-id @base-group-ids*))
+                         (get-splice-group-id))
                        "while freeing all synthes and effects")
   (when @main-fx-bus-first-in-chan
     (sc-free-id :audio-bus @main-fx-bus-first-in-chan 2)
@@ -72,7 +70,8 @@
 
 (defn reset-control
   [event]
-  (log/info "resetting control....")
+  (println "*** SHUTDOWN *** control.clj/reset-control"
+           "resetting control....")
 
   (remove-synths-effects-busses)
   ;; delete :node counters so when starting again it will start at 0 for root_goup_
@@ -101,31 +100,6 @@
   (start-ensemble-status)
   )
 
-(defn validate-loop-keys
-  [loop-settings]
-  ;; TODO validate loop keys based on type of loop
-  (flatten
-   (for [loop loop-settings]
-     (let [loop-keys (keys loop)]
-       (for [loop-key loop-keys
-             :when (not (contains? valid-loop-keys loop-key))]
-         (str "control.clj - validate-loop-keysInvalid loop key " loop-key " in player-settings")
-         )
-       )
-     ))
-  )
-
-(defn validate-player-settings
-  [player-settings]
-  (let [loop-key-msgs (validate-loop-keys (:loops player-settings))]
-    (cond-> '()
-      (< (count (:loops player-settings)) 1)
-      (conj ":loops not found in player-settings file")
-      (not= (count loop-key-msgs) 0)
-      ((partial reduce conj) loop-key-msgs)
-      )
-    ))
-
 (defn new-player
   [player-id loop-setting]
   (create-player :id player-id :loop-settings loop-setting)
@@ -133,19 +107,13 @@
 
 (defn init-players
   [player-settings]
-  (log/info "******* init-players ********")
-  (let [errors (validate-player-settings player-settings)]
-    (if (not= 0 (count errors))
-      (do
-        (doseq [error-msg errors]
-          (log/error error-msg))
-        (throw (Throwable. "Validation error(s) in player loops"))
-        )
-      (doall (map new-player
-                  (range (get-setting :number-of-players))
-                  (:loops player-settings)))
-      ))
- )
+  (log/info "control.clj/init-players *************** init-players ***************")
+  (doall (map new-player
+              (range (get-setting :number-of-players))
+              (doall (validate-and-adjust-loops
+                      player-settings))
+              ))
+  )
 
 (defn init-melody
   [player-id]
@@ -174,7 +142,7 @@
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
                            head
-                           (:pre-fx-group-id @base-group-ids*)
+                           (get-pre-fx-group-id)
                            "in" 0.0
                            "out" (float @main-fx-bus-first-in-chan))
                          "while starting up the main effect send")
@@ -184,7 +152,7 @@
                            "fx-snd-rtn-2ch"
                            (sc-next-id :node)
                            head
-                           (:post-fx-group-id @base-group-ids*)
+                           (get-post-fx-group-id)
                            "in" (float @main-fx-bus-first-out-chan)
                            "out" 0.0)
                          "while starting up the main effect return")
@@ -198,12 +166,11 @@
                                                   "reverb-2ch"
                                                   (sc-next-id :node)
                                                   tail
-                                                  (:main-fx-group-id @base-group-ids*)
+                                                  (get-main-fx-group-id)
                                                   "in" (float @main-fx-bus-first-in-chan)
                                                   "out" (float @main-fx-bus-first-out-chan)
                                                   (second effect))
                                           "while starting the main reverb-2ch effect"))
-
                    )))
     ))
 
@@ -231,26 +198,27 @@
 
 (defn- start-playing
   "calls play-note the first time for every player in ensemble"
-  [min-start-offset max-start-offset]
-  (log/info "********** start-playing ****************")
+  [min-start-offset-ms max-start-offset-ms]
+  (log/info "control.clj/start-playing ********** start-playing ****************")
   (dotimes [id (get-setting :number-of-players)]
-    (play-first-note id min-start-offset max-start-offset))
+    (play-first-note id min-start-offset-ms max-start-offset-ms))
   )
 
 (defn- reserve-root-node-val
   []
-  (dosync
-   (set-setting! :root-group_ (sc-next-id :node)))
-  (log/error (get-setting :root-group_))
-  (when (not= (get-setting :root-group_) 0)
-    (throw (Throwable.
-            (str "root-group_ NOT 0\n"
-                 "root-group_ must be 0 in the :node table because supercollider\n"
-                 "sets the root node to zero and this cannot be changed\n"
-                 "Somehow sc-next-id or sc_osc.counters/next-id was called before"
-                 ":root-group_ was assigned an id in control/reserve-root-node-val"
-                 )
-            )))
+  (let [root-node-id (sc-next-id :node)]
+    (dosync
+     (set-setting! :root-group_ root-node-id))
+    (when (not= (get-setting :root-group_) 0)
+      (log/error "root-node-it = " root-node-id)
+      (throw (Throwable.
+              (str "root-group_ NOT 0\n"
+                   "root-group_ must be 0 in the :node table because supercollider\n"
+                   "sets the root node to zero and this cannot be changed\n"
+                   "Somehow sc-next-id or sc_osc.counters/next-id was called before"
+                   ":root-group_ was assigned an id in control/reserve-root-node-val"
+                   )
+              ))))
   )
 
 (defn start-splice
@@ -279,8 +247,8 @@
         (dosync
          (set-setting! :volume-adjust (compute-volume-adjust number-of-players)))
         (init-splice initial-players init-melodies init-msgs)
-        (start-playing (or (:min-start-offset player-settings) 0)
-                       (or (:max-start-offset player-settings) 0))
+        (start-playing (or (:min-start-offset-ms player-settings) 0)
+                       (or (:max-start-offset-ms player-settings) 0))
         (reset! splice-status ::playing)
         ))
     (log/warn "******* CAN NOT START - SPLICE IS NOT STOPPED *******")

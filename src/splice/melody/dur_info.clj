@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -15,12 +15,22 @@
 
 (ns splice.melody.dur-info)
 
-(defrecord DurInfo [dur-millis dur-beats])
+(defrecord DurInfo [dur-millis
+                    dur-beats
+                    dur-base-millis
+                    dur-var-ignore-for-nxt-note])
 
 (defn create-dur-info
-  [& {:keys [dur-millis dur-beats] :or
-      {dur-millis nil dur-beats nil}}]
-  (DurInfo. dur-millis dur-beats)
+  [& {:keys [dur-millis dur-beats dur-base-millis dur-var-ignore-for-nxt-note] :or
+      {dur-millis nil
+       dur-beats nil
+       dur-base-millis nil
+       dur-var-ignore-for-nxt-note false}}]
+  ;; TODO remove this check when this doesnt happen anymore
+  (if (nil? dur-var-ignore-for-nxt-note)
+    (throw (Throwable. "dur-info.clj/create-dur-info - dur-var-ignore-for-nxt-note is nil")))
+
+  (DurInfo. dur-millis dur-beats dur-base-millis dur-var-ignore-for-nxt-note)
   )
 
 (defn get-dur-millis-from-dur-info
@@ -30,3 +40,11 @@
 (defn get-dur-beats-from-dur-info
   [dur-info]
   (:dur-beats dur-info))
+
+(defn get-dur-base-millis-from-dur-info
+  [dur-info]
+  (:dur-base-millis dur-info))
+
+(defn get-dur-var-ignore-for-nxt-note
+  [dur-info]
+  (:dur-var-ignore-for-nxt-note dur-info))

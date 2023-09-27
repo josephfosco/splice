@@ -1,4 +1,4 @@
-;    Copyright (C) 2018  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2018, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-{:log-level :info
+{:log-level :warn
  ;; ensemble density is printed as a info level log msg
  ;; print-ensemble-density manages when the ensemble density is logged
  ;;  :always     - prints ensemble density eachtime it is calculated

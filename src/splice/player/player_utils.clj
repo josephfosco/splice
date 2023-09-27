@@ -1,4 +1,4 @@
-;    Copyright (C) 2017-2019  Joseph Fosco. All Rights Reserved
+;    Copyright (C) 2017-2019, 2023  Joseph Fosco. All Rights Reserved
 ;
 ;    This program is free software: you can redistribute it and/or modify
 ;    it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
    [splice.ensemble.melody :refer [get-next-melody-event-id]]
    [splice.melody.melody-event :refer [create-rest-event]]
    [splice.melody.pitch :refer [select-random-pitch]]
-   [splice.melody.rhythm :refer [select-random-dur-info]]
    [splice.player.loops.base-loop :refer [get-melody-fn
                                           get-base-loop-name]]
    [splice.util.log :as log]
@@ -63,14 +62,14 @@
   "Returns an updated player and a melody-event"
   [ensemble player melody player-id event-time]
 
-  (log/trace (str player-id) " player-utils.clj get-next-melody-event \n    PLAYER: " (pr-str player) "\n    MELODY: " melody)
+  (log/trace "player-utils.clj get-next-melody-event \n    PLAYER: " (pr-str player) "\n    MELODY: " melody)
   (let [loop-structr (get-loop-structr player)
         [upd-loop-structr melody-event]
-        ((get-melody-fn loop-structr) player
-                                      melody
-                                      loop-structr
-                                      (get-next-melody-event-id melody)
-                                      event-time)
+        (( get-melody-fn loop-structr) :player player
+                                       :melody melody
+                                       :loop-structr loop-structr
+                                       :next-melody-event-id (get-next-melody-event-id melody)
+                                       :event-time event-time)
         ]
     [
      (assoc player :loop-structr upd-loop-structr)
