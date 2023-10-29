@@ -90,6 +90,12 @@
                        :range-lo 40
                        :range-hi (last MIDI-RANGE)
                        :note-off true}
+                      :pad-smooth
+                      {:instrument "pad-smooth"
+                       :envelope-type "ASR"
+                       :range-lo 45
+                       :range-hi 8000
+                       :note-off true}
                       :plink-m1
                       {:instrument "plink-m1"
                        :envelope-type "AD"

@@ -31,6 +31,8 @@
 
 
 -------- BUGS/ERRORS --------
+- There seems to be a peoblem in th sc source in the plink-mi.sc instrument. When loading
+  the SynthDef in the supercollider ide it cannot load.
 - If stop-splice is called too many times without restarting eventually it errors in
   supercollider (the scsynth window) witth Too many connections
 - Sometimes player-play-note.clj/process-cancel-response-msg will get into an infinite
